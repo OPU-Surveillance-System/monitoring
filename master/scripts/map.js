@@ -31,6 +31,10 @@ campus.on('click', onMapClick);
     [34.5472, 135.50935]
 ]).addTo(campus);*/
 
+function onZoneClick(id, lat_lng) {
+  window.alert("zone " + id + " added in path, at point: " + lat_lng.toString());
+}
+
 var zone_iwing = L.polygon([
   [34.54669, 135.50147],
   [34.54624, 135.50142],
@@ -39,6 +43,7 @@ var zone_iwing = L.polygon([
   [34.54715, 135.50214]
 ]).addTo(campus);
 zone_iwing.bindPopup("I-wing sector");
+zone_iwing.on('click', function(e){onZoneClick("I-wing", e.latlng)});
 
 var zone_B6 = L.polygon([
   [34.54632, 135.50228],
@@ -47,6 +52,7 @@ var zone_B6 = L.polygon([
   [34.54662, 135.50272]
 ]).addTo(campus);
 zone_B6.bindPopup("B6 sector");
+zone_B6.on('click', function(e){onZoneClick("B6 sector", e.latlng)});
 
 var zone_B10 = L.polygon([
   [34.5463, 135.50227],
@@ -55,6 +61,7 @@ var zone_B10 = L.polygon([
   [34.54551, 135.50325]
 ]).addTo(campus);
 zone_B10.bindPopup("B10 sector");
+zone_B10.on('click', function(e){onZoneClick("B10 sector", e.latlng)});
 
 var zone_B4 = L.polygon([
   [34.54578, 135.5037],
@@ -63,6 +70,7 @@ var zone_B4 = L.polygon([
   [34.54482, 135.50481]
 ]).addTo(campus);
 zone_B4.bindPopup("B4 sector");
+zone_B4.on('click', function(e){onZoneClick("B4 sector", e.latlng)});
 
 var zone_B11 = L.polygon([
   [34.54738, 135.50394],
@@ -71,6 +79,7 @@ var zone_B11 = L.polygon([
   [34.54653, 135.50296]
 ]).addTo(campus);
 zone_B11.bindPopup("B11 sector");
+zone_B11.on('click', function(e){onZoneClick("B11 sector", e.latlng)});
 
 var zone_pond = L.polygon([
   [34.5485, 135.50398],
@@ -81,6 +90,7 @@ var zone_pond = L.polygon([
   [34.54708, 135.50565]
 ]).addTo(campus);
 zone_pond.bindPopup("pond sector");
+zone_pond.on('click', function(e){onZoneClick("pond sector", e.latlng)});
 
 var zone_B5 = L.polygon([
   [34.54698, 135.50356],
@@ -89,6 +99,7 @@ var zone_B5 = L.polygon([
   [34.54631, 135.50436]
 ]).addTo(campus);
 zone_B5.bindPopup("B5 sector");
+zone_B5.on('click', function(e){onZoneClick("B5 sector", e.latlng)});
 
 var zone_infirmary = L.polygon([
   [34.54626, 135.50442],
@@ -97,6 +108,7 @@ var zone_infirmary = L.polygon([
   [34.5459, 135.50484]
 ]).addTo(campus);
 zone_infirmary.bindPopup("infirmary sector");
+zone_infirmary.on('click', function(e){onZoneClick("infirmary sector", e.latlng)});
 
 var zone_refectory = L.polygon([
   [34.54622, 135.50456],
@@ -105,6 +117,7 @@ var zone_refectory = L.polygon([
   [34.54593, 135.50489]
 ]).addTo(campus);
 zone_refectory.bindPopup("refectory sector");
+zone_refectory.on('click', function(e){onZoneClick("refectory sector", e.latlng)});
 
 var zone_B3 = L.polygon([
   [34.54578, 135.50478],
@@ -113,6 +126,7 @@ var zone_B3 = L.polygon([
   [34.54525, 135.50539]
 ]).addTo(campus);
 zone_B3.bindPopup("B3 sector");
+zone_B3.on('click', function(e){onZoneClick("B3 sector", e.latlng)});
 
 var zone_B1 = L.polygon([
   [34.54676, 135.50601],
@@ -121,6 +135,7 @@ var zone_B1 = L.polygon([
   [34.54623, 135.50665]
 ]).addTo(campus);
 zone_B1.bindPopup("B1 sector");
+zone_B1.on('click', function(e){onZoneClick("B1 sector", e.latlng)});
 
 var zone_library = L.polygon([
   [34.54468, 135.50665],
@@ -129,6 +144,7 @@ var zone_library = L.polygon([
   [34.54393, 135.50586]
 ]).addTo(campus);
 zone_library.bindPopup("library sector");
+zone_library.on('click', function(e){onZoneClick("library sector", e.latlng)});
 
 var zone_A5 = L.polygon([
   [34.54835, 135.50617],
@@ -137,6 +153,7 @@ var zone_A5 = L.polygon([
   [34.54786, 135.50673]
 ]).addTo(campus);
 zone_A5.bindPopup("A5 sector");
+zone_A5.on('click', function(e){onZoneClick("A5 sector", e.latlng)});
 
 var zone_A9 = L.polygon([
   [34.54929, 135.50501],
@@ -145,6 +162,7 @@ var zone_A9 = L.polygon([
   [34.54852, 135.50404]
 ]).addTo(campus);
 zone_A9.bindPopup("A9 sector");
+zone_A9.on('click', function(e){onZoneClick("A9 sector", e.latlng)});
 
 var zone_A3 = L.polygon([
   [34.54781, 135.50678],
@@ -153,6 +171,7 @@ var zone_A3 = L.polygon([
   [34.54705, 135.50768]
 ]).addTo(campus);
 zone_A3.bindPopup("A3 sector");
+zone_A3.on('click', function(e){onZoneClick("A3 sector", e.latlng)});
 
 var zone_stadium = L.polygon([
   [34.54747, 135.50902],
@@ -164,6 +183,7 @@ var zone_stadium = L.polygon([
   [34.54719, 135.50936]
 ]).addTo(campus);
 zone_stadium.bindPopup("stadium sector");
+zone_stadium.on('click', function(e){onZoneClick("stadium sector", e.latlng)});
 
 var zone_shirasagimonAvenue = L.polygon([
   [34.54778, 135.50871],
@@ -172,6 +192,7 @@ var zone_shirasagimonAvenue = L.polygon([
   [34.54753, 135.50898]
 ]).addTo(campus);
 zone_shirasagimonAvenue.bindPopup("Shirasagimon Avenue sector");
+zone_shirasagimonAvenue.on('click', function(e){onZoneClick("Shirasagimon Avenue sector", e.latlng)});
 
 var zone_garden = L.polygon([
   [34.54476, 135.50488],
@@ -180,6 +201,7 @@ var zone_garden = L.polygon([
   [34.54217, 135.50765]
 ]).addTo(campus);
 zone_garden.bindPopup("garden sector");
+zone_garden.on('click', function(e){onZoneClick("garden sector", e.latlng)});
 
 var zone_racecourse = L.polygon([
   [34.54266, 135.50983],
@@ -188,6 +210,7 @@ var zone_racecourse = L.polygon([
   [34.5413, 135.50813]
 ]).addTo(campus);
 zone_racecourse.bindPopup("racecourse sector");
+zone_racecourse.on('click', function(e){onZoneClick("racecourse sector", e.latlng)});
 
 var zone_C17 = L.polygon([
   [34.54548, 135.50642],
@@ -201,6 +224,7 @@ var zone_C17 = L.polygon([
   [34.54438, 135.50773]
 ]).addTo(campus);
 zone_C17.bindPopup("C17 sector");
+zone_C17.on('click', function(e){onZoneClick("C17 sector", e.latlng)});
 
 var zone_C10 = L.polygon([
   [34.54339, 135.50648],
@@ -215,6 +239,7 @@ var zone_C10 = L.polygon([
   [34.54401, 135.50744]
 ]).addTo(campus);
 zone_C10.bindPopup("C10 sector");
+zone_C10.on('click', function(e){onZoneClick("C10 sector", e.latlng)});
 
 var zone_A12 = L.polygon([
   [34.5501, 135.50607],
@@ -223,3 +248,4 @@ var zone_A12 = L.polygon([
   [34.54784, 135.50865]
 ]).addTo(campus);
 zone_A12.bindPopup("A12 sector");
+zone_A12.on('click', function(e){onZoneClick("A12 sector", e.latlng)});
