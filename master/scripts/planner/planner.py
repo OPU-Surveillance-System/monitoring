@@ -7,7 +7,7 @@ app = Flask(__name__,
 
 @app.route('/static/<path:path>')
 def send_js(path):
-    return send_from_directory('/home/scom/Documents/opu_surveillance_system/monitoring/static/', path)
+    return send_from_directory(settings.STATIC_PATH, path)
 
 @app.route("/pathPlanner", methods=['GET'])
 def planner():
