@@ -44,14 +44,6 @@ function onSectorClick(id, lat_lng) {
   selected_sectors.push([id, marker]);
 }
 
-function clearMarkers(){
-  var bound = selected_sectors.length;
-  for(var i = 0; i < bound; i++){
-    campus.removeLayer(selected_sectors[i][1]);
-  }
-  selected_sectors.splice(0, selected_sectors.length);
-}
-
 var sector_iwing = L.polygon([
   [34.54669, 135.50147],
   [34.54624, 135.50142],
