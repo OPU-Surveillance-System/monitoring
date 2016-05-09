@@ -1,6 +1,9 @@
 from flask import Flask, request, json, render_template, send_from_directory
-app = Flask(__name__, template_folder="/home/scom/Documents/opu_surveillance_system/monitoring/master/",
-static_url_path="/home/scom/Documents/opu_surveillance_system/monitoring/static/")
+import settings
+
+app = Flask(__name__,
+            template_folder=settings.TEMPLATE_PATH,
+            static_url_path=settings.STATIC_PATH)
 
 @app.route('/static/<path:path>')
 def send_js(path):
