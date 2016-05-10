@@ -1,10 +1,14 @@
 function computePath(){
-  var nb_drones = $('#nb_drones_entry').val();
+  for(var i = 0; i < selected_sectors.length; i++){
+    console.log(selected_sectors[i]);
+  }
   $.ajax({
-    type:'get',
+    type:'post',
     url:'/pathPlanner',
-    data:[nb_drones],
-    dataType:'json',
+    data:JSON.stringify({nb_drones: $('#nb_drones_entry').val(),
+          "sectors": selected_sectors}),
+    //dataType:'json',
+    contentType: "application/json; charset=utf-8",
     success: function(data){
       window.alert("ok");
     },
@@ -17,7 +21,8 @@ function computePath(){
 function clearMarkers(){
   var bound = selected_sectors.length;
   for(var i = 0; i < bound; i++){
-    campus.removeLayer(selected_sectors[i][1]);
+    campus.removeLayer(markers[i][1]);
   }
   selected_sectors.splice(0, selected_sectors.length);
+  markers.splice(0, markers.length);
 }

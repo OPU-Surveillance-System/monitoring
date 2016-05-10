@@ -9,6 +9,7 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={
 
 var popup = L.popup();
 var selected_sectors = new Array();
+var markers = new Array();
 
 function onMapClick(e) {
     popup
@@ -35,13 +36,15 @@ function onMapClick(e) {
 function onSectorClick(id, lat_lng) {
   for(var i = 0; i < selected_sectors.length; i++){
     if (id == selected_sectors[i][0]){
-      campus.removeLayer(selected_sectors[i][1]);
+      campus.removeLayer(markers[i][1]);
       selected_sectors.splice(i, 1);
+      markers.splice(i, 1);
       return false;
     }
   }
   var marker = L.marker([lat_lng.lat, lat_lng.lng]).addTo(campus);
-  selected_sectors.push([id, marker]);
+  selected_sectors.push([id, [lat_lng.lat, lat_lng.lng]]);
+  markers.push([id, marker]);
 }
 
 var sector_iwing = L.polygon([
