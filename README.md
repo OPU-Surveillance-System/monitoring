@@ -5,6 +5,7 @@ GUI of the overall system
 **JavaScript:**
 * Leaflet 0.7.7
 * jQuery 2.2.3
+
 **Python (v3):**
 * Flask 0.10.1
 
