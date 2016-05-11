@@ -8,20 +8,26 @@ app = Flask(__name__,
             template_folder=settings.TEMPLATE_PATH,
             static_url_path=settings.STATIC_PATH)
 
+@app.route('/')
+def signUp():
+    return render_template('index.html')
+
 @app.route('/static/<path:path>')
 def send_js(path):
     return send_from_directory(settings.STATIC_PATH, path)
 
 @app.route("/pathPlanner", methods=['POST'])
 def planner():
+    #TODO
     data = request.get_json()
     nb_drones = data["nb_drones"]
     selected_sectors = data["sectors"]
     return json.dumps({"result":2})
 
-@app.route('/')
-def signUp():
-    return render_template('index.html')
+@app.route("/pathSender", methods=["POST"])
+def pathSender():
+    #TODO
+    return json.dumps({"result":2})
 
 if __name__ == "__main__":
     app.debug=True
