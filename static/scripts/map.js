@@ -14,11 +14,16 @@ var markers = new Array();
 function onMapClick(e) {
     popup
         .setLatLng(e.latlng)
-        .setContent("You clicked the map at " + e.latlng.toString())
+        .setContent(e.latlng.toString())
         .openOn(campus);
 }
 
-//campus.on('click', onMapClick);
+campus.on('click', onMapClick);
+
+for(var i = 0; i < non_admissible_zones.length; i++){
+  obstacle = L.polygon(non_admissible_zones[i], {color: 'red'}).addTo(campus);
+  obstacle.on('click', function(e){onMapClick(e)});
+}
 
 /*var campus_limit = L.polygon([
     [34.55011, 135.50607],
@@ -33,7 +38,7 @@ function onMapClick(e) {
     [34.5472, 135.50935]
 ]).addTo(campus);*/
 
-function onSectorClick(id, lat_lng) {
+/*function onSectorClick(id, lat_lng) {
   for(var i = 0; i < selected_sectors.length; i++){
     if (id == selected_sectors[i][0]){
       campus.removeLayer(markers[i][1]);
@@ -261,3 +266,4 @@ var sector_A12 = L.polygon([
 ]).addTo(campus);
 //sector_A12.bindPopup("A12 sector");
 sector_A12.on('click', function(e){onSectorClick("A12 sector", e.latlng)});
+*/

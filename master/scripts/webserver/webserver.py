@@ -22,6 +22,7 @@ def planner():
     data = request.get_json()
     nb_drones = data["nb_drones"]
     selected_sectors = data["sectors"]
+    obstacles = data["obstacles"]
     return json.dumps({"result":2})
 
 @app.route("/pathSender", methods=["POST"])

@@ -3,7 +3,7 @@ function computePath(){
     type: 'post',
     url: '/pathPlanner',
     data: JSON.stringify({nb_drones: $('#nb_drones_entry').val(),
-          "sectors": selected_sectors}),
+          "sectors": selected_sectors,"obstacles":non_admissible_zones}),
     //dataType:'json',
     contentType: "application/json; charset=utf-8",
     success: function(data){
