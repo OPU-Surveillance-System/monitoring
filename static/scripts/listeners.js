@@ -29,10 +29,10 @@ function sendToDrones(){
 }
 
 function clearMarkers(){
-  var bound = selected_sectors.length;
-  for(var i = 0; i < bound; i++){
-    campus.removeLayer(markers[i][1]);
+  var num_markers = markers.length;
+  for(var i = 0; i < num_markers; i++){
+    campus.removeLayer(markers[i]);
   }
-  selected_sectors.splice(0, selected_sectors.length);
+  selected_waypoints.splice(0, selected_waypoints.length);
   markers.splice(0, markers.length);
 }
