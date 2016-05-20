@@ -21,7 +21,8 @@ def planner():
     #TODO
     data = request.get_json()
     nb_drones = data["nb_drones"]
-    selected_sectors = data["sectors"]
+    default_waypoints = data["default_waypoints"]
+    selected_waypoints = data["selected_waypoints"]
     obstacles = data["obstacles"]
     return json.dumps({"result":2})
 

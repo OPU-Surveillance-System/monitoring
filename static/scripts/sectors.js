@@ -1,4 +1,4 @@
-var sectors =[
+var sectors_bounds =[
   [//Iwing
     [34.54669, 135.50147],
     [34.54624, 135.50142],

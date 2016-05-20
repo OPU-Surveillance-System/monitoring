@@ -12,28 +12,29 @@ var popup = L.popup();
 var markers = new Array();
 var selected_waypoints = new Array();
 var default_waypoints = new Array();
+var sectors = new Array();
 
 //Development tool for easily Lat and Long on click
-function onMapClick(e){
+/*function onMapClick(e){
     popup
         .setLatLng(e.latlng)
         .setContent(e.latlng.toString())
         .openOn(campus);
 }
-
 campus.on('click', onMapClick);
+*/
 
 //Creates Leaflet polygon from defined campus limits
 var bounds = L.polygon(campus_limits, {color:'green'}).addTo(campus);
 campus.fitBounds(campus_limits);
 
 function onBoundsClick(e){
-  selected_waypoints.push(e.latlng);
+  selected_waypoints.push([e.latlng["lat"], e.latlng["lng"]]);
   var marker = L.marker(e.latlng).addTo(campus);
   markers.push(marker);
 }
 
-//bounds.on('click', function(e){onBoundsClick(e)});
+bounds.on('click', function(e){onBoundsClick(e)});
 
 //Creates Leaflet polygons objects from defined non admissible zones
 function onObstacleClick(e){
@@ -42,15 +43,17 @@ function onObstacleClick(e){
 
 for(var i = 0; i < non_admissible_zones.length; i++){
   obstacle = L.polygon(non_admissible_zones[i], {color: 'red'}).addTo(campus);
-  //obstacle.on('click', function(e){onObstacleClick(e)});
+  obstacle.on('click', function(e){onObstacleClick(e)});
 }
 
-//Creates Leaflet polygons objects from defined sectors
-/*for(var i = 0; i < sectors.length; i++){
-  sector = L.polygon(sectors[i], {color: 'blue'}).addTo(campus);
-  sector.on('click', function(e){onMapClick(e)});
-}*/
 
+//Creates Leaflet polygons objects from defined sectors
+for(var i = 0; i < sectors_bounds.length; i++){
+  sector = L.polygon(sectors_bounds[i], {color: 'blue'});
+  sectors.push(sector);
+}
+
+//Creates Leaflet circles objects from defined default waypoints
 for (var i = 0; i < default_targets.length; i++){
   var waypoint = L.circleMarker(default_targets[i], {radius: 3, color: 'black'}).addTo(campus);
   default_waypoints.push(waypoint)
