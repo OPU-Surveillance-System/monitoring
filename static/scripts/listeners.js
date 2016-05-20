@@ -5,6 +5,7 @@ function computePath(){
     url: '/pathPlanner',
     data: JSON.stringify({
             nb_drones: $('#nb_drones_entry').val(),
+            "starting_point": starting_point,
             "default_waypoints": default_targets,
             "selected_waypoints": selected_waypoints,
             "obstacles":non_admissible_zones}),
