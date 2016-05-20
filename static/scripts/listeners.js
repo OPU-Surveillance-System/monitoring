@@ -1,3 +1,22 @@
+//Send information to Python to represent map as a grid
+function convertToGrid(){
+  $.ajax({
+    type: 'post',
+    url: '/mapConverter',
+    data: JSON.stringify({
+            "starting_point": starting_point,
+            "obstacles": non_admissible_zones}),
+    contentType: "application/json; charset=utf-8",
+    success: function(data){
+      var response = JSON.parse(data)["response"];
+      window.alert(response);
+    },
+    error: function(data){
+      window.alert("error");
+    }
+  });
+}
+
 //Asks Python for computing path
 function computePath(){
   $.ajax({
@@ -5,13 +24,12 @@ function computePath(){
     url: '/pathPlanner',
     data: JSON.stringify({
             nb_drones: $('#nb_drones_entry').val(),
-            "starting_point": starting_point,
             "default_waypoints": default_targets,
-            "selected_waypoints": selected_waypoints,
-            "obstacles":non_admissible_zones}),
+            "selected_waypoints": selected_waypoints}),
     contentType: "application/json; charset=utf-8",
     success: function(data){
       var computed_path = JSON.parse(data)["computed_path"];
+      window.alert(computed_path);
     },
     error: function(data){
       window.alert("error");

@@ -30,6 +30,20 @@ def send_js(path):
 
     return send_from_directory(settings.STATIC_PATH, path)
 
+@app.route("/mapConverter", methods=['POST'])
+def converter():
+    """
+    Call converter to represent map as a grid
+    """
+
+    #TODO
+    data = request.get_json()
+    starting_point = data["starting_point"]
+    obstacles = data["obstacles"]
+    response = ppl.convert_map()
+
+    return json.dumps({"response":response})
+
 @app.route("/pathPlanner", methods=['POST'])
 def planner():
     """
@@ -39,20 +53,20 @@ def planner():
     #TODO
     data = request.get_json()
     nb_drones = data["nb_drones"]
-    starting_point = data["starting_point"]
     default_waypoints = data["default_waypoints"]
     selected_waypoints = data["selected_waypoints"]
-    obstacles = data["obstacles"]
     computed_path = ppl.get_computed_path()
+
     return json.dumps({"computed_path":computed_path})
 
 @app.route("/pathSender", methods=["POST"])
-def pathSender():
+def path_sender():
     """
     Sends computed path to drones
     """
 
     #TODO
+
     return json.dumps({"result":2})
 
 if __name__ == "__main__":
