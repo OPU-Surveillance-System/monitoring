@@ -1,3 +1,7 @@
+/*
+
+*/
+
 //Defines the map widget by using MapBox API
 var campus = L.map('map_widget').setView([34.545, 135.506], 16);
 L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {

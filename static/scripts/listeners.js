@@ -9,10 +9,9 @@ function computePath(){
             "default_waypoints": default_targets,
             "selected_waypoints": selected_waypoints,
             "obstacles":non_admissible_zones}),
-    //dataType:'json',
     contentType: "application/json; charset=utf-8",
     success: function(data){
-      window.alert("ok");
+      var computed_path = JSON.parse(data)["computed_path"];
     },
     error: function(data){
       window.alert("error");
