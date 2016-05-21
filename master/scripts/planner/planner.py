@@ -1,3 +1,7 @@
+"""
+Defines the path planner module.
+"""
+
 def get_computed_path():
     """
     """
