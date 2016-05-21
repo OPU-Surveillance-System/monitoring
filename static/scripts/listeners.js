@@ -4,6 +4,7 @@ function convertToGrid(){
     type: 'post',
     url: '/mapConverter',
     data: JSON.stringify({
+            "limits": campus_limits,
             "starting_point": starting_point,
             "obstacles": non_admissible_zones}),
     contentType: "application/json; charset=utf-8",

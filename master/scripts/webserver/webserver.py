@@ -38,6 +38,7 @@ def converter():
 
     #TODO
     data = request.get_json()
+    limits = data["limits"]
     starting_point = data["starting_point"]
     obstacles = data["obstacles"]
     response = ppl.convert_map()
