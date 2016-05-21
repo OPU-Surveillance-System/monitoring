@@ -1,3 +1,7 @@
+/*
+Defines a variable cutting the map into some sectors.
+*/
+
 var sectors_bounds =[
   [//Iwing
     [34.54669, 135.50147],

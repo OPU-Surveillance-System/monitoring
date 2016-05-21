@@ -1,5 +1,5 @@
 /*
-
+Draws the map element on master's GUI.
 */
 
 //Defines the map widget by using MapBox API

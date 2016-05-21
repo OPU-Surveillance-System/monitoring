@@ -1,3 +1,7 @@
+/*
+Defines a variable representing the non admissible zone on the map (obstacles).
+*/
+
 var non_admissible_zones = [
   [//B8-B9
     [34.54609, 135.50257],

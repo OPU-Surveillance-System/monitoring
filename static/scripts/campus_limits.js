@@ -1,3 +1,7 @@
+/*
+Defines a variable representing the campus boundaries.
+*/
+
 //Rectangle limits
 var campus_limits = [
   [34.55016, 135.50613],

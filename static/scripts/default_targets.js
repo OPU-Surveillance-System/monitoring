@@ -1,3 +1,7 @@
+/*
+Defines a variable representing default target point for the patrol.
+*/
+
 var default_targets = [
   [34.54674, 135.5017],
   [34.54609, 135.50279],

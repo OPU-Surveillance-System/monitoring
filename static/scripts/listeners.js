@@ -1,3 +1,7 @@
+/*
+Defines listeners for the master's GUI.
+*/
+
 //Send information to Python to represent map as a grid
 function convertToGrid(){
   $.ajax({
