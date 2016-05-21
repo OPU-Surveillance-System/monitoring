@@ -23,6 +23,7 @@ function onMapClick(e){
     popup
         .setLatLng(e.latlng)
         .setContent(e.latlng.toString())
+        //.setContent("lat: " + e.latlng.lat + ", long: " + e.latlng.lng)
         .openOn(campus);
 }
 campus.on('click', onMapClick);
@@ -39,6 +40,11 @@ function onBoundsClick(e){
 }
 
 //bounds.on('click', function(e){onBoundsClick(e)});
+
+var test = L.marker([34.55016, 135.5123]).addTo(campus);
+var test2 = L.marker([34.54064, 135.50109]).addTo(campus);
+var test3 = L.marker([34.54064, 135.5123]).addTo(campus);
+var test4 = L.marker([34.55016, 135.50109]).addTo(campus);
 
 //Creates Leaflet polygons objects from defined non admissible zones
 function onObstacleClick(e){
