@@ -42,9 +42,12 @@ function onBoundsClick(e){
 //bounds.on('click', function(e){onBoundsClick(e)});
 
 var test = L.marker([34.55016, 135.5123]).addTo(campus);
-var test2 = L.marker([34.54064, 135.50109]).addTo(campus);
-var test3 = L.marker([34.54064, 135.5123]).addTo(campus);
-var test4 = L.marker([34.55016, 135.50109]).addTo(campus);
+
+var y = Math.sin(135.5123 - 135.50613) * Math.cos(34.55016);
+var x = Math.cos(34.55016)*Math.sin(34.55016) -
+        Math.sin(34.55016)*Math.cos(34.55016)*Math.cos(135.5123 - 135.50613);
+var brng = Math.atan2(y, x);
+window.alert(brng);
 
 //Creates Leaflet polygons objects from defined non admissible zones
 function onObstacleClick(e){

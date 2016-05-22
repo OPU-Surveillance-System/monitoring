@@ -4,9 +4,8 @@ Converts the GUI's map into a grid.
 
 import math
 import utm
-import numpy as np
-from numpy.linalg import inv
 import matplotlib.pyplot as plt
+import numpy
 LIMITS = []
 
 def haversine_distance(p1, p2):
@@ -32,56 +31,51 @@ def haversine_distance(p1, p2):
 
     return d
 
-def get_grid_coordinates(p, angle):
+def get_grid_coordinates(p):
     """
     """
 
     limits = [[34.55016, 135.50613], [34.5465, 135.50109], [34.54064, 135.50728], [34.54441, 135.5123]]
-    lat = []
-    lon = []
-    for elt in limits:
-        lat.append(elt[0])
-        lon.append(elt[1])
+    #rad = 90 * (math.pi / 180)
+    rad = -1.5708190297615616
+    projected_top_left = utm.from_latlon(34.5465, 135.50109)
+    projected_top_right = utm.from_latlon(34.55016, 135.50613)
+    projected_bottom_left = utm.from_latlon(34.54064, 135.50728)
+    projected_bottom_right = utm.from_latlon(34.54441, 135.5123)
+    point = utm.from_latlon(34.54545, 135.50822)
 
-    J = p[1]
-    K = p[0]
-
-    X = limits[1][1]
-    Y = limits[3][1]
-    #X = min(lon)
-    #Y = max(lon)
-    Z = Y - X
-    A = limits[0][0]
-    B = limits[2][0]
-    #A = max(lat)
-    #B = min(lat)
-    C = A - B
-    x = ((Y - J) / Z) * 714
-    y = ((A - K) / C) * 1000
-
-    rad = angle * (math.pi / 180)
-
-    x2 = x * math.cos(rad) - y * math.sin(rad)
-    y2 = x * math.sin(rad) + y * math.cos(rad)
-
-    J = Y - ((Z * x2) / 714)
-    K = A - ((C * y2) / 1000)
-
-    a = np.array([[math.cos(rad), -math.sin(rad)], [math.sin(rad), math.cos(rad)]])
-    ainv = inv(a)
-    pos = np.array([x, y])
-    new_pos = a * pos
-
-    s1 = new_pos[0][1]+new_pos[0][0]
-    s2 = new_pos[1][1]+new_pos[1][0]
-    #print(s1)
-    #print(s2)
-
-    return s1, s2
-    #print(x)
-    #print(y)
-    #print("[" + str(K) + ", " + str(J) + "]")
-
+    d = projected_top_right[0] - projected_top_left[0]
+    tick_x = d / 10
+    x = numpy.arange(projected_top_left[0], projected_top_right[0], step=tick_x)
+    d = projected_top_left[1] - projected_bottom_right[1]
+    tick_y = d / 10
+    y = numpy.arange(projected_bottom_right[1], projected_top_left[1], step=tick_y)
+    if point[0] >= projected_top_left[0] and point[0] <= projected_bottom_right[0]:
+        if point[1] <= projected_top_right[1] and point[1] >= projected_bottom_left[1]:
+            print("ok")
+        else:
+            print(point[1])
+            print(projected_top_right[1])
+            print(projected_bottom_left[1])
+            print("faux2")
+    else:
+        print(point[0])
+        print(projected_top_left[0])
+        print(projected_bottom_right[0])
+        print("faux1")
+    fig = plt.figure()
+    ax = fig.gca()
+    ax.set_xticks(x)
+    ax.set_yticks(y)
+    print(x)
+    print(y)
+    plt.scatter(projected_top_left[0], projected_top_left[1], color='red')
+    plt.scatter(projected_top_right[0], projected_top_right[1], color='red')
+    plt.scatter(projected_bottom_right[0], projected_bottom_right[1], color='red')
+    plt.scatter(projected_bottom_left[0], projected_bottom_left[1], color='red')
+    plt.scatter(point[0], point[1])
+    plt.grid()
+    plt.show()
 
 
 def map_to_grid(limits, starting_point, obstacles):
@@ -96,6 +90,7 @@ def map_to_grid(limits, starting_point, obstacles):
         * gridmap: array
     """
 
+get_grid_coordinates([34.55016, 135.50613])
 #g = np.linspace(0, 360, num=360)
 #lats = []
 #lons = []
