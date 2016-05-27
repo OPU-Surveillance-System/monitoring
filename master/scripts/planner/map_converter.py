@@ -149,6 +149,8 @@ class Mapper():
         Update the uncertainty level
         """
 
+        return []
+
     def save(self):
         """
         Serialize the Mapper object
