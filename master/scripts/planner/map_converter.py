@@ -1,104 +1,125 @@
 """
-Converts the GUI's map into a grid.
+Convert the GUI's map into a grid.
 """
 
-import math
 import utm
-import matplotlib.pyplot as plt
-import numpy
-LIMITS = []
+import math
+from sys import path
+path.append("..")
 
-def haversine_distance(p1, p2):
+import settings
+
+def latlong_to_index(point):
     """
-    Computes the haversine distance, in meters, between two points expressed in
-    latitude/longitude terms.
-    Input:
-        * p1: latitude/longitude point
-        * p2: latitude/longitude point
-    Output:
-        * haversine distance between p1 and p2 (float)
-    """
+    Convert a given geographical point (expressed by latitude and longitude values) in a world's index
 
-    earth_radius = 6371000
-    phi_1 = math.radians(p1[0])
-    phi_2 = math.radians(p2[0])
-    delta_lat = math.radians(p2[0] - p1[0])
-    delta_lon = math.radians(p2[1] - p1[1])
-
-    a = (math.sin(delta_lat / 2) ** 2) + math.cos(phi_1) * math.cos(phi_2) * (math.sin(delta_lon / 2) ** 2)
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-    d = earth_radius * c
-
-    return d
-
-def get_grid_coordinates(p):
-    """
+    Keyword arguments:
+    point: point in latitude/longitude
+    references: list of references points
     """
 
-    limits = [[34.55016, 135.50613], [34.5465, 135.50109], [34.54064, 135.50728], [34.54441, 135.5123]]
-    #rad = 90 * (math.pi / 180)
-    rad = -1.5708190297615616
-    projected_top_left = utm.from_latlon(34.5465, 135.50109)
-    projected_top_right = utm.from_latlon(34.55016, 135.50613)
-    projected_bottom_left = utm.from_latlon(34.54064, 135.50728)
-    projected_bottom_right = utm.from_latlon(34.54441, 135.5123)
-    point = utm.from_latlon(34.54545, 135.50822)
+    x = settings.REFERENCES[0][1]
+    y = settings.REFERENCES[1][1]
+    z = y - x
+    a = settings.REFERENCES[0][0]
+    b = settings.REFERENCES[1][0]
+    c = a - b
 
-    d = projected_top_right[0] - projected_top_left[0]
-    tick_x = d / 10
-    x = numpy.arange(projected_top_left[0], projected_top_right[0], step=tick_x)
-    d = projected_top_left[1] - projected_bottom_right[1]
-    tick_y = d / 10
-    y = numpy.arange(projected_bottom_right[1], projected_top_left[1], step=tick_y)
-    if point[0] >= projected_top_left[0] and point[0] <= projected_bottom_right[0]:
-        if point[1] <= projected_top_right[1] and point[1] >= projected_bottom_left[1]:
-            print("ok")
-        else:
-            print(point[1])
-            print(projected_top_right[1])
-            print(projected_bottom_left[1])
-            print("faux2")
-    else:
-        print(point[0])
-        print(projected_top_left[0])
-        print(projected_bottom_right[0])
-        print("faux1")
-    fig = plt.figure()
-    ax = fig.gca()
-    ax.set_xticks(x)
-    ax.set_yticks(y)
-    print(x)
-    print(y)
-    plt.scatter(projected_top_left[0], projected_top_left[1], color='red')
-    plt.scatter(projected_top_right[0], projected_top_right[1], color='red')
-    plt.scatter(projected_bottom_right[0], projected_bottom_right[1], color='red')
-    plt.scatter(projected_bottom_left[0], projected_bottom_left[1], color='red')
-    plt.scatter(point[0], point[1])
-    plt.grid()
-    plt.show()
+    index_x = ((y - point[1]) / z) * settings.X_SIZE
+    index_x = settings.X_SIZE - int(round(index_x))
+    if index_x < 0:
+        index_x = 0
+    elif index_x > settings.X_SIZE:
+        index_x = settings.X_SIZE
+    index_y = ((a - point[0]) / c) * settings.Y_SIZE
+    index_y = int(round(index_y))
+    if index_y < 0:
+        index_y = 0
+    elif index_y > settings.Y_SIZE:
+        index_y = settings.Y_SIZE
 
+    return (index_x, index_y)
 
-def map_to_grid(limits, starting_point, obstacles):
+def index_to_latlong(point):
     """
-    Convert the GUI's map, represented by some bounds and obstacles, into an
-    array.
-    Input:
-        * limits: array of four latitude/longitude points
-        * starting_point: latitude/longitude point
-        * obstacles: array of shapes expressed by latitude/longitude points
-    Output:
-        * gridmap: array
+    Convert a given world's index (expressed by x and y values) in latitude and longitude values
+
+    Keyword arguments:
+    point: point index
+    references: list of references points
     """
 
-get_grid_coordinates([34.55016, 135.50613])
-#g = np.linspace(0, 360, num=360)
-#lats = []
-#lons = []
-#for elt in g:
-#    lat, lon = get_grid_coordinates([34.55016, 135.50613], elt)
-#    lats.append(lat)
-#    lons.append(lon)
-#
-#plt.plot(lats)
-#plt.plot(lons)
-#plt.show()
+    x = settings.REFERENCES[0][1]
+    y = settings.REFERENCES[1][1]
+    z = y - x
+    a = settings.REFERENCES[0][0]
+    b = settings.REFERENCES[1][0]
+    c = a - b
+
+    latitude = a - ((point[1] * c) / settings.Y_SIZE)
+    longitude = y - ((point[0] * z) / settings.X_SIZE)
+
+    return (latitude, longitude)
+
+def create_world(limits, starting_point, obstacles):
+    """
+    Create a grid representing the given environment
+
+    Keyword arguments:
+    limits: environment boundaries
+    starting_point: drones' patrol starting point
+    obstacles: array of non admissible zones
+
+    Grid values:
+    0: admissible cell
+    1: non admissible cell
+    2: starting point
+    """
+
+
+
+class Mapper():
+    """
+    Represent the environment as grids.
+    """
+
+    def create_uncertainty_grid():
+        """
+        Create a grid that represent the uncertainty about the world
+        """
+
+    def __init__(self, limits, starting_point, obstacles):
+        """
+        Instantiate a Mapper object
+
+        Keyword arguments:
+        limits: environment boundaries
+        starting_point: drones' patrol starting point
+        obstacles: array of non admissible zones
+        """
+
+        self.limits = limits
+        self.starting_point = starting_point
+        self.obstacles = obstacles
+        self.world = create_world(self.limits, self.starting_point, self.obstacles)
+        self.uncertainty_grid = create_uncertainty_grid()
+
+    def update_uncertainty_grid(self):
+        """
+        Update the uncertainty level
+        """
+
+    def save(self):
+        """
+        Serialize the Mapper object
+        """
+
+    def plot_world(self):
+        """
+        Plot the environment
+        """
+
+    def plot_uncertainty_grid(self):
+        """
+        Plot the uncertainty level
+        """
