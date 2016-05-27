@@ -3,7 +3,9 @@ Convert the GUI's map into a grid.
 """
 
 import utm
+import numpy as np
 import math
+import matplotlib as plt
 from sys import path
 path.append("..")
 
@@ -15,7 +17,6 @@ def latlong_to_index(point):
 
     Keyword arguments:
     point: point in latitude/longitude
-    references: list of references points
     """
 
     x = settings.REFERENCES[0][1]
@@ -46,7 +47,6 @@ def index_to_latlong(point):
 
     Keyword arguments:
     point: point index
-    references: list of references points
     """
 
     x = settings.REFERENCES[0][1]
@@ -61,32 +61,10 @@ def index_to_latlong(point):
 
     return (latitude, longitude)
 
-def create_world(limits, starting_point, obstacles):
-    """
-    Create a grid representing the given environment
-
-    Keyword arguments:
-    limits: environment boundaries
-    starting_point: drones' patrol starting point
-    obstacles: array of non admissible zones
-
-    Grid values:
-    0: admissible cell
-    1: non admissible cell
-    2: starting point
-    """
-
-
-
 class Mapper():
     """
     Represent the environment as grids.
     """
-
-    def create_uncertainty_grid():
-        """
-        Create a grid that represent the uncertainty about the world
-        """
 
     def __init__(self, limits, starting_point, obstacles):
         """
@@ -101,8 +79,70 @@ class Mapper():
         self.limits = limits
         self.starting_point = starting_point
         self.obstacles = obstacles
-        self.world = create_world(self.limits, self.starting_point, self.obstacles)
-        self.uncertainty_grid = create_uncertainty_grid()
+        self.world = self.create_world(self.limits, self.starting_point, self.obstacles)
+        self.uncertainty_grid = self.create_uncertainty_grid()
+
+    def out_limit_or_obstacle(self, x, y):
+        """
+        Check if a given point is out of campus limits or an obstacle
+        """
+
+        lat, long = index_to_latlong([x, y])
+        check = False
+        if lat >= self.limits[1][0] and long <= self.limits[0][1]:
+            check = True
+        elif lat <= self.limits[1][0] and long <= self.limits[2][1]:
+            check = True
+        elif lat <= self.limits[3][0] and long >= self.limits[2][1]:
+            check = True
+        elif lat >= self.limits[3][0] and long >= self.limits[0][1]:
+            check = True
+        point = utm.from_latlon(lat, long)
+        for o in self.obstacles:
+            if len(o) == 4:
+                e1 = utm.from_latlon(o[0][0], o[0][1])
+                e2 = utm.from_latlon(o[1][0], o[1][1])
+                e3 = utm.from_latlon(o[2][0], o[2][1])
+                e4 = utm.from_latlon(o[3][0], o[3][1])
+                if point[0] >= e2[0] and point[0] <= e4[0]:
+                    if point[1] <= e1[1] and point[1] >= e3[1]:
+                        chek = True
+            elif len(o) == 3:
+                e1 = utm.from_latlon(o[0][0], o[0][1])
+                e2 = utm.from_latlon(o[1][0], o[1][1])
+                e3 = utm.from_latlon(o[2][0], o[2][1])
+                if point[0] >= e2[0] and point[0] <= e3[0]:
+                    if point[1] <= e1[1] and point[1] >= e2[1] and point[1] >= e3[1]:
+                        chek = True
+
+        return check
+
+    def create_world(self, limits, starting_point, obstacles):
+        """
+        Create a grid representing the given environment
+
+        Keyword arguments:
+        limits: environment boundaries
+        starting_point: drones' patrol starting point
+        obstacles: array of non admissible zones
+
+        Grid values:
+        0: admissible cell
+        1: non admissible cell
+        2: starting point
+        """
+
+        world = np.zeros((settings.X_SIZE, settings.Y_SIZE))
+        sx, sy = latlong_to_index(starting_point)
+        world[sx][sy] = 2
+        for i in range(settings.X_SIZE):
+            print("I = " + str(i))
+            for j in range(settings.Y_SIZE):
+                if i != sx and j != sy:
+                    if self.out_limit_or_obstacle(i, j) == True:
+                        world[i][j] = 1
+
+        return world
 
     def update_uncertainty_grid(self):
         """
@@ -118,6 +158,22 @@ class Mapper():
         """
         Plot the environment
         """
+
+        print("debut plot")
+        f = open("test", "w")
+        str = ""
+        for i in range(settings.X_SIZE):
+            for j in range(settings.Y_SIZE):
+                if self.world[i][j] == 1:
+                    str += "x"
+                elif self.world[i][j] == 2:
+                    str += "S"
+                else:
+                    str += " "
+            str += "\n"
+        f.write(str)
+        f.close()
+        print("fin plot")
 
     def plot_uncertainty_grid(self):
         """

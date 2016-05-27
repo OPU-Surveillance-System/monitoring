@@ -9,6 +9,7 @@ path.append("../planner")
 
 import settings
 import planner as ppl
+import map_converter as m
 
 app = Flask(__name__,
             template_folder=settings.TEMPLATE_PATH,
@@ -41,7 +42,9 @@ def converter():
     limits = data["limits"]
     starting_point = data["starting_point"]
     obstacles = data["obstacles"]
-    response = ppl.convert_map()
+    #response = ppl.convert_map()
+    mapper = m.Mapper(limits, starting_point, obstacles)
+    Mapper.plot_world()
 
     return json.dumps({"response":response})
 
