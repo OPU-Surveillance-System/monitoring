@@ -93,3 +93,17 @@ function setWaypoints(){
     }
   }
 }
+
+//Displays/Hides projection
+function setProjection(){
+  if($('#cb_projection').prop("checked")){
+    for(var i = 0; i < projection.length; i++){
+      projection[i].addTo(campus);
+    }
+  }
+  else{
+    for(var i = 0; i < projection.length; i++){
+      campus.removeLayer(projection[i]);
+    }
+  }
+}

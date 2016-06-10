@@ -10,10 +10,13 @@
 <body>
   <div id="map_widget"></div>
   <label>Display default targets
-  <input type="checkbox" id="cb_default_targets" onClick="setWaypoints()" checked="true">
+  <input type="checkbox" id="cb_default_targets" onClick="setWaypoints()" checked>
   </label>
   <label>Display sectors
   <input type="checkbox" id="cb_sectors" onClick="setSectors()">
+  </label>
+  <label>Display projection
+  <input type="checkbox" id="cb_projection" onClick="setProjection()" checked>
   </label>
   <input type="button" value="compute grid" onClick="convertToGrid()"><br>
   Number of drones:
@@ -25,6 +28,8 @@
   <script src="/static/scripts/non_admissible_zones.js"></script>
   <script src="/static/scripts/sectors.js"></script>
   <script src="/static/scripts/default_targets.js"></script>
+  <script src="/static/scripts/projected_bounds.js"></script>
+  <script src="/static/scripts/projected_non_admissible_zones.js"></script>
   <script src="/static/scripts/map.js"></script>
   <script src="/static/scripts/listeners.js"></script>
 </body>
