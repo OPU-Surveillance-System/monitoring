@@ -20,14 +20,14 @@ var projection = new Array();
 var sectors = new Array();
 
 //Development tool for easily Lat and Long on click
-function onMapClick(e){
-    popup
-        .setLatLng(e.latlng)
-        .setContent(e.latlng.toString())
-        //.setContent("lat: " + e.latlng.lat + ", long: " + e.latlng.lng)
-        .openOn(campus);
-}
-campus.on('click', onMapClick);
+// function onMapClick(e){
+//     popup
+//         .setLatLng(e.latlng)
+//         .setContent(e.latlng.toString())
+//         //.setContent("lat: " + e.latlng.lat + ", long: " + e.latlng.lng)
+//         .openOn(campus);
+// }
+// campus.on('click', onMapClick);
 
 //Creates Leaflet polygon from defined campus limits
 var bounds = L.polygon(campus_limits, {color:'green'}, 1).addTo(campus);
@@ -39,7 +39,7 @@ function onBoundsClick(e){
   markers.push(marker);
 }
 
-//bounds.on('click', function(e){onBoundsClick(e)});
+bounds.on('click', function(e){onBoundsClick(e)});
 
 //Creates Leaflet polygons objects from defined non admissible zones
 function onObstacleClick(e){
