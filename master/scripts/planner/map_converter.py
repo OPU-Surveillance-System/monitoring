@@ -26,7 +26,7 @@ def project_to_virtual(point):
     x = math.cos(settings.ANGLE) * (point[0] - settings.RP_UTM[0]) - math.sin(settings.ANGLE) * (point[1] - settings.RP_UTM[1]) + settings.RP_UTM[0]
     y = math.sin(settings.ANGLE) * (point[0] - settings.RP_UTM[0]) + math.cos(settings.ANGLE) * (point[1] - settings.RP_UTM[1]) + settings.RP_UTM[1]
 
-    return (x, y) #Easting, Northing
+    return x, y #Easting, Northing
 
 def project_to_original(point):
     """
@@ -42,7 +42,7 @@ def project_to_original(point):
     y = math.sin(-settings.ANGLE) * (point[0] - settings.RP_UTM[0]) + math.cos(-settings.ANGLE) * (point[1] - settings.RP_UTM[1]) + settings.RP_UTM[1]
     point = utm.to_latlon(x, y, 53, "S")
 
-    return (point[0], point[1])
+    return point[0], point[1] #Latitude, Longitude
 
 class Mapper():
     """
@@ -84,7 +84,8 @@ class Mapper():
         # print(self.latlong_to_index(self.projected_limits[1]))
         # print(self.latlong_to_index(self.projected_limits[2]))
         # print(self.latlong_to_index(self.projected_limits[3]))
-        print(self.latlong_to_index())
+        print(self.latlong_to_index([34.54568, 135.50363]))
+        print(self.index_to_latlong([272, 829]))
 
 
     def project_limits(self):
@@ -117,8 +118,8 @@ class Mapper():
         """
 
         x, y = project_to_virtual(point)
-        #x = point[0]
-        #y = point[1]
+        # x = point[0]
+        # y = point[1]
         x = int(((x - self.X) / self.Z) * settings.X_SIZE)
         y = int(((self.A - y) / self.C) * settings.Y_SIZE)
 
@@ -132,7 +133,13 @@ class Mapper():
         point: point index
         """
 
-        return 0
+        x = point[0]
+        y = point[1]
+        x = ((x * self.Z) / settings.X_SIZE) + self.X
+        y = self.A - ((y * self.C) / settings.Y_SIZE)
+        lat, long = project_to_original((x, y))
+
+        return lat, long
 
     def is_non_admissible(self, point):
         """
