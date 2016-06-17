@@ -5,7 +5,7 @@ Convert the GUI's map into a grid.
 import utm
 import numpy as np
 import math
-from shapely.geometry import Polygon
+from shapely.geometry import Polygon, Point
 import matplotlib as plt
 from sys import path
 path.append("..")
@@ -75,6 +75,7 @@ class Mapper():
         self.starting_point = starting_point
         self.obstacles = obstacles
         self.world = self.create_world()
+        self.plot_world()
 
         #Environment uncertainty
         #self.uncertainty_grid = self.create_uncertainty_grid()
@@ -141,21 +142,20 @@ class Mapper():
 
         return lat, long
 
-    def is_non_admissible(self, point):
+    def is_non_admissible(self, point, obs_poly):
         """
         Check if a given point is out of campus limits or is an obstacle
         """
 
         check = False
-        x, y = latlong_to_index(point)
-        pnt_poly = Polygon([(x, y), (x, y + 1), (x + 1, y), (x + 1, y + 1)])
-        obs_poly = []
-        for o in self.obstacles:
-            obs_poly.append(Polygon(o))
+        #x, y = self.latlong_to_index(point)
+        x = point[0]
+        y = point[1]
+        pnt_poly = Point(x, y)
         for p in obs_poly:
             if pnt_poly.intersects(p) == True:
-                print("Intersection")
                 check = True
+                break
 
         return check
 
@@ -170,6 +170,16 @@ class Mapper():
         """
 
         world = np.zeros((settings.X_SIZE, settings.Y_SIZE))
+        proj_obs = [[self.latlong_to_index(o) for o in obs] for obs in self.obstacles]
+        poly_obs = [Polygon(o) for o in proj_obs]
+        for i in range(1, settings.X_SIZE):
+            for j in range(1, settings.Y_SIZE):
+                if self.is_non_admissible((i, j), poly_obs):
+                    world[i][j] = 1
+                else:
+                    world[i][j] = 0
+        x, y = self.latlong_to_index(self.starting_point)
+        world[x][y] = 2
 
         return world
 
@@ -190,8 +200,7 @@ class Mapper():
         Plot the environment
         """
 
-        print("debut plot")
-        f = open("test", "w")
+        f = open("ascii_map", "w")
         str = ""
         for i in range(settings.X_SIZE):
             for j in range(settings.Y_SIZE):
@@ -204,8 +213,6 @@ class Mapper():
             str += "\n"
         f.write(str)
         f.close()
-        print(str)
-        print("fin plot")
 
     def plot_uncertainty_grid(self):
         """
