@@ -44,7 +44,8 @@ def converter():
     obstacles = data["obstacles"]
     #response = ppl.convert_map()
     mapper = m.Mapper(limits, starting_point, obstacles)
-    Mapper.plot_world()
+    #mapper.plot_world()
+    response = 0
 
     return json.dumps({"response":response})
 
