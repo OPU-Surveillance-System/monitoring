@@ -6,8 +6,10 @@ import utm
 import numpy as np
 import math
 from shapely.geometry import Polygon, Point
-import matplotlib as plt
+import matplotlib.pyplot as plt
+from matplotlib import colors
 from sys import path
+from tqdm import tqdm
 path.append("..")
 
 import settings
@@ -80,15 +82,6 @@ class Mapper():
         #Environment uncertainty
         #self.uncertainty_grid = self.create_uncertainty_grid()
 
-
-        # print(self.latlong_to_index(self.projected_limits[0]))
-        # print(self.latlong_to_index(self.projected_limits[1]))
-        # print(self.latlong_to_index(self.projected_limits[2]))
-        # print(self.latlong_to_index(self.projected_limits[3]))
-        print(self.latlong_to_index([34.54568, 135.50363]))
-        print(self.index_to_latlong([272, 829]))
-
-
     def project_limits(self):
         """
         Represent the environment's limits into the projected space and rectangularize the environment
@@ -119,8 +112,6 @@ class Mapper():
         """
 
         x, y = project_to_virtual(point)
-        # x = point[0]
-        # y = point[1]
         x = int(((x - self.X) / self.Z) * settings.X_SIZE)
         y = int(((self.A - y) / self.C) * settings.Y_SIZE)
 
@@ -148,7 +139,6 @@ class Mapper():
         """
 
         check = False
-        #x, y = self.latlong_to_index(point)
         x = point[0]
         y = point[1]
         pnt_poly = Point(x, y)
@@ -169,17 +159,19 @@ class Mapper():
         2: starting point
         """
 
-        world = np.zeros((settings.X_SIZE, settings.Y_SIZE))
+        print("Creating world")
+        world = np.zeros((settings.Y_SIZE, settings.X_SIZE))
         proj_obs = [[self.latlong_to_index(o) for o in obs] for obs in self.obstacles]
         poly_obs = [Polygon(o) for o in proj_obs]
-        for i in range(1, settings.X_SIZE):
-            for j in range(1, settings.Y_SIZE):
+        for j in tqdm(range(0, settings.Y_SIZE)):
+            for i in range(0, settings.X_SIZE):
                 if self.is_non_admissible((i, j), poly_obs):
-                    world[i][j] = 1
+                    world[j][i] = 1
                 else:
-                    world[i][j] = 0
+                    world[j][i] = 0
         x, y = self.latlong_to_index(self.starting_point)
-        world[x][y] = 2
+        world[y][x] = 2
+        print("World created")
 
         return world
 
@@ -200,19 +192,10 @@ class Mapper():
         Plot the environment
         """
 
-        f = open("ascii_map", "w")
-        str = ""
-        for i in range(settings.X_SIZE):
-            for j in range(settings.Y_SIZE):
-                if self.world[i][j] == 1:
-                    str += "X"
-                elif self.world[i][j] == 2:
-                    str += "S"
-                else:
-                    str += " "
-            str += "\n"
-        f.write(str)
-        f.close()
+        print("Ploting world")
+        cmap = colors.ListedColormap(['white', 'black', 'red'])
+        plt.imshow(self.world, interpolation="none", cmap=cmap)
+        plt.show()
 
     def plot_uncertainty_grid(self):
         """
