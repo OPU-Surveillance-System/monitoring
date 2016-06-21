@@ -8,6 +8,12 @@ GUI of the overall system
 
 **Python (v3):**
 * Flask 0.10.1
+* tqdm 4.7.4
+* utm 0.4.0
+* Shapely 1.5.16
+* numpy 1.8.2
+* matplotlib 1.5.0
+
 
 ##Usage
 1. run WebServer:
