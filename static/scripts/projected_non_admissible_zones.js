@@ -1,5 +1,5 @@
 /*
-Defines a variable representing the non admissible zone in the projected environment (obstacles).
+Defines a variable representing the non admissible zones in the projected environment (obstacles).
 */
 
 var projected_non_admissible_zones = [
