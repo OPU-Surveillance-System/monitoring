@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 from matplotlib import colors
 from sys import path
 from tqdm import tqdm
-import pickle
 path.append("..")
 
 import settings
@@ -78,6 +77,7 @@ class Mapper():
         self.starting_point = starting_point
         self.obstacles = obstacles
         self.world = self.create_world()
+        self.plot_world()
 
         #Environment uncertainty
         #self.uncertainty_grid = self.create_uncertainty_grid()
@@ -159,7 +159,7 @@ class Mapper():
         2: starting point
         """
 
-        print("Creating world...")
+        print("Creating world")
         world = np.zeros((settings.Y_SIZE, settings.X_SIZE))
         proj_obs = [[self.latlong_to_index(o) for o in obs] for obs in self.obstacles]
         poly_obs = [Polygon(o) for o in proj_obs]
@@ -171,7 +171,7 @@ class Mapper():
                     world[j][i] = 0
         x, y = self.latlong_to_index(self.starting_point)
         world[y][x] = 2
-        print("World created.")
+        print("World created")
 
         return world
 
@@ -187,12 +187,7 @@ class Mapper():
         Serialize the Mapper object
         """
 
-        print("Serialize Mapper...")
-        mapper = self
-        f = open("data/mapper.pickle", "wb")
-        pickle.dump(mapper, f)
-        f.close()
-        print("Mapper serialized.")
+
 
     def plot_world(self):
         """

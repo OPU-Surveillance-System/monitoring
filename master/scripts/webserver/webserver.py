@@ -4,6 +4,7 @@ Webserver for handling event from Master's GUI
 
 from flask import Flask, request, json, render_template, send_from_directory
 from sys import path
+import pickle
 path.append("..")
 path.append("../planner")
 
@@ -43,8 +44,14 @@ def converter():
     starting_point = data["starting_point"]
     obstacles = data["obstacles"]
     #response = ppl.convert_map()
-    mapper = m.Mapper(limits, starting_point, obstacles)
-    #mapper.plot_world()
+    try:
+        f = open("data/mapper.pickle", "rb")
+        mapper = pickle.load(f)
+        f.close()
+    except IOError:
+        mapper = m.Mapper(limits, starting_point, obstacles)
+        mapper.save()
+    mapper.plot_world()
     response = 0
 
     return json.dumps({"response":response})
