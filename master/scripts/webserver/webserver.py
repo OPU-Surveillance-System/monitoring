@@ -42,8 +42,9 @@ def converter():
     limits = data["limits"]
     starting_point = data["starting_point"]
     obstacles = data["obstacles"]
+    default_targets = data["default_waypoints"]
     #response = ppl.convert_map()
-    mapper = m.Mapper(limits, starting_point, obstacles)
+    mapper = m.Mapper(limits, starting_point, obstacles, default_targets)
     #mapper.plot_world()
     response = 0
 

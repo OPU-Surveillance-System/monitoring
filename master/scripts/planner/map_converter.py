@@ -51,7 +51,7 @@ class Mapper():
     Represent the environment as grids.
     """
 
-    def __init__(self, limits, starting_point, obstacles):
+    def __init__(self, limits, starting_point, obstacles, default_targets):
         """
         Instantiate a Mapper object
 
@@ -76,6 +76,7 @@ class Mapper():
         #Environment elements
         self.starting_point = starting_point
         self.obstacles = obstacles
+        self.default_targets = default_targets
         self.world = self.create_world()
         self.plot_world()
 
@@ -171,6 +172,9 @@ class Mapper():
                     world[j][i] = 0
         x, y = self.latlong_to_index(self.starting_point)
         world[y][x] = 2
+        for t in self.default_targets:
+            x, y = self.latlong_to_index(t)
+            world[y][x] = 3
         print("World created")
 
         return world
@@ -193,7 +197,7 @@ class Mapper():
         """
 
         print("Ploting world")
-        cmap = colors.ListedColormap(['white', 'black', 'red'])
+        cmap = colors.ListedColormap(['white', 'black', 'red', 'green'])
         plt.imshow(self.world, interpolation="none", cmap=cmap)
         plt.show()
 
