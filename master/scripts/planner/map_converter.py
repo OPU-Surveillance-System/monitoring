@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from matplotlib import colors
 from sys import path
 from tqdm import tqdm
+import pickle
 path.append("..")
 
 import settings
@@ -91,7 +92,6 @@ class Mapper():
         for d in self.default_targets:
             self.world[d[1]][d[0]] = 3
         self.world[self.starting_point[1]][self.starting_point[0]] = 2
-        self.plot_world()
 
         #Environment uncertainty
         #self.uncertainty_grid = self.create_uncertainty_grid()
@@ -193,12 +193,7 @@ class Mapper():
 
         return []
 
-    def save(self):
-        """
-        Serialize the Mapper object
-        """
-
-    def plot_world(self):
+    def plot_world(self, show=True):
         """
         Plot the environment
         """
@@ -206,7 +201,12 @@ class Mapper():
         print("Ploting world")
         cmap = colors.ListedColormap(['white', 'black', 'red', 'orange', 'blue'])
         plt.imshow(self.world, interpolation="none", cmap=cmap)
-        plt.show()
+        save = True
+        if show:
+            plt.show()
+            save = False
+        if save:
+            plt.savefig('data/plot/map_gris_' + str(settings.X_SIZE) + 'x' + str(settings.Y_SIZE) + '.png', dpi=100)
 
     def plot_uncertainty_grid(self):
         """

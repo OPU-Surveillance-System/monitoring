@@ -45,7 +45,10 @@ def converter():
     obstacles = data["obstacles"]
     default_targets = data["default_waypoints"]
     mapper = m.Mapper(limits, starting_point, obstacles, default_targets)
-    mapper.plot_world()
+    mapper.plot_world(show=False)
+    f = open("data/serialization/mapper.pickle", "wb")
+    pickle.dump(mapper, f)
+    f.close()
     #response = ppl.convert_map()
     response = 0
 
@@ -65,8 +68,9 @@ def planner():
     computed_path = []
     response = ""
     try:
-        f = open("data/mapper.pickle", "rb")
+        f = open("data/serialization/mapper.pickle", "rb")
         mapper = pickle.load(f)
+        mapper.plot_world()
         f.close()
         computed_path = ppl.get_computed_path()
     except IOError:
