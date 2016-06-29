@@ -10,7 +10,8 @@ function convertToGrid(){
     data: JSON.stringify({
             "limits": campus_limits,
             "starting_point": starting_point,
-            "obstacles": non_admissible_zones}),
+            "obstacles": non_admissible_zones,
+            "default_waypoints": default_targets}),
     contentType: "application/json; charset=utf-8",
     success: function(data){
       var response = JSON.parse(data)["response"];

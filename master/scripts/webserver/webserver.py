@@ -43,15 +43,10 @@ def converter():
     limits = data["limits"]
     starting_point = data["starting_point"]
     obstacles = data["obstacles"]
-    #response = ppl.convert_map()
-    try:
-        f = open("data/mapper.pickle", "rb")
-        mapper = pickle.load(f)
-        f.close()
-    except IOError:
-        mapper = m.Mapper(limits, starting_point, obstacles)
-        mapper.save()
+    default_targets = data["default_waypoints"]
+    mapper = m.Mapper(limits, starting_point, obstacles, default_targets)
     mapper.plot_world()
+    #response = ppl.convert_map()
     response = 0
 
     return json.dumps({"response":response})
@@ -67,6 +62,13 @@ def planner():
     nb_drones = data["nb_drones"]
     default_waypoints = data["default_waypoints"]
     selected_waypoints = data["selected_waypoints"]
+    try:
+        f = open("data/mapper.pickle", "rb")
+        mapper = pickle.load(f)
+        f.close()
+    except IOError:
+        #mapper = m.Mapper(limits, starting_point, obstacles, default_targets)
+        #mapper.save()
     computed_path = ppl.get_computed_path()
 
     return json.dumps({"computed_path":computed_path})

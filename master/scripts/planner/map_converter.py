@@ -14,6 +14,7 @@ import pickle
 path.append("..")
 
 import settings
+import astar
 
 def project_to_virtual(point):
     """
@@ -52,7 +53,7 @@ class Mapper():
     Represent the environment as grids.
     """
 
-    def __init__(self, limits, starting_point, obstacles):
+    def __init__(self, limits, starting_point, obstacles, default_targets):
         """
         Instantiate a Mapper object
 
@@ -75,9 +76,26 @@ class Mapper():
         self.C = self.A - self.B
 
         #Environment elements
-        self.starting_point = starting_point
+        self.starting_point = self.latlong_to_index(starting_point)
         self.obstacles = obstacles
+        self.default_targets = [self.latlong_to_index(t) for t in default_targets]
+        self.default_targets.append(self.starting_point)
         self.world = self.create_world()
+<<<<<<< HEAD
+=======
+        print("Computing shortest paths to default targets...")
+        self.paths = {(d1, d2):astar.astar(self.world, tuple(reversed(d1)), tuple(reversed(d2))) for d1 in tqdm(self.default_targets) for d2 in self.default_targets}
+        #self.paths = {d:astar.astar(self.world, tuple(reversed(self.starting_point)), tuple(reversed(d))) for d in tqdm(self.default_targets)}
+        print("Paths computed")
+        for k in self.paths:
+            if self.paths[k][0]:
+                for c in self.paths[k][0]:
+                    self.world[c[0]][c[1]] = 4
+        for d in self.default_targets:
+            self.world[d[1]][d[0]] = 3
+        self.world[self.starting_point[1]][self.starting_point[0]] = 2
+        self.plot_world()
+>>>>>>> mapToGrid
 
         #Environment uncertainty
         #self.uncertainty_grid = self.create_uncertainty_grid()
@@ -156,7 +174,6 @@ class Mapper():
         Grid values:
         0: admissible cell
         1: non admissible cell
-        2: starting point
         """
 
         print("Creating world...")
@@ -169,9 +186,13 @@ class Mapper():
                     world[j][i] = 1
                 else:
                     world[j][i] = 0
+<<<<<<< HEAD
         x, y = self.latlong_to_index(self.starting_point)
         world[y][x] = 2
         print("World created.")
+=======
+        print("World created")
+>>>>>>> mapToGrid
 
         return world
 
@@ -200,7 +221,7 @@ class Mapper():
         """
 
         print("Ploting world")
-        cmap = colors.ListedColormap(['white', 'black', 'red'])
+        cmap = colors.ListedColormap(['white', 'black', 'red', 'orange', 'blue'])
         plt.imshow(self.world, interpolation="none", cmap=cmap)
         plt.show()
 
