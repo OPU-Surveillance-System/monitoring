@@ -38,7 +38,8 @@ function computePath(){
       window.alert(computed_path);
     },
     error: function(data){
-      window.alert("error");
+      var response = JSON.parse(data)["response"];
+      window.alert(response);
     }
   });
 }

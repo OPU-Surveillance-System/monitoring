@@ -66,12 +66,11 @@ def planner():
         f = open("data/mapper.pickle", "rb")
         mapper = pickle.load(f)
         f.close()
+        computed_path = ppl.get_computed_path()
     except IOError:
-        #mapper = m.Mapper(limits, starting_point, obstacles, default_targets)
-        #mapper.save()
-    computed_path = ppl.get_computed_path()
+        response = "World not virtualized yet. Please click on 'compute grid'."
 
-    return json.dumps({"computed_path":computed_path})
+    return json.dumps({"computed_path":computed_path, "response":response})
 
 @app.route("/pathSender", methods=["POST"])
 def path_sender():
