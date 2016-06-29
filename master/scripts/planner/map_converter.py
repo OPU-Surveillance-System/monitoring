@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 from matplotlib import colors
 from sys import path
 from tqdm import tqdm
-import pickle
 path.append("..")
 
 import settings
@@ -81,8 +80,6 @@ class Mapper():
         self.default_targets = [self.latlong_to_index(t) for t in default_targets]
         self.default_targets.append(self.starting_point)
         self.world = self.create_world()
-<<<<<<< HEAD
-=======
         print("Computing shortest paths to default targets...")
         self.paths = {(d1, d2):astar.astar(self.world, tuple(reversed(d1)), tuple(reversed(d2))) for d1 in tqdm(self.default_targets) for d2 in self.default_targets}
         #self.paths = {d:astar.astar(self.world, tuple(reversed(self.starting_point)), tuple(reversed(d))) for d in tqdm(self.default_targets)}
@@ -95,7 +92,6 @@ class Mapper():
             self.world[d[1]][d[0]] = 3
         self.world[self.starting_point[1]][self.starting_point[0]] = 2
         self.plot_world()
->>>>>>> mapToGrid
 
         #Environment uncertainty
         #self.uncertainty_grid = self.create_uncertainty_grid()
@@ -176,7 +172,7 @@ class Mapper():
         1: non admissible cell
         """
 
-        print("Creating world...")
+        print("Creating world")
         world = np.zeros((settings.Y_SIZE, settings.X_SIZE))
         proj_obs = [[self.latlong_to_index(o) for o in obs] for obs in self.obstacles]
         poly_obs = [Polygon(o) for o in proj_obs]
@@ -186,13 +182,7 @@ class Mapper():
                     world[j][i] = 1
                 else:
                     world[j][i] = 0
-<<<<<<< HEAD
-        x, y = self.latlong_to_index(self.starting_point)
-        world[y][x] = 2
-        print("World created.")
-=======
         print("World created")
->>>>>>> mapToGrid
 
         return world
 
@@ -207,13 +197,6 @@ class Mapper():
         """
         Serialize the Mapper object
         """
-
-        print("Serialize Mapper...")
-        mapper = self
-        f = open("data/mapper.pickle", "wb")
-        pickle.dump(mapper, f)
-        f.close()
-        print("Mapper serialized.")
 
     def plot_world(self):
         """

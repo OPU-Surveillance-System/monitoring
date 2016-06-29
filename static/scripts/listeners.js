@@ -34,12 +34,11 @@ function computePath(){
             "selected_waypoints": selected_waypoints}),
     contentType: "application/json; charset=utf-8",
     success: function(data){
-      var computed_path = JSON.parse(data)["computed_path"];
-      window.alert(computed_path);
-    },
-    error: function(data){
       var response = JSON.parse(data)["response"];
       window.alert(response);
+    },
+    error: function(data){
+      window.alert("error");
     }
   });
 }

@@ -62,6 +62,8 @@ def planner():
     nb_drones = data["nb_drones"]
     default_waypoints = data["default_waypoints"]
     selected_waypoints = data["selected_waypoints"]
+    computed_path = []
+    response = ""
     try:
         f = open("data/mapper.pickle", "rb")
         mapper = pickle.load(f)
