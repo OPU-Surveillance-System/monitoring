@@ -12,9 +12,9 @@ def heuristic(a, b):
 def astar(array, start, goal):
 
     #diagonal movement allowed
-    neighbors = [(0,1),(0,-1),(1,0),(-1,0),(1,1),(1,-1),(-1,1),(-1,-1)]
+    #neighbors = [(0,1),(0,-1),(1,0),(-1,0),(1,1),(1,-1),(-1,1),(-1,-1)]
     #without diagonal movement
-    #neighbors = [(0,1),(0,-1),(1,0),(-1,0)]
+    neighbors = [(0,1),(0,-1),(1,0),(-1,0)]
 
     close_set = set()
     came_from = {}
@@ -37,7 +37,7 @@ def astar(array, start, goal):
             data = list(reversed(data))
             data.insert(0, start)
             data.append(goal)
-            
+
             return (data, len(data))
 
         close_set.add(current)
