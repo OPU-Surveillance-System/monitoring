@@ -62,7 +62,7 @@ def planner():
 
     #TODO
     data = request.get_json()
-    nb_drones = data["nb_drones"]
+    nb_drones = int(data["nb_drones"])
     default_waypoints = data["default_waypoints"]
     selected_waypoints = data["selected_waypoints"]
     computed_path = []
@@ -72,7 +72,7 @@ def planner():
         mapper = pickle.load(f)
         #mapper.plot_world()
         f.close()
-        computed_path = ppl.get_computed_path(mapper)
+        computed_path = ppl.get_computed_path(mapper, nb_drones)
     except IOError:
         response = "World not virtualized yet. Please click on 'compute grid'."
 

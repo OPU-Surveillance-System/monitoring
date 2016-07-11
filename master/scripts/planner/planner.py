@@ -13,15 +13,16 @@ class PatrolPlanner(Annealer):
     """
     """
 
-    def __init__(self, state, mapper):
+    def __init__(self, state, mapper, nb_drone):
         """
         Initialize the solver
         """
 
         self.state = state
         self.mapper = mapper
+        self.nb_drone = nb_drone
         self.targets = self.mapper.default_targets
-        self.battery_plan = 0
+        self.battery_plan = [0 for d in range(nb_drone)]
 
     def move(self):
         """
@@ -29,28 +30,34 @@ class PatrolPlanner(Annealer):
         """
 
         random.shuffle(self.targets)
-        for n in self.targets:
-            if self.battery_plan + self.mapper.paths[(self.state[len(self.state) - 2], n)][1] + self.mapper.paths[(n, self.state[len(self.state) - 1])][1] < settings.MAX_BATTERY_UNIT:
-                self.state.insert(len(self.state) - 1, n)
-                self.battery_plan += self.mapper.paths[(self.state[len(self.state) - 2], n)][1] + self.mapper.paths[(n, self.state[len(self.state) - 1])][1]
-                self.targets.remove(n)
-        a = random.randint(1, len(self.state) - 2)
-        b = random.randint(1, len(self.state) - 2)
-        self.state[a], self.state[b] = self.state[b], self.state[a]
+        for d in range(self.nb_drone):
+            for n in self.targets:
+                if self.battery_plan[d] + self.mapper.paths[(self.state[d][len(self.state) - 2], n)][1] + self.mapper.paths[(n, self.state[d][len(self.state) - 1])][1] < settings.MAX_BATTERY_UNIT:
+                    self.state[d].insert(len(self.state[d]) - 1, n)
+                    self.battery_plan[d] += self.mapper.paths[(self.state[d][len(self.state[d]) - 2], n)][1] + self.mapper.paths[(n, self.state[d][len(self.state[d]) - 1])][1]
+                    self.targets.remove(n)
+            a = random.randint(1, len(self.state[d]) - 2)
+            b = random.randint(1, len(self.state[d]) - 2)
+            self.state[d][a], self.state[d][b] = self.state[d][b], self.state[d][a]
 
     def energy(self):
         """
         Define the objective function
         """
 
-        e = 1 / len(self.state)
+        e = 0
+        for d in range(self.nb_drone):
+            e += len(self.state[d])
+        e = 1 / e
 
         return e
 
 
-def get_computed_path(mapper):
-    pplan = PatrolPlanner([mapper.starting_point, mapper.starting_point], mapper)
+def get_computed_path(mapper, nb_drone):
+    state = [[mapper.starting_point, mapper.starting_point] for d in range(nb_drone)]
+    pplan = PatrolPlanner(state, mapper, nb_drone)
     pplan.steps = 50000
     itinerary = pplan.anneal()
+    print(pplan.battery_plan)
     print(itinerary)
     return 0
