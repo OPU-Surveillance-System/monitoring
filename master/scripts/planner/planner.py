@@ -22,6 +22,7 @@ class PatrolPlanner(Annealer):
         self.mapper = mapper
         self.nb_drone = nb_drone
         self.targets = self.mapper.default_targets
+        #random.shuffle(self.targets)
         self.battery_plan = [0 for d in range(nb_drone)]
 
     def move(self):
@@ -29,7 +30,6 @@ class PatrolPlanner(Annealer):
         Define the annealing process
         """
 
-        random.shuffle(self.targets)
         for d in range(self.nb_drone):
             for n in self.targets:
                 if self.battery_plan[d] + self.mapper.paths[(self.state[d][len(self.state) - 2], n)][1] + self.mapper.paths[(n, self.state[d][len(self.state) - 1])][1] < settings.MAX_BATTERY_UNIT:
@@ -56,8 +56,15 @@ class PatrolPlanner(Annealer):
 def get_computed_path(mapper, nb_drone):
     state = [[mapper.starting_point, mapper.starting_point] for d in range(nb_drone)]
     pplan = PatrolPlanner(state, mapper, nb_drone)
+    pplan.copy_strategy = "slice"
     pplan.steps = 50000
-    itinerary = pplan.anneal()
+    itinerary, energy = pplan.anneal()
+    energy = 1 / energy
     print(pplan.battery_plan)
     print(itinerary)
+    print(energy)
+    for d in range(nb_drone):
+        for p in itinerary[d]:
+            pplan.mapper.world_plan[p[0]][p[1]] = 2
+    pplan.mapper.plot_plan()
     return 0
