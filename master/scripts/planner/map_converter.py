@@ -83,14 +83,7 @@ class Mapper():
         self.world = self.create_world()
         print("Computing shortest paths to default targets...")
         self.paths = {(d1, d2):astar.astar(self.world, tuple(reversed(d1)), tuple(reversed(d2))) for d1 in tqdm(self.default_targets) for d2 in self.default_targets}
-        #self.paths = {d:astar.astar(self.world, tuple(reversed(self.starting_point)), tuple(reversed(d))) for d in tqdm(self.default_targets)}
-        m = 0
-        for p in self.paths:
-            m += self.paths[p][1]
-        print("Total length: " + str(m))
-        print(str(len(self.paths)) + " paths")
-        m /= len(self.paths.keys())
-        print("average path length: " + str(m))
+        self.default_targets = self.default_targets[:-1] #Removing the starting point from target points list
         print("Paths computed")
         for k in self.paths:
             if self.paths[k][0]:
