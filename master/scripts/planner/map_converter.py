@@ -88,13 +88,11 @@ class Mapper():
         self.paths = {(d1, d2):astar.astar(self.world, tuple(reversed(d1)), tuple(reversed(d2))) for d1 in tqdm(self.default_targets) for d2 in self.default_targets}
         self.default_targets = self.default_targets[:-1] #Removing the starting point from target points list
         print("Paths computed")
-        self.world_paths = self.world
-        self.world_plan = self.world
-        for k in self.paths:
-            if self.paths[k][0]:
-                for c in self.paths[k][0]:
-                    self.world_paths[c[0]][c[1]] = 4
-
+        #self.mapped_paths = self.world
+        #for k in self.paths:
+        #    if self.paths[k][0]:
+        #        for c in self.paths[k][0]:
+        #            self.mapped_paths[c[0]][c[1]] = 4
 
         #Environment uncertainty
         #self.uncertainty_grid = self.create_uncertainty_grid()
@@ -204,21 +202,6 @@ class Mapper():
         print("Ploting world")
         cmap = colors.ListedColormap(['white', 'black', 'red', 'orange', 'blue'])
         plt.imshow(self.world, interpolation="none", cmap=cmap)
-        save = True
-        if show:
-            plt.show()
-            save = False
-        if save:
-            plt.savefig('data/plot/map_gris_' + str(settings.X_SIZE) + 'x' + str(settings.Y_SIZE) + '.png', dpi=100)
-
-    def plot_plan(self, show=True):
-        """
-        Plot the environment
-        """
-
-        print("Ploting world")
-        cmap = colors.ListedColormap(['white', 'black', 'red', 'orange', 'blue'])
-        plt.imshow(self.world_plan, interpolation="none", cmap=cmap)
         save = True
         if show:
             plt.show()
