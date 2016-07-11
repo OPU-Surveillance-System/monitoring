@@ -70,9 +70,9 @@ def planner():
     try:
         f = open("data/serialization/mapper.pickle", "rb")
         mapper = pickle.load(f)
-        mapper.plot_world()
+        #mapper.plot_world()
         f.close()
-        computed_path = ppl.get_computed_path()
+        computed_path = ppl.get_computed_path(mapper)
     except IOError:
         response = "World not virtualized yet. Please click on 'compute grid'."
 
