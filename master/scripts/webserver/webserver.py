@@ -46,6 +46,7 @@ def converter():
     default_targets = data["default_waypoints"]
     mapper = m.Mapper(limits, starting_point, obstacles, default_targets)
     mapper.plot_world(show=False)
+    mapper.plot_paths(show=False)
     f = open("data/serialization/mapper.pickle", "wb")
     pickle.dump(mapper, f)
     f.close()
@@ -71,6 +72,7 @@ def planner():
         f = open("data/serialization/mapper.pickle", "rb")
         mapper = pickle.load(f)
         #mapper.plot_world()
+        #mapper.plot_paths()
         f.close()
         computed_path = ppl.get_computed_path(mapper, nb_drones)
     except IOError:

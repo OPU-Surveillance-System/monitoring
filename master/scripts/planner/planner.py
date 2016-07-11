@@ -27,6 +27,7 @@ class PatrolPlanner(Annealer):
         self.mapped_paths = self.mapper.world
         #random.shuffle(self.targets)
         self.battery_plan = [0 for d in range(nb_drone)]
+        self.plan = [[] for d in range(nb_drone)]
 
     def move(self):
         """
@@ -66,6 +67,7 @@ class PatrolPlanner(Annealer):
                 path = self.mapper.paths[(self.state[d][i-1], self.state[d][i])][0]
                 for p in path:
                     self.mapped_paths[p[0]][p[1]] = 2 + d
+        #TODO: Add more color to handle more drones
         cmap = colors.ListedColormap(['white', 'black', 'red', 'orange', 'blue'])
         plt.imshow(self.mapped_paths, interpolation="none", cmap=cmap)
         save = True
@@ -74,6 +76,17 @@ class PatrolPlanner(Annealer):
             save = False
         if save:
             plt.savefig('data/plot/plan/annealing_' + str(settings.X_SIZE) + 'x' + str(settings.Y_SIZE) + '.png', dpi=800)
+
+    def detail_plan(self):
+        """
+        Build the detailed path for each drone
+        """
+
+        for d in range(self.nb_drone):
+            for s in range(1, len(self.state[d])):
+                print(self.state[d][s - 1])
+                print(self.mapper.paths[(self.state[d][s - 1], self.state[d][s])][0])
+                self.plan[d] += self.mapper.paths[(self.state[d][s - 1], self.state[d][s])][0]
 
 
 def get_computed_path(mapper, nb_drone):
@@ -86,5 +99,7 @@ def get_computed_path(mapper, nb_drone):
     print(pplan.battery_plan)
     print(itinerary)
     print(energy)
+    pplan.detail_plan()
+    print(pplan.plan)
     pplan.plot_plan()
     return 0
