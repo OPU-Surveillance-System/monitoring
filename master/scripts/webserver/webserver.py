@@ -71,8 +71,8 @@ def planner():
     try:
         f = open("data/serialization/mapper.pickle", "rb")
         mapper = pickle.load(f)
-        mapper.plot_world()
-        mapper.plot_paths()
+        #mapper.plot_world(show=False)
+        #mapper.plot_paths(show=False)
         f.close()
         computed_path = ppl.get_computed_path(mapper, nb_drones)
     except IOError:

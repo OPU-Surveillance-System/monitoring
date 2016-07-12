@@ -36,7 +36,7 @@ def astar(array, start, goal):
 
             data = list(reversed(data))
             data.insert(0, start)
-            data.append(goal)
+            #data.append(goal)
 
             return (data, len(data))
 

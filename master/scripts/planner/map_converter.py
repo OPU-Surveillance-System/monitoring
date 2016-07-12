@@ -77,12 +77,6 @@ class Mapper():
 
         #Environment elements
         self.starting_point = [self.latlong_to_index(s) for s in starting_point]
-        r = self.latlong_to_index((34.54542, 135.50398))
-        print("r", r)
-        for s in range(1, 10):
-            p = ((r[0] + 2*(s)), r[1])
-            p = self.index_to_latlong(p)
-            print("["+str(p[0])+", "+str(p[1])+"]")
         self.obstacles = obstacles
         self.default_targets = [self.latlong_to_index(t) for t in default_targets]
         for s in self.starting_point:
