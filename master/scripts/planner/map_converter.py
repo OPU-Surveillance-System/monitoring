@@ -87,7 +87,7 @@ class Mapper():
         for s in self.starting_point:
             self.world[s[1]][s[0]] = 2
         print("Computing shortest paths to default targets...")
-        self.paths = {(d1, d2):astar.astar(self.world, tuple(reversed(d1)), tuple(reversed(d2))) for d1 in tqdm(self.default_targets) for d2 in self.default_targets}
+        self.paths = {(d1, d2):astar.astar(self.world, tuple(reversed(d1)), tuple(reversed(d2))) for d1 in tqdm(self.default_targets) for d2 in self.default_targets if d1 != d2}
         for s in self.starting_point:
             self.default_targets.remove(s)
         #self.default_targets = self.default_targets[:-1] #Removing the starting point from target points list
@@ -97,6 +97,9 @@ class Mapper():
            if self.paths[k][0]:
                for c in self.paths[k][0]:
                    self.mapped_paths[c[0]][c[1]] = 4
+        for p in self.paths:
+            if self.paths[p][1] == 1:
+                print(p, self.paths[p])
 
         #Environment uncertainty
         #self.uncertainty_grid = self.create_uncertainty_grid()
