@@ -31,6 +31,7 @@ class Solver:
         self.mapped_paths = self.mapper.world
         self.battery_plan = [0 for d in range(self.nb_drone)]
         self.plan = [[] for d in range(self.nb_drone)]
+        self.cut_plan = []
 
     def detail_plan(self):
         """
@@ -40,6 +41,18 @@ class Solver:
         for d in range(self.nb_drone):
             for s in range(1, len(self.state[d])):
                 self.plan[d] += self.mapper.paths[(self.state[d][s - 1], self.state[d][s])][0]
+            cut_plan = []
+            base = self.state[d][0]
+            tmp = [base]
+            for p in range(1, len(self.plan[d])):
+                point = tuple(reversed(self.plan[d][p]))
+                tmp.append(point)
+                if point == base and len(tmp) > 1:
+                    cut_plan.append(tmp)
+                    tmp = []
+            self.cut_plan.append(cut_plan)
+            print(len(self.cut_plan))
+            print(len(self.cut_plan[0]))
 
     def check_collision(self):
         """
@@ -66,8 +79,9 @@ class Solver:
         Write the drones' paths on the grid
         """
         for d in range(self.nb_drone):
-            for p in self.plan[d]:
-                self.mapped_paths[p[0]][p[1]] = 2 + d
+            for p in range(len(self.cut_plan[d])):
+                for c in self.cut_plan[d][p]:
+                    self.mapped_paths[c[1]][c[0]] = 2 + p
 
     def compute_performance(self):
         """
@@ -88,7 +102,7 @@ class Solver:
 
         #print("Ploting plan")
         #TODO: Add more color to handle more drones
-        cmap = colors.ListedColormap(['white', 'black', 'red', 'orange', 'blue'])
+        cmap = colors.ListedColormap(['white', 'black', 'red', 'orange', 'blue', 'green', 'purple', 'pink', 'yellow', 'brown', 'cyan'])
         self.write_plan()
         plt.imshow(self.mapped_paths, interpolation="none", cmap=cmap)
         save = True
@@ -162,7 +176,8 @@ class GreedyPlanner(Solver):
 
     def compute_plan(self):
         """
-
+        Compute the plan by trying to visit all points by distance order and
+        by returning to base to recharge the battery when necessary.
         """
 
         complete = False
@@ -190,6 +205,8 @@ class GreedyPlanner(Solver):
                             self.state[d].insert(len(self.state[d]) - 1, self.state[d][0])
                             self.battery_plan[d] += battery
                             battery = settings.MAX_BATTERY_UNIT
+            del self.state[d][len(self.state[d]) - 1]
+
 
 def get_computed_path(mapper, nb_drone):
     #SIMULATED ANNEALING
