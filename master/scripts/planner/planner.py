@@ -76,11 +76,8 @@ class Solver:
 
         e = 0
         for d in range(self.nb_drone):
-            visited = list(self.state[d])
             start = self.state[d][0]
-            while start in visited:
-                visited.remove(start)
-            e += len(visited)
+            e += self.state[d].count(start)
 
         return e
 
@@ -220,7 +217,7 @@ def get_computed_path(mapper, nb_drone):
     gplan.plot_plan("greedy_", show=False)
     print("PLAN", gplan.state)
     print("BATTERY", gplan.battery_plan)
-    print("NUMBER OF VISITED POINTS", gplan.compute_performance() - 2 * nb_drone)
+    print("NUMBER OF RETURN TO BASE", gplan.compute_performance())
 
     #RANDOM
 
