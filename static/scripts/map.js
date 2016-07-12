@@ -58,14 +58,27 @@ for(var i = 0; i < sectors_bounds.length; i++){
 }
 
 //Creates Leaflet circles objects from defined default waypoints
-for (var i = 0; i < default_targets.length; i++){
+for(var i = 0; i < default_targets.length; i++){
   var waypoint = L.circleMarker(default_targets[i], {radius: 3, color: 'grey'}, 1).addTo(campus);
   default_waypoints.push(waypoint);
 }
 
 //Add starting point
-var starting_point = [34.54542, 135.50398];
-starting_point_marker = L.circleMarker(starting_point, {radius: 4, color: 'black'}, 1).addTo(campus);
+var starting_point = [
+  [34.54541567027274, 135.50398817296576],
+  [34.545408860722944, 135.5039954066508],
+  [34.545402051172715, 135.5040026403347],
+  [34.54539524162206, 135.5040098740174],
+  [34.54538843207099, 135.50401710769893],
+  [34.54538162251949, 135.50402434137928],
+  [34.54537481296756, 135.50403157505846],
+  [34.54536800341522, 135.50403880873645],
+  [34.54536119386244, 135.50404604241328],
+];
+
+for(var i = 0; i < starting_point.length; i++){
+  starting_point_marker = L.circleMarker(starting_point[i], {radius: 4, color: 'black'}, 1).addTo(campus);
+}
 
 //Creates Leaflet polygone objects from defined project non admissible zones
 var p_b = L.polygon(projected_bounds, {color: 'blue'}).addTo(campus);
