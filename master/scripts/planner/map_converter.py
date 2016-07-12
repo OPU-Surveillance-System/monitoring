@@ -76,20 +76,27 @@ class Mapper():
         self.C = self.A - self.B
 
         #Environment elements
-        self.starting_point = self.latlong_to_index(starting_point)
+        self.starting_point = [self.latlong_to_index(s) for s in starting_point]
+        r = self.latlong_to_index((34.54542, 135.50398))
+        print("r", r)
+        for s in range(1, 10):
+            p = ((r[0] + 2*(s)), r[1])
+            p = self.index_to_latlong(p)
+            print("["+str(p[0])+", "+str(p[1])+"]")
         self.obstacles = obstacles
         self.default_targets = [self.latlong_to_index(t) for t in default_targets]
-        self.default_targets.append(self.starting_point)
+        for s in self.starting_point:
+            self.default_targets.append(s)
         self.world = self.create_world()
         for d in self.default_targets:
             self.world[d[1]][d[0]] = 3
-        self.world[self.starting_point[1]][self.starting_point[0]] = 2
+        for s in self.starting_point:
+            self.world[s[1]][s[0]] = 2
         print("Computing shortest paths to default targets...")
         self.paths = {(d1, d2):astar.astar(self.world, tuple(reversed(d1)), tuple(reversed(d2))) for d1 in tqdm(self.default_targets) for d2 in self.default_targets}
-        # for d1 in self.default_targets:
-        #     print(tuple(reversed(d1)))
-        #     print(project_to_original(tuple(reversed(d1))))
-        self.default_targets = self.default_targets[:-1] #Removing the starting point from target points list
+        for s in self.starting_point:
+            self.default_targets.remove(s)
+        #self.default_targets = self.default_targets[:-1] #Removing the starting point from target points list
         print("Paths computed")
         self.mapped_paths = np.copy(self.world)
         for k in self.paths:
@@ -210,7 +217,7 @@ class Mapper():
             plt.show()
             save = False
         if save:
-            plt.savefig('data/plot/world/map_grid_' + str(settings.X_SIZE) + 'x' + str(settings.Y_SIZE) + '.png', dpi=100)
+            plt.savefig('data/plot/world/map_grid_' + str(settings.X_SIZE) + 'x' + str(settings.Y_SIZE) + '.png', dpi=800)
 
     def plot_paths(self, show=True):
         """
@@ -225,7 +232,7 @@ class Mapper():
             plt.show()
             save = False
         if save:
-            plt.savefig('data/plot/paths/map_grid_' + str(settings.X_SIZE) + 'x' + str(settings.Y_SIZE) + '.png', dpi=100)
+            plt.savefig('data/plot/paths/map_grid_' + str(settings.X_SIZE) + 'x' + str(settings.Y_SIZE) + '.png', dpi=800)
 
     def plot_uncertainty_grid(self):
         """
