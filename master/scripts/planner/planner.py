@@ -51,8 +51,6 @@ class Solver:
                     cut_plan.append(tmp)
                     tmp = []
             self.cut_plan.append(cut_plan)
-            print(len(self.cut_plan))
-            print(len(self.cut_plan[0]))
 
     def check_collision(self):
         """
@@ -74,24 +72,34 @@ class Solver:
                         return True
         return False
 
-    def write_plan(self):
+    def write_plan_by_patrol(self):
         """
         Write the drones' paths on the grid
+        """
+
+        for d in range(self.nb_drone):
+            for p in range(len(self.cut_plan[d])):
+                for c in self.cut_plan[d][p]:
+                    self.mapped_paths[c[1]][c[0]] = 3 + p
+
+    def write_plan_by_drone(self):
+        """
+        Write
+        the drones' paths on the grid
         """
         for d in range(self.nb_drone):
             for p in range(len(self.cut_plan[d])):
                 for c in self.cut_plan[d][p]:
-                    self.mapped_paths[c[1]][c[0]] = 2 + p
+                    self.mapped_paths[c[1]][c[0]] = 3 + d
 
     def compute_performance(self):
         """
         Define the objective function
         """
 
-        e = 0
+        e = []
         for d in range(self.nb_drone):
-            start = self.state[d][0]
-            e += self.state[d].count(start)
+            e.append(len(self.cut_plan[d]))
 
         return e
 
@@ -103,7 +111,8 @@ class Solver:
         #print("Ploting plan")
         #TODO: Add more color to handle more drones
         cmap = colors.ListedColormap(['white', 'black', 'red', 'orange', 'blue', 'green', 'purple', 'pink', 'yellow', 'brown', 'cyan'])
-        self.write_plan()
+        #self.write_plan_by_patrol()
+        self.write_plan_by_drone()
         plt.imshow(self.mapped_paths, interpolation="none", cmap=cmap)
         save = True
         if show:
@@ -164,12 +173,12 @@ class GreedyPlanner(Solver):
 
         Solver.__init__(self, state, mapper, nb_drone)
 
-    def find_closest_point(self, point):
+    def find_closest_point(self, point, targets):
         """
         Search the closest point according to the given parameter
         """
 
-        points = [self.mapper.paths[(point, t)] for t in self.targets]
+        points = [self.mapper.paths[(point, t)] for t in targets if t != point]
         points = sorted(points, key=operator.itemgetter(1))
 
         return points[0]
@@ -180,33 +189,38 @@ class GreedyPlanner(Solver):
         by returning to base to recharge the battery when necessary.
         """
 
-        complete = False
-        for d in range(self.nb_drone):
-            while not complete:
+        #Remove non reachable targets
+        targets = list(self.targets)
+        check_targets = {t:[] for t in targets}
+        for t in targets:
+            for d in range(self.nb_drone):
+                if self.mapper.paths[(self.state[d][0], t)][1] + self.mapper.paths[(t, self.state[d][0])][1] > settings.MAX_BATTERY_UNIT:
+                    check_targets[t].append(d)
+        for t in check_targets:
+            if len(check_targets[t]) == self.nb_drone:
+                targets.remove(t)
+        #Compute plan
+        d = 0
+        battery = 0
+        base = self.state[d][0]
+        while len(targets) > 0:
+            lp = self.state[d][len(self.state[d]) - 1]
+            closest = self.find_closest_point(lp, targets)
+            cp = tuple(reversed(closest[0][len(closest[0]) - 1]))
+            r_battery = closest[1]
+            if battery + r_battery + self.mapper.paths[(cp, base)][1] < settings.MAX_BATTERY_UNIT:
+                self.state[d].append(cp)
+                battery += r_battery
+                targets.remove(cp)
+            else:
+                self.state[d].append(base)
+                battery += self.mapper.paths[(lp, base)][1]
+                self.battery_plan[d] += battery
                 battery = 0
-                while battery < settings.MAX_BATTERY_UNIT:
-                    closest_target = self.find_closest_point(self.state[d][len(self.state[d]) - 2])
-                    n = closest_target[0][len(closest_target[0]) - 1]
-                    n = tuple(reversed(n))
-                    if battery + self.mapper.paths[(self.state[d][len(self.state[d]) - 2], n)][1] + self.mapper.paths[(n, self.state[d][len(self.state[d]) - 1])][1] < settings.MAX_BATTERY_UNIT:
-                        self.state[d].insert(len(self.state[d]) - 1, n)
-                        battery += self.mapper.paths[(self.state[d][len(self.state[d]) - 2], n)][1] + self.mapper.paths[(n, self.state[d][len(self.state[d]) - 1])][1]
-                        self.targets.remove(n)
-                        if len(self.targets) == 0:
-                            self.battery_plan[d] += battery
-                            complete = True
-                            break
-                    else:
-                        if self.mapper.paths[(self.state[d][len(self.state[d]) - 2], n)][1] + self.mapper.paths[(n, self.state[d][len(self.state[d]) - 1])][1] > settings.MAX_BATTERY_UNIT:
-                            self.battery_plan[d] += battery
-                            complete = True
-                            break
-                        else:
-                            self.state[d].insert(len(self.state[d]) - 1, self.state[d][0])
-                            self.battery_plan[d] += battery
-                            battery = settings.MAX_BATTERY_UNIT
-            del self.state[d][len(self.state[d]) - 1]
-
+                d += 1
+                if d >= self.nb_drone:
+                    d = 0
+                base = self.state[d][0]
 
 def get_computed_path(mapper, nb_drone):
     #SIMULATED ANNEALING
@@ -226,7 +240,7 @@ def get_computed_path(mapper, nb_drone):
     # saplan.plot_plan("annealing_", show=False)
 
     #GREEDY
-    state = [[mapper.starting_point[d], mapper.starting_point[d]] for d in range(nb_drone)]
+    state = [[mapper.starting_point[d]] for d in range(nb_drone)]
     gplan = GreedyPlanner(state, mapper, nb_drone)
     gplan.compute_plan()
     gplan.detail_plan()
@@ -234,7 +248,7 @@ def get_computed_path(mapper, nb_drone):
     gplan.plot_plan("greedy_", show=False)
     print("PLAN", gplan.state)
     print("BATTERY", gplan.battery_plan)
-    print("NUMBER OF RETURN TO BASE", gplan.compute_performance())
+    print("NUMBER OF PATROL", gplan.compute_performance())
 
     #RANDOM
 
