@@ -18,6 +18,7 @@ var selected_waypoints = new Array();
 var default_waypoints = new Array();
 var projection = new Array();
 var sectors = new Array();
+var plan = new Array();
 
 //Development tool for easily Lat and Long on click
 // function onMapClick(e){
