@@ -266,11 +266,12 @@ def get_computed_path(mapper, nb_drone):
     gplan.detail_plan()
     gplan.check_collision()
     gplan.plot("greedy_", False)
-    print("PLAN", gplan.state)
+    perf = gplan.compute_performance()
+    print("PLAN", gplan.plan)
     print("BATTERY", gplan.battery_plan)
-    print("NUMBER OF PATROL", gplan.compute_performance())
+    print("NUMBER OF PATROL", perf)
 
     #RANDOM
 
 
-    return 0
+    return gplan.cut_plan
