@@ -12,7 +12,6 @@ path.append("../simulator")
 import settings
 import planner as ppl
 import map_converter as m
-import simulator as sim
 
 app = Flask(__name__,
             template_folder=settings.TEMPLATE_PATH,
@@ -76,7 +75,7 @@ def planner():
         #mapper.plot_world(show=False)
         #mapper.plot_paths(show=False)
         f.close()
-        computed_path = ppl.get_computed_path(mapper, nb_drones)
+        computed_path, nb_patrol, patrol_lengths = ppl.get_computed_path(mapper, nb_drones)
         f = open("data/serialization/plan.pickle", "wb")
         pickle.dump(computed_path, f)
         f.close()
@@ -88,7 +87,7 @@ def planner():
     except IOError:
         response = "World not virtualized yet. Please click on 'compute grid'."
 
-    return json.dumps({"computed_path":computed_path, "response":response})
+    return json.dumps({"computed_path":computed_path, "nb_patrol":nb_patrol, "patrol_lengths":patrol_lengths, "response":response})
 
 @app.route("/pathSender", methods=["POST"])
 def path_sender():
@@ -97,22 +96,6 @@ def path_sender():
     """
 
     #TODO
-
-    return json.dumps({"result":2})
-
-@app.route("/planSimulator", methods=["POST"])
-def plan_simulator():
-    """
-    Simulates the computed path
-    """
-
-    try:
-        f = open("data/serialization/plan.pickle", "rb")
-        plan = pickle.load(f)
-        f.close()
-        sim.simulate(plan)
-    except:
-        response = "No plan found."
 
     return json.dumps({"result":2})
 

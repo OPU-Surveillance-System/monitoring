@@ -36,6 +36,8 @@ function computePath(){
     success: function(data){
       var response = JSON.parse(data)["response"];
       plan = JSON.parse(data)["computed_path"];
+      nb_patrol = JSON.parse(data)["nb_patrol"];
+      patrol_lengths = JSON.parse(data)["patrol_lengths"];
       window.alert(response);
     },
     error: function(data){
@@ -112,18 +114,7 @@ function setProjection(){
 
 //Starts the simulation of the computed plan
 function simulatePlan(){
-  $.ajax({
-    type: 'post',
-    url: '/planSimulator',
-    contentType: "application/json; charset=utf-8",
-    success: function(data){
-      var response = JSON.parse(data)["response"];
-      window.alert(response);
-    },
-    error: function(data){
-      window.alert("error");
-    }
-  });
+  simulation();
 }
 
 //Stop the simulation

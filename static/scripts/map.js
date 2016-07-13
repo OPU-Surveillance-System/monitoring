@@ -19,6 +19,8 @@ var default_waypoints = new Array();
 var projection = new Array();
 var sectors = new Array();
 var plan = new Array();
+var nb_patrol = 0;
+var patrol_lengths = new Array();
 
 //Development tool for easily Lat and Long on click
 // function onMapClick(e){
