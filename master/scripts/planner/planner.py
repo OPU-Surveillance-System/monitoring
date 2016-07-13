@@ -64,9 +64,9 @@ class Solver:
                     pass
                 else:
                     common = list(set(self.plan[d1]).intersection(self.plan[d2]))
-                    if common != [] and common != [(125, 65)]:
+                    if common != []:
                         for c in common:
-                            if self.plan[d1].index(c) == self.plan[d2].index(c) and c != (125, 65):
+                            if self.plan[d1].index(c) == self.plan[d2].index(c):
                                 print("COLLISION AT: ", self.plan[d1].index(c))
                                 print(self.plan[d1][self.plan[d1].index(c)], self.plan[d2][self.plan[d2].index(c)])
                         return True
@@ -101,7 +101,20 @@ class Solver:
         for d in range(self.nb_drone):
             e.append(len(self.cut_plan[d]))
 
-        return e
+        return max(e)
+
+    def get_patrol_lengths(self):
+        """
+        """
+
+        nb_patrol = self.compute_performance()
+        patrols = [0 for i in range(nb_patrol)]
+        for d in range(self.nb_drone):
+            for p in range(len(self.cut_plan[d])):
+                if patrols[p] < len(self.cut_plan[d][p]):
+                    patrols[p] = len(self.cut_plan[d][p])
+
+        return patrols
 
     def plot(self, method, show=True):
         """
@@ -267,11 +280,13 @@ def get_computed_path(mapper, nb_drone):
     gplan.check_collision()
     gplan.plot("greedy_", False)
     perf = gplan.compute_performance()
-    print("PLAN", gplan.plan)
+    patrol_lengths = gplan.get_patrol_lengths()
+    print(patrol_lengths)
+    #print("PLAN", gplan.plan)
     print("BATTERY", gplan.battery_plan)
     print("NUMBER OF PATROL", perf)
 
     #RANDOM
 
 
-    return gplan.cut_plan
+    return gplan.cut_plan, perf, patrol_lengths
