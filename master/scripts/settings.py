@@ -9,8 +9,9 @@ STATIC_PATH = "/home/scom/Documents/opu_surveillance_system/monitoring/static/"
 #STATIC_PATH = "/home/jordan/Documents/tobikoma/monitoring/static"
 
 #Map Converter
-X_SIZE = int(858 / 4)
-Y_SIZE = int(624 / 4)
+COEFF = 4
+X_SIZE = int(858 / COEFF)
+Y_SIZE = int(624 / COEFF)
 #X_SIZE = 858
 #Y_SIZE = 624
 #X_SIZE = 858 * 2 #One cell = 50cm
@@ -21,4 +22,7 @@ RP_LATLON = [34.55016, 135.50613]
 RP_UTM = (546436.7465413728, 3823275.6881677327, 53, 'S')
 
 #Patrol planner
-MAX_BATTERY_UNIT = 375
+SPEED = 1 #m/s
+BATTERY_LIMIT = 25 #min
+MAX_DISTANCE_AT_SPEED = BATTERY_LIMIT * SPEED * 60
+MAX_BATTERY_UNIT = MAX_DISTANCE_AT_SPEED / COEFF

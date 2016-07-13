@@ -121,14 +121,14 @@ class Solver:
                 elif self.mapper.world[j][i] == 3:
                     targets[0].append(i)
                     targets[1].append(-j)
-        plt.scatter(obstacles[0], obstacles[1], color='black', marker=',')
+        plt.scatter(obstacles[0], obstacles[1], color='black', marker=',', s=10)
         plt.scatter(targets[0], targets[1], color='blue', s=40)
         for d in range(self.nb_drone):
             for p in range(len(self.cut_plan[d])):
                 x = []
                 y = []
                 for i in range(len(self.cut_plan[d][p])):
-                    if i % 3 == 0:
+                    if i % 2 == 0:
                         x.append(self.cut_plan[d][p][i][0])
                         y.append(-self.cut_plan[d][p][i][1])
                 plt.scatter(x, y, color=p_colors[p], marker=d_markers[d], s=10)
