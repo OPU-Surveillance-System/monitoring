@@ -80,7 +80,7 @@ class Solver:
         for d in range(self.nb_drone):
             for p in range(len(self.cut_plan[d])):
                 for c in self.cut_plan[d][p]:
-                    self.mapped_paths[c[1]][c[0]] = 3 + p
+                    self.mapped_paths[c[1]][c[0]] = 4 + p
 
     def write_plan_by_drone(self):
         """
@@ -90,7 +90,7 @@ class Solver:
         for d in range(self.nb_drone):
             for p in range(len(self.cut_plan[d])):
                 for c in self.cut_plan[d][p]:
-                    self.mapped_paths[c[1]][c[0]] = 3 + d
+                    self.mapped_paths[c[1]][c[0]] = 4 + d
 
     def compute_performance(self):
         """
@@ -103,23 +103,43 @@ class Solver:
 
         return e
 
-    def plot_plan(self, method, show=True):
+    def plot(self, method, show=True):
         """
-        Plot the environment
+        Plot the determined plan over the environment
         """
 
-        #print("Ploting plan")
-        #TODO: Add more color to handle more drones
-        cmap = colors.ListedColormap(['white', 'black', 'red', 'orange', 'blue', 'green', 'purple', 'pink', 'yellow', 'brown', 'cyan'])
-        #self.write_plan_by_patrol()
-        self.write_plan_by_drone()
-        plt.imshow(self.mapped_paths, interpolation="none", cmap=cmap)
+        obstacles = [[],[]]
+        paths = [[],[]]
+        targets = [[],[]]
+        d_markers = ["^", "x", ".", "s", "p", "*", "h", "d"]
+        p_colors = ["red", "green", "orange", "cyan", "yellow", "purple", "pink"]
+        for j in range(len(self.mapped_paths)):
+            for i in range(len(self.mapped_paths[j])):
+                if self.mapper.world[j][i] == 1:
+                    obstacles[0].append(i)
+                    obstacles[1].append(-j)
+                elif self.mapper.world[j][i] == 3:
+                    targets[0].append(i)
+                    targets[1].append(-j)
+        plt.scatter(obstacles[0], obstacles[1], color='black', marker=',')
+        plt.scatter(targets[0], targets[1], color='blue', s=40)
+        for d in range(self.nb_drone):
+            for p in range(len(self.cut_plan[d])):
+                x = []
+                y = []
+                for i in range(len(self.cut_plan[d][p])):
+                    if i % 3 == 0:
+                        x.append(self.cut_plan[d][p][i][0])
+                        y.append(-self.cut_plan[d][p][i][1])
+                plt.scatter(x, y, color=p_colors[p], marker=d_markers[d], s=10)
+        plt.xlim(0, settings.X_SIZE)
+        plt.ylim(-settings.Y_SIZE, 0)
         save = True
         if show:
             plt.show()
             save = False
         if save:
-            plt.savefig('data/plot/plan/' + method + str(settings.X_SIZE) + 'x' + str(settings.Y_SIZE) + '.png', dpi=800)
+            plt.savefig('data/plot/plan/' + method + "_" + str(self.nb_drone) + "_drones_" + str(settings.X_SIZE) + 'x' + str(settings.Y_SIZE) + '.png', dpi=800)
 
 
 class SimulatedAnnealingPlanner(Annealer, Solver):
@@ -245,7 +265,7 @@ def get_computed_path(mapper, nb_drone):
     gplan.compute_plan()
     gplan.detail_plan()
     gplan.check_collision()
-    gplan.plot_plan("greedy_", show=False)
+    gplan.plot("greedy_", False)
     print("PLAN", gplan.state)
     print("BATTERY", gplan.battery_plan)
     print("NUMBER OF PATROL", gplan.compute_performance())
