@@ -31,6 +31,5 @@ function update_position(i, j, a){
         console.log("No point for drone " + k + " at " + j);
       }
     }
-    //console.log("move drone " + k + " at " + plan[k][i][j]);
   }, a * 125);
 }
