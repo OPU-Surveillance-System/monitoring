@@ -2,7 +2,7 @@ function simulation(){
   nb_drones = plan.length;
   drones = Array();
   for(var i = 0; i < nb_drones; i++){
-    d = L.circleMarker(starting_point[i], {radius: 3, color: 'white'}, 1).addTo(campus);
+    d = L.circleMarker(starting_point[i], {radius: 3, color: 'blue'}, 1).addTo(campus);
     drones.push(d);
   }
   a = 0;
@@ -24,8 +24,13 @@ function simulation(){
 function update_position(i, j, a){
   setTimeout(function(){
     for(var k = 0; k < nb_drones; k++){
-      drones[k].setLatLng(plan[k][i][j]);
+      try{
+        drones[k].setLatLng(plan[k][i][j]);
+      }
+      catch(err){
+        console.log("No point for drone " + k + " at " + j);
+      }
     }
     //console.log("move drone " + k + " at " + plan[k][i][j]);
-  }, a * 1000);
+  }, a * 125);
 }
