@@ -9,6 +9,7 @@ from matplotlib import colors
 from tqdm import tqdm
 import operator
 import copy
+import time
 path.append("..")
 
 import settings
@@ -57,8 +58,9 @@ class Solver:
         Check collision between drone in the planned paths
         """
 
-        print("Checking collision")
-        for d1 in tqdm(range(self.nb_drone)):
+        #print("Checking collision")
+        collision = []
+        for d1 in range(self.nb_drone):
             for d2 in range(self.nb_drone):
                 if d1 == d2:
                     pass
@@ -69,8 +71,9 @@ class Solver:
                             if self.plan[d1].index(c) == self.plan[d2].index(c):
                                 print("COLLISION AT: ", self.plan[d1].index(c))
                                 print(self.plan[d1][self.plan[d1].index(c)], self.plan[d2][self.plan[d2].index(c)])
-                        return True
-        return False
+                                collision.append([d1, d2, c, self.plan[d1][self.plan[d1].index(c)], self.plan[d2][self.plan[d2].index(c)]])
+
+        return collision
 
     def write_plan_by_patrol(self):
         """
@@ -102,6 +105,7 @@ class Solver:
             e.append(len(self.cut_plan[d]))
 
         return max(e)
+        #return sum(e)
 
     def get_patrol_lengths(self):
         """
@@ -160,12 +164,13 @@ class SimulatedAnnealingPlanner(Annealer, Solver):
     Define a simulated annealing solver
     """
 
-    def __init__(self, state, mapper, nb_drone):
+    def __init__(self, state, mapper, nb_drone, nb_change=1):
         """
         Initialize the solver
         """
 
         Solver.__init__(self, state, mapper, nb_drone)
+        self.nb_change = nb_change
         #random.shuffle(self.targets)
 
     def move(self):
@@ -173,20 +178,60 @@ class SimulatedAnnealingPlanner(Annealer, Solver):
         Define the annealing process
         """
 
-        #Vider state de retour a la base
-        #Interchanger 2 points
-        #Ajouter les retours a la base
-
-
-        # for d in range(self.nb_drone):
-        #     for n in self.targets:
-        #         if self.battery_plan[d] + self.mapper.paths[(self.state[d][len(self.state[d]) - 2], n)][1] + self.mapper.paths[(n, self.state[d][len(self.state[d]) - 1])][1] < settings.MAX_BATTERY_UNIT:
-        #             self.state[d].insert(len(self.state[d]) - 1, n)
-        #             self.battery_plan[d] += self.mapper.paths[(self.state[d][len(self.state[d]) - 2], n)][1] + self.mapper.paths[(n, self.state[d][len(self.state[d]) - 1])][1]
-        #             self.targets.remove(n)
-        #     a = random.randint(1, len(self.state[d]) - 2)
-        #     b = random.randint(1, len(self.state[d]) - 2)
-        #     self.state[d][a], self.state[d][b] = self.state[d][b], self.state[d][a]
+        #print("ENTER MOVE")
+        start_points = []
+        cpy_state = list(self.state)
+        tmp = []
+        v = 0
+        for d in range(self.nb_drone):
+            start = self.state[d][0]
+            #Memo start points
+            start_points.append(start)
+            #Just keep visit sequence (no start/return to base/end)
+            while(start in cpy_state[d]):
+                v += 1
+                cpy_state[d].remove(start)
+            tmp += cpy_state[d]
+        cpy_state = list(tmp)
+        #print("CPY_STATE INITIALIZED")
+        #Apply random change
+        for c in range(self.nb_change):
+            a = random.randint(0, len(cpy_state) - 1)
+            b = random.randint(0, len(cpy_state) - 1)
+            cpy_state[a], cpy_state[b] = cpy_state[b], cpy_state[a]
+        #print("RANDOM CHANGE APPLIED")
+        #Reinsert start/return to base/end
+        d = 0
+        i = 1
+        battery = 0
+        v = 0
+        plan = [[start_points[d]] for d in range(self.nb_drone)]
+        #print("INSERTING START POINTS")
+        while i < (len(cpy_state) - 1):
+            #print(plan[d])
+            #print(i, plan[d][0], plan[d][i - 1], cpy_state[i], battery, self.mapper.paths[(plan[d][i - 1], cpy_state[i])][1] + self.mapper.paths[(cpy_state[i], start)][1])
+            if battery + self.mapper.paths[(plan[d][len(plan[d]) - 1], cpy_state[i])][1] + self.mapper.paths[(cpy_state[i], start)][1] < settings.MAX_BATTERY_UNIT:
+                battery += self.mapper.paths[(plan[d][len(plan[d]) - 1], cpy_state[i])][1]
+                plan[d].append(cpy_state[i])
+                i += 1
+            else:
+                v += 1
+                plan[d].append(start_points[d])
+                battery = 0
+                d += 1
+                if d >= self.nb_drone:
+                    d = 0
+        for elt in cpy_state:
+            if elt not in plan[0]:
+                print(elt)
+        #print("PLAN COMPUTED")
+        #check collision
+        collision = self.check_collision()
+        #print("COLLISION CHECKED", collision)
+        if collision == []:
+            self.state = list(plan)
+        self.detail_plan()
+        #print("PLAN DETAILED")
 
     def energy(self):
         """
@@ -194,7 +239,6 @@ class SimulatedAnnealingPlanner(Annealer, Solver):
         """
 
         e = Solver.compute_performance(self)
-        e = 1 / e
 
         return e
 
@@ -262,6 +306,28 @@ class GreedyPlanner(Solver):
 
 def get_computed_path(mapper, nb_drone):
     #SIMULATED ANNEALING
+    #Initial solution
+    state = [[mapper.starting_point[d]] for d in range(nb_drone)]
+    gplan = GreedyPlanner(state, mapper, nb_drone)
+    gplan.compute_plan()
+    gplan.detail_plan()
+    gplan.plot("greedy_", False)
+    perf = gplan.compute_performance()
+    print("BATTERY INIT.", gplan.battery_plan)
+    print("NUMBER OF PATROL INIT.", perf)
+    #Try to optimize by applying simuled annealing
+    state = list(gplan.state)
+    saplan = SimulatedAnnealingPlanner(state, mapper, nb_drone)
+    saplan.copy_strategy = "slice"
+    saplan.steps = 25000
+    saplan.updates = 100
+    print("START ANNEALING")
+    saplan.detail_plan()
+    itinerary, energy = saplan.anneal()
+    print("PLAN", itinerary)
+    print("NUMBER OF PATROLS", energy)
+    saplan.plot("annealing_", show=False)
+    patrol_lengths = saplan.get_patrol_lengths()
     # state = [[mapper.starting_point[d], mapper.starting_point[d]] for d in range(nb_drone)]
     # saplan = SimulatedAnnealingPlanner(state, mapper, nb_drone)
     # saplan.copy_strategy = "slice"
@@ -278,20 +344,17 @@ def get_computed_path(mapper, nb_drone):
     # saplan.plot_plan("annealing_", show=False)
 
     #GREEDY
-    state = [[mapper.starting_point[d]] for d in range(nb_drone)]
-    gplan = GreedyPlanner(state, mapper, nb_drone)
-    gplan.compute_plan()
-    gplan.detail_plan()
-    gplan.check_collision()
-    gplan.plot("greedy_", False)
-    perf = gplan.compute_performance()
-    patrol_lengths = gplan.get_patrol_lengths()
-    print(gplan.state)
-    #print("PLAN", gplan.plan)
-    print("BATTERY", gplan.battery_plan)
-    print("NUMBER OF PATROL", perf)
+    # state = [[mapper.starting_point[d]] for d in range(nb_drone)]
+    # gplan = GreedyPlanner(state, mapper, nb_drone)
+    # gplan.compute_plan()
+    # gplan.detail_plan()
+    # gplan.check_collision()
+    # gplan.plot("greedy_", False)
+    # perf = gplan.compute_performance()
+    # patrol_lengths = gplan.get_patrol_lengths()
+    # print(gplan.state)
+    # #print("PLAN", gplan.plan)
+    # print("BATTERY", gplan.battery_plan)
+    # print("NUMBER OF PATROL", perf)
 
-    #RANDOM
-
-
-    return gplan.cut_plan, perf, patrol_lengths
+    return saplan.cut_plan, perf, patrol_lengths
