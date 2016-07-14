@@ -9,7 +9,6 @@ function simulation(){
   for(var i = 0; i < nb_patrol; i++){
     for(var j = 0; j < patrol_lengths[i]; j++){
       a += 1;
-      //console.log(k + " " + " " + i + " " + j);
       try{
         update_position(i, j, a);
       }
