@@ -173,15 +173,20 @@ class SimulatedAnnealingPlanner(Annealer, Solver):
         Define the annealing process
         """
 
-        for d in range(self.nb_drone):
-            for n in self.targets:
-                if self.battery_plan[d] + self.mapper.paths[(self.state[d][len(self.state[d]) - 2], n)][1] + self.mapper.paths[(n, self.state[d][len(self.state[d]) - 1])][1] < settings.MAX_BATTERY_UNIT:
-                    self.state[d].insert(len(self.state[d]) - 1, n)
-                    self.battery_plan[d] += self.mapper.paths[(self.state[d][len(self.state[d]) - 2], n)][1] + self.mapper.paths[(n, self.state[d][len(self.state[d]) - 1])][1]
-                    self.targets.remove(n)
-            a = random.randint(1, len(self.state[d]) - 2)
-            b = random.randint(1, len(self.state[d]) - 2)
-            self.state[d][a], self.state[d][b] = self.state[d][b], self.state[d][a]
+        #Vider state de retour a la base
+        #Interchanger 2 points
+        #Ajouter les retours a la base
+
+
+        # for d in range(self.nb_drone):
+        #     for n in self.targets:
+        #         if self.battery_plan[d] + self.mapper.paths[(self.state[d][len(self.state[d]) - 2], n)][1] + self.mapper.paths[(n, self.state[d][len(self.state[d]) - 1])][1] < settings.MAX_BATTERY_UNIT:
+        #             self.state[d].insert(len(self.state[d]) - 1, n)
+        #             self.battery_plan[d] += self.mapper.paths[(self.state[d][len(self.state[d]) - 2], n)][1] + self.mapper.paths[(n, self.state[d][len(self.state[d]) - 1])][1]
+        #             self.targets.remove(n)
+        #     a = random.randint(1, len(self.state[d]) - 2)
+        #     b = random.randint(1, len(self.state[d]) - 2)
+        #     self.state[d][a], self.state[d][b] = self.state[d][b], self.state[d][a]
 
     def energy(self):
         """
@@ -281,7 +286,7 @@ def get_computed_path(mapper, nb_drone):
     gplan.plot("greedy_", False)
     perf = gplan.compute_performance()
     patrol_lengths = gplan.get_patrol_lengths()
-    print(patrol_lengths)
+    print(gplan.state)
     #print("PLAN", gplan.plan)
     print("BATTERY", gplan.battery_plan)
     print("NUMBER OF PATROL", perf)
