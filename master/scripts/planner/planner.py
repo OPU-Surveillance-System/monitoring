@@ -157,6 +157,7 @@ class Solver:
             save = False
         if save:
             plt.savefig('data/plot/plan/' + method + "_" + str(self.nb_drone) + "_drones_" + str(settings.X_SIZE) + 'x' + str(settings.Y_SIZE) + '.png', dpi=800)
+        plt.clf()
 
 
 class SimulatedAnnealingPlanner(Annealer, Solver):
@@ -171,76 +172,101 @@ class SimulatedAnnealingPlanner(Annealer, Solver):
 
         Solver.__init__(self, state, mapper, nb_drone)
         self.nb_change = nb_change
+        self.flatten_state = list(self.state)
+        self.start_points = []
+        self._flat_state()
         #random.shuffle(self.targets)
+
+    def _flat_state(self):
+        """
+        Keep only the visit order by removing start/return to base/end points in state
+        """
+
+        tmp = []
+        for d in range(self.nb_drone):
+            start = self.state[d][0]
+            self.start_points.append(start)
+            while(start in self.flatten_state[d]):
+                self.flatten_state[d].remove(start)
+            tmp += self.flatten_state[d]
+        self.state = list(tmp)
+        #print(self.state)
+
+    def _unflate_state(self):
+        """
+        Build patrols by reinserting start/return to base/end points in state
+        """
+
+        patrol = [[self.start_points[d]] for d in range(self.nb_drone)]
+        i = 0
+        d = 0
+        battery = 0
+        while i < len(self.state):
+            last_position = patrol[d][len(patrol[d]) - 1]
+            target = self.state[i]
+            if battery + self.mapper.paths[(last_position, target)][1] + self.mapper.paths[(target, self.start_points[d])][1] < settings.MAX_BATTERY_UNIT:
+                patrol[d].append(target)
+                battery += self.mapper.paths[(last_position, target)][1]
+                i += 1
+            else:
+                patrol[d].append(self.start_points[d])
+                battery = 0
+                d += 1
+                if d >= self.nb_drone:
+                    d = 0
+            if i >= len(self.state) - 1 and patrol[d][len(patrol[d]) - 1] != self.start_points[d]:
+                patrol[d].append(self.start_points[d])
+        self.state = list(patrol)
 
     def move(self):
         """
         Define the annealing process
         """
 
-        #print("ENTER MOVE")
-        start_points = []
-        cpy_state = list(self.state)
-        tmp = []
-        v = 0
-        for d in range(self.nb_drone):
-            start = self.state[d][0]
-            #Memo start points
-            start_points.append(start)
-            #Just keep visit sequence (no start/return to base/end)
-            while(start in cpy_state[d]):
-                v += 1
-                cpy_state[d].remove(start)
-            tmp += cpy_state[d]
-        cpy_state = list(tmp)
-        #print("CPY_STATE INITIALIZED")
         #Apply random change
+        #cpy_state = list(self.state)
         for c in range(self.nb_change):
-            a = random.randint(0, len(cpy_state) - 1)
-            b = random.randint(0, len(cpy_state) - 1)
-            cpy_state[a], cpy_state[b] = cpy_state[b], cpy_state[a]
-        #print("RANDOM CHANGE APPLIED")
-        #Reinsert start/return to base/end
-        d = 0
-        i = 1
-        battery = 0
-        v = 0
-        plan = [[start_points[d]] for d in range(self.nb_drone)]
-        #print("INSERTING START POINTS")
-        while i < (len(cpy_state) - 1):
-            #print(plan[d])
-            #print(i, plan[d][0], plan[d][i - 1], cpy_state[i], battery, self.mapper.paths[(plan[d][i - 1], cpy_state[i])][1] + self.mapper.paths[(cpy_state[i], start)][1])
-            if battery + self.mapper.paths[(plan[d][len(plan[d]) - 1], cpy_state[i])][1] + self.mapper.paths[(cpy_state[i], start)][1] < settings.MAX_BATTERY_UNIT:
-                battery += self.mapper.paths[(plan[d][len(plan[d]) - 1], cpy_state[i])][1]
-                plan[d].append(cpy_state[i])
-                i += 1
-            else:
-                v += 1
-                plan[d].append(start_points[d])
-                battery = 0
-                d += 1
-                if d >= self.nb_drone:
-                    d = 0
-        for elt in cpy_state:
-            if elt not in plan[0]:
-                print(elt)
-        #print("PLAN COMPUTED")
+            a = random.randint(0, len(self.state) - 1)
+            b = random.randint(0, len(self.state) - 1)
+            self.state[a], self.state[b] = self.state[b], self.state[a]
         #check collision
-        collision = self.check_collision()
-        #print("COLLISION CHECKED", collision)
-        if collision == []:
-            self.state = list(plan)
-        self.detail_plan()
-        #print("PLAN DETAILED")
+        # collision = self.check_collision()
+        # if collision == []:
+        #     self.state = list(cpy_state)
 
     def energy(self):
         """
         Define the objective function
         """
 
-        e = Solver.compute_performance(self)
+        # start = self.start_points[0]
+        # battery = self.mapper.paths[(start, self.flatten_state[0])][1]
+        # nb_patrol = 0
+        # for i in range(2, len(self.flatten_state)):
+        #     if battery + self.mapper.paths[(self.flatten_state[i - 1], self.flatten_state[i])][1] + self.mapper.paths[(self.flatten_state[i], start)][1] < settings.MAX_BATTERY_UNIT:
+        #         battery += self.mapper.paths[(self.flatten_state[i - 1], self.flatten_state[i])][1]
+        #     else:
+        #         nb_patrol += 1
+        #         battery = 0
 
-        return e
+        # return nb_patrol
+
+        start = self.start_points[0]
+        battery = self.mapper.paths[(start, self.state[0])][1]
+        for i in range(2, len(self.state)):
+            battery += self.mapper.paths[(self.state[i - 1], self.state[i])][1]
+        battery += self.mapper.paths[(self.state[len(self.state) - 1], start)][1]
+        return battery
+
+    def build_plan(self):
+        """
+        """
+
+        #print(self.state)
+        self._unflate_state()
+        #print(self.state)
+        self.detail_plan()
+        print(self.cut_plan)
 
 
 class GreedyPlanner(Solver):
@@ -310,8 +336,9 @@ def get_computed_path(mapper, nb_drone):
     state = [[mapper.starting_point[d]] for d in range(nb_drone)]
     gplan = GreedyPlanner(state, mapper, nb_drone)
     gplan.compute_plan()
+    print("GPLAN", gplan.state)
     gplan.detail_plan()
-    gplan.plot("greedy_", False)
+    #gplan.plot("greedy_", False)
     perf = gplan.compute_performance()
     print("BATTERY INIT.", gplan.battery_plan)
     print("NUMBER OF PATROL INIT.", perf)
@@ -322,26 +349,15 @@ def get_computed_path(mapper, nb_drone):
     saplan.steps = 25000
     saplan.updates = 100
     print("START ANNEALING")
-    saplan.detail_plan()
+    #saplan.detail_plan()
     itinerary, energy = saplan.anneal()
-    print("PLAN", itinerary)
-    print("NUMBER OF PATROLS", energy)
+    #print("PLAN", itinerary)
+    #print("NUMBER OF PATROLS", energy)
+    saplan.build_plan()
+    #print(saplan.cut_plan[2])
+    #print(saplan.cut_plan[3])
     saplan.plot("annealing_", show=False)
-    patrol_lengths = saplan.get_patrol_lengths()
-    # state = [[mapper.starting_point[d], mapper.starting_point[d]] for d in range(nb_drone)]
-    # saplan = SimulatedAnnealingPlanner(state, mapper, nb_drone)
-    # saplan.copy_strategy = "slice"
-    # saplan.steps = 25000
-    # saplan.updates = 100
-    # itinerary, energy = saplan.anneal()
-    # saplan.detail_plan()
-    # #collision = saplan.check_collision()
-    # energy = int(1 / energy)
-    # energy -= 2 * nb_drone
-    # #print("BATTERY", saplan.battery_plan)
-    # #print("PLAN", itinerary)
-    # #print("NUMBER OF VISITED POINTS", energy)
-    # saplan.plot_plan("annealing_", show=False)
+    # patrol_lengths = saplan.get_patrol_lengths()
 
     #GREEDY
     # state = [[mapper.starting_point[d]] for d in range(nb_drone)]
@@ -357,4 +373,5 @@ def get_computed_path(mapper, nb_drone):
     # print("BATTERY", gplan.battery_plan)
     # print("NUMBER OF PATROL", perf)
 
-    return saplan.cut_plan, perf, patrol_lengths
+    #return saplan.cut_plan, energy, patrol_lengths
+    return 0, 0, 0

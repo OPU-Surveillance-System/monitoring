@@ -71,23 +71,27 @@ def planner():
     response = ""
     try:
         f = open("data/serialization/mapper.pickle", "rb")
+        print("mapper ok")
         mapper = pickle.load(f)
         #mapper.plot_world(show=False)
         #mapper.plot_paths(show=False)
         f.close()
         computed_path, nb_patrol, patrol_lengths = ppl.get_computed_path(mapper, nb_drones)
+        print("plan computed")
         f = open("data/serialization/plan.pickle", "wb")
+        print("plan ok")
         pickle.dump(computed_path, f)
         f.close()
-        for d in range(nb_drones):
-            for p in range(len(computed_path[d])):
-                for pt in range(len(computed_path[d][p])):
-                    computed_path[d][p][pt] = mapper.index_to_latlong(computed_path[d][p][pt])
+        # for d in range(nb_drones):
+        #     for p in range(len(computed_path[d])):
+        #         for pt in range(len(computed_path[d][p])):
+        #             computed_path[d][p][pt] = mapper.index_to_latlong(computed_path[d][p][pt])
         response = "plan computed."
     except IOError:
         response = "World not virtualized yet. Please click on 'compute grid'."
 
-    return json.dumps({"computed_path":computed_path, "nb_patrol":nb_patrol, "patrol_lengths":patrol_lengths, "response":response})
+    #return json.dumps({"computed_path":computed_path, "nb_patrol":nb_patrol, "patrol_lengths":patrol_lengths, "response":response})
+    return json.dumps({"response":response})
 
 @app.route("/pathSender", methods=["POST"])
 def path_sender():
