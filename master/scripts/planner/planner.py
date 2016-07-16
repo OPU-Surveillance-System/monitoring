@@ -34,12 +34,10 @@ def get_computed_path(mapper, nb_drone):
     saplan.detail_plan()
     itinerary, energy = saplan.solve()
     saplan.state = list(itinerary)
+    saplan.detail_plan()
     print("PLAN", itinerary)
     print("BATTERY", saplan.battery_plan)
     print("NUMBER OF PATROLS", saplan.get_number_patrols())
-    saplan.detail_plan()
-    tmp = [len(saplan.plan[d]) for d in range(nb_drone)]
-    print("SAPLAN", tmp)
     saplan.plot("annealing_", show=False)
     #patrol_lengths = saplan.get_patrol_lengths()
 
