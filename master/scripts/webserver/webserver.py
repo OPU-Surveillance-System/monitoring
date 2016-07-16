@@ -71,15 +71,14 @@ def planner():
     response = ""
     try:
         f = open("data/serialization/mapper.pickle", "rb")
-        print("mapper ok")
+        print("MAPPER LOADED")
         mapper = pickle.load(f)
         #mapper.plot_world(show=False)
         #mapper.plot_paths(show=False)
         f.close()
         computed_path, nb_patrol, patrol_lengths = ppl.get_computed_path(mapper, nb_drones)
-        print("plan computed")
+        print("PLAN COMPUTED")
         f = open("data/serialization/plan.pickle", "wb")
-        print("plan ok")
         pickle.dump(computed_path, f)
         f.close()
         # for d in range(nb_drones):
