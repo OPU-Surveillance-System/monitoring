@@ -116,6 +116,7 @@ class Solver:
 
     def get_number_patrols(self):
         """
+        Count the number for patrols for each drone
         """
 
         nb_patrols = [len(self.plan[d]) for d in range(self.nb_drone)]
