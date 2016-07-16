@@ -68,6 +68,9 @@ class Solver:
         for d in range(self.nb_drone):
             for s in range(1, len(self.state[d])):
                 try:
+                    if self.state[d][s - 1] == self.state[d][s]:
+                        print("DP", d, s - 1, s)
+                        print("DP", self.state[d])
                     path[d] += self.mapper.paths[(self.state[d][s - 1], self.state[d][s])][0]
                 except ValueError:
                     print("No path between points: " + str(self.state[d][s - 1]) + " and " + str(self.state[d][s]))
@@ -282,6 +285,7 @@ class SimulatedAnnealingPlanner(Annealer, Solver):
         """
 
         patrol = [[self.start_points[d]] for d in range(self.nb_drone)]
+        self.battery_plan = [0 for d in range(self.nb_drone)]
         i = 0
         d = 0
         battery = 0
@@ -294,9 +298,10 @@ class SimulatedAnnealingPlanner(Annealer, Solver):
                 self.battery_plan[d] += battery
                 i += 1
             else:
-                patrol[d].append(self.start_points[d])
-                battery += self.mapper.paths[(target, self.start_points[d])][1]
-                self.battery_plan[d] += battery
+                if patrol[d][len(patrol[d]) - 1] != self.start_points[d]:
+                    patrol[d].append(self.start_points[d])
+                    battery += self.mapper.paths[(target, self.start_points[d])][1]
+                    self.battery_plan[d] += battery
                 battery = 0
                 d += 1
                 if d >= self.nb_drone:
@@ -323,8 +328,11 @@ class SimulatedAnnealingPlanner(Annealer, Solver):
         """
 
         for c in range(self.nb_change):
-            a = random.randint(0, len(self.state) - 1)
-            b = random.randint(0, len(self.state) - 1)
+            a = 0
+            b = 0
+            while a == b:
+                a = random.randint(0, len(self.state) - 1)
+                b = random.randint(0, len(self.state) - 1)
             self.state[a], self.state[b] = self.state[b], self.state[a]
 
     def compute_performance(self):

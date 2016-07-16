@@ -18,8 +18,6 @@ def get_computed_path(mapper, nb_drone):
     gplan.solve()
     print("GPLAN", gplan.state)
     gplan.detail_plan()
-    tmp = [len(gplan.plan[d]) for d in range(nb_drone)]
-    print("GPLAN", tmp)
     gplan.plot("greedy_", False)
     perf = gplan.compute_performance()
     print("BATTERY INIT.", gplan.battery_plan)
