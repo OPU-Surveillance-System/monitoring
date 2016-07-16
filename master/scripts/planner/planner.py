@@ -18,7 +18,7 @@ def get_computed_path(mapper, nb_drone):
     gplan.solve()
     print("GPLAN", gplan.state)
     gplan.detail_plan()
-    gplan.plot("greedy_", False)
+    gplan.plot("greedy", False)
     perf = gplan.compute_performance()
     print("BATTERY INIT.", gplan.battery_plan)
     print("NUMBER OF PATROL INIT.", gplan.get_number_patrols())
@@ -36,7 +36,7 @@ def get_computed_path(mapper, nb_drone):
     print("PLAN", itinerary)
     print("BATTERY", saplan.battery_plan)
     print("NUMBER OF PATROLS", saplan.get_number_patrols())
-    saplan.plot("annealing_", show=False)
+    saplan.plot("annealing", show=False)
     #patrol_lengths = saplan.get_patrol_lengths()
 
     return 0, 0, 0
