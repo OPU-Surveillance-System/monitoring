@@ -35,6 +35,7 @@ class Solver:
         self.mapped_paths = copy.copy(self.mapper.world)
         self.battery_plan = [0 for d in range(self.nb_drone)]
         self.plan = []
+        self.start_points = [mapper.starting_point[d] for d in range(nb_drone)]
 
     def remove_impossible_targets(self):
         """
@@ -91,17 +92,27 @@ class Solver:
         """
 
         collision = []
+        nb_patrol = max(self.get_number_patrols())
+        max_patrol_length = max(self.get_patrol_lengths())
+        cpy_plan = list(self.plan)
+        for d in range(self.nb_drone):
+            while len(cpy_plan[d]) < nb_patrol:
+                cpy_plan[d].append([])
+            for p in range(nb_patrol):
+                while len(cpy_plan[d][p]) < max_patrol_length:
+                    cpy_plan[d][p].append(self.start_points[d])
         for d1 in range(self.nb_drone):
             for d2 in range(self.nb_drone):
                 if d1 == d2:
                     pass
                 else:
-                    common = list(set(self.plan[d1]).intersection(self.plan[d2]))
-                    if common != []:
-                        for c in common:
-                            if self.plan[d1].index(c) == self.plan[d2].index(c):
-                                print("collision at: ", self.plan[d1].index(c), ", point (d1, d2)", self.plan[d1][self.plan[d1].index(c)], self.plan[d2][self.plan[d2].index(c)])
-                                collision.append([d1, d2, c, self.plan[d1][self.plan[d1].index(c)], self.plan[d2][self.plan[d2].index(c)]])
+                    for p in range(nb_patrol):
+                        common = list(set(cpy_plan[d1][p]).intersection(cpy_plan[d2][p]))
+                        if common != []:
+                            for c in common:
+                                if cpy_plan[d1][p].index(c) == cpy_plan[d2][p].index(c):
+                                    print("collision at: ", cpy_plan[d1][p].index(c), ", (d" + str(d1) + ", d" + str(d2) + ")", cpy_plan[d1][p][cpy_plan[d1][p].index(c)], cpy_plan[d2][p][cpy_plan[d2][p].index(c)])
+                                    collision.append([d1, d2, c, cpy_plan[d1][p][cpy_plan[d1][p].index(c)], cpy_plan[d2][p][cpy_plan[d2][p].index(c)]])
 
         return collision
 
@@ -270,7 +281,6 @@ class SimulatedAnnealingPlanner(Annealer, Solver):
 
         Solver.__init__(self, state, mapper, nb_drone)
         self.nb_change = nb_change
-        self.start_points = [mapper.starting_point[d] for d in range(nb_drone)]
 
     def _flat_state(self):
         """
