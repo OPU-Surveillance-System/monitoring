@@ -22,14 +22,18 @@ def get_computed_path(mapper, nb_drone):
     greedy_collision = gplan.check_collision()
     gplan.get_battery_plan()
     #Try to optimize by applying simuled annealing
+    print("START SIMULATED ANNEALING")
     state = list(gplan.state)
     sa_collision = [1]
     while sa_collision != []:
         saplan = SimulatedAnnealingPlanner(state, mapper, nb_drone)
+        #auto_schedule = saplan.auto(minutes=1)
+        #saplan.set_schedule(auto_schedule)
         saplan.copy_strategy = "slice"
         saplan.steps = 100000
+        saplan.Tmax = 2500
+        saplan.Tmin = 4
         saplan.updates = 100
-        print("START SIMULATED ANNEALING")
         saplan.detail_plan()
         itinerary, energy = saplan.solve()
         saplan.state = list(itinerary)

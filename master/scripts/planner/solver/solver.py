@@ -251,7 +251,7 @@ class GreedyPlanner(Solver):
         self.remove_impossible_targets()
         d = 0
         battery = 0
-        base = self.state[d][0]
+        base = self.start_points[d]
         while len(self.targets) > 0:
             last_position = self.state[d][len(self.state[d]) - 1]
             closest = self._find_closest_point(last_position, self.targets)
@@ -268,7 +268,7 @@ class GreedyPlanner(Solver):
                 d += 1
                 if d >= self.nb_drone:
                     d = 0
-                base = self.state[d][0]
+                base = self.start_points[d]
         self.state[d].append(base)
 
 
