@@ -11,7 +11,6 @@ import settings
 from solver.solver import GreedyPlanner, SimulatedAnnealingPlanner
 
 def get_computed_path(mapper, nb_drone):
-    #SIMULATED ANNEALING
     #Initial solution
     print("START GREEDY")
     state = [[mapper.starting_point[d]] for d in range(nb_drone)]

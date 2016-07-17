@@ -85,6 +85,7 @@ class Solver:
 
     def get_battery_plan(self):
         """
+        Estimate the battery consumption for each patrol according to the computed plan.
         """
 
         self.battery_plan = [["Drone " + str(d + 1)] for d in range(self.nb_drone)]
