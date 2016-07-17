@@ -13,36 +13,40 @@ from solver.solver import GreedyPlanner, SimulatedAnnealingPlanner
 def get_computed_path(mapper, nb_drone):
     #SIMULATED ANNEALING
     #Initial solution
+    print("START GREEDY")
     state = [[mapper.starting_point[d]] for d in range(nb_drone)]
     gplan = GreedyPlanner(state, mapper, nb_drone)
     gplan.solve()
-    print("GPLAN", gplan.state)
     gplan.detail_plan()
     gplan.plot("greedy", False)
     perf = gplan.compute_performance()
-    collision = gplan.check_collision()
-    print("COLLISION", collision)
-    print("BATTERY INIT.", gplan.battery_plan)
-    print("NUMBER OF PATROL INIT.", gplan.get_number_patrols())
+    greedy_collision = gplan.check_collision()
+    gplan.get_battery_plan()
     #Try to optimize by applying simuled annealing
     state = list(gplan.state)
-    collision = [1]
-    while collision != []:
+    sa_collision = [1]
+    while sa_collision != []:
         saplan = SimulatedAnnealingPlanner(state, mapper, nb_drone)
         saplan.copy_strategy = "slice"
         saplan.steps = 100000
         saplan.updates = 100
-        print("START ANNEALING")
+        print("START SIMULATED ANNEALING")
         saplan.detail_plan()
         itinerary, energy = saplan.solve()
         saplan.state = list(itinerary)
         saplan.detail_plan()
-        collision = gplan.check_collision()
-        print("COLLISION", collision)
-    print("PLAN", itinerary)
-    print("BATTERY", saplan.battery_plan)
-    print("NUMBER OF PATROLS", saplan.get_number_patrols())
+        sa_collision = gplan.check_collision()
+        print("COLLISION IN PLAN", sa_collision)
+    saplan.get_battery_plan()
     saplan.plot("annealing", show=False)
+    print("GREEDY PLAN", gplan.state)
+    print("GREEDY COLLISION", greedy_collision)
+    print("GREEDY NUMBER OF PATROL", gplan.get_number_patrols())
+    print("GREEDY BATTERY", gplan.battery_plan)
+    print("SIMULATED ANNEALING PLAN", itinerary)
+    print("SIMULATED ANNEALING COLLISION", sa_collision)
+    print("SIMULATED ANNEALING NUMBER OF PATROLS", saplan.get_number_patrols())
+    print("SIMULATED ANNEALING BATTERY", saplan.battery_plan)
     converted_plan = saplan.mapper.convert_plan(saplan.plan, nb_drone)
     patrol_lengths = saplan.get_patrol_lengths()
 
