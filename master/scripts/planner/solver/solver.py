@@ -128,15 +128,21 @@ class Solver:
 
     def get_patrol_lengths(self):
         """
-        Looks the longer patrol for each drone
+        Looks for the longer patrol for each patrol
         """
 
-        nb_patrol = self.compute_performance()
-        patrols = [0 for i in range(nb_patrol)]
-        for d in range(self.nb_drone):
-            patrols[p] = max([len(self.plan[d][p]) for p in range(len(self.plan[d]))])
+        nb_patrol = max(self.get_number_patrols())
+        patrol_lengths = [0 for i in range(nb_patrol)]
+        for p in range(nb_patrol):
+            patrol = [0 for i in range(self.nb_drone)]
+            for d in range(self.nb_drone):
+                try:
+                    patrol[d] = len(self.plan[d][p])
+                except IndexError:
+                    patrol[d] = 0
+            patrol_lengths[p] = max(patrol)
 
-        return patrols
+        return patrol_lengths
 
     def plot(self, method, show=True):
         """

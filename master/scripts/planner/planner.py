@@ -20,6 +20,7 @@ def get_computed_path(mapper, nb_drone):
     gplan.detail_plan()
     gplan.plot("greedy", False)
     perf = gplan.compute_performance()
+    #collision = gplan.check_collision()
     print("BATTERY INIT.", gplan.battery_plan)
     print("NUMBER OF PATROL INIT.", gplan.get_number_patrols())
     #Try to optimize by applying simuled annealing
@@ -37,6 +38,7 @@ def get_computed_path(mapper, nb_drone):
     print("BATTERY", saplan.battery_plan)
     print("NUMBER OF PATROLS", saplan.get_number_patrols())
     saplan.plot("annealing", show=False)
-    #patrol_lengths = saplan.get_patrol_lengths()
+    converted_plan = saplan.mapper.convert_plan(saplan.plan, nb_drone)
+    patrol_lengths = saplan.get_patrol_lengths()
 
-    return 0, 0, 0
+    return converted_plan, max(saplan.get_number_patrols()), patrol_lengths

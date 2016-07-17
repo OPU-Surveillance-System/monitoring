@@ -55,7 +55,7 @@ class Mapper():
 
     def __init__(self, limits, starting_point, obstacles, default_targets):
         """
-        Instantiate a Mapper object
+        Instantiate a Mapper object.
 
         Keyword arguments:
         limits: environment boundaries
@@ -106,7 +106,7 @@ class Mapper():
 
     def project_limits(self):
         """
-        Represent the environment's limits into the projected space and rectangularize the environment
+        Represent the environment's limits into the projected space and rectangularize the environment.
         """
 
         #TODO: Find a better way to have a rectangular representation of the map (think security)
@@ -127,7 +127,7 @@ class Mapper():
 
     def latlong_to_index(self, point):
         """
-        Convert a given geographical point (expressed by latitude and longitude values) in a world's index
+        Convert a given geographical point (expressed by latitude and longitude values) in a world's index.
 
         Keyword arguments:
         point: point in latitude/longitude
@@ -141,7 +141,7 @@ class Mapper():
 
     def index_to_latlong(self, point):
         """
-        Convert a given world's index (expressed by x and y values) in latitude and longitude values
+        Convert a given world's index (expressed by x and y values) in latitude and longitude values.
 
         Keyword arguments:
         point: point index
@@ -157,7 +157,7 @@ class Mapper():
 
     def is_non_admissible(self, point, obs_poly):
         """
-        Check if a given point is out of campus limits or is an obstacle
+        Check if a given point is out of campus limits or is an obstacle.
         """
 
         check = False
@@ -173,7 +173,7 @@ class Mapper():
 
     def create_world(self):
         """
-        Create a grid representing the given environment
+        Create a grid representing the given environment.
 
         Grid values:
         0: admissible cell
@@ -194,16 +194,33 @@ class Mapper():
 
         return world
 
+    def convert_plan(self, plan, nb_drone):
+        """
+        Convert the given plan's points into latitude/longitude points.
+
+        Keyword arguments:
+        plan: A plan of paths
+        nb_drone: Number of drones
+        """
+
+        converted_plan = list(plan)
+        for d in range(nb_drone):
+            for p in range(len(plan[d])):
+                for pt in range(len(plan[d][p])):
+                    converted_plan[d][p][pt] = self.index_to_latlong(plan[d][p][pt])
+
+        return converted_plan
+
     def update_uncertainty_grid(self):
         """
-        Update the uncertainty level
+        Update the uncertainty level.
         """
 
         return []
 
     def plot_world(self, show=True):
         """
-        Plot the environment
+        Plot the environment.
         """
 
         print("Ploting world")
@@ -218,7 +235,7 @@ class Mapper():
 
     def plot_paths(self, show=True):
         """
-        Plot the environment
+        Plot the environment.
         """
 
         print("Ploting world")
@@ -233,5 +250,5 @@ class Mapper():
 
     def plot_uncertainty_grid(self):
         """
-        Plot the uncertainty level
+        Plot the uncertainty level.
         """
