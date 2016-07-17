@@ -14,7 +14,6 @@ def get_computed_path(mapper, nb_drone):
     #SIMULATED ANNEALING
     #Initial solution
     state = [[mapper.starting_point[d]] for d in range(nb_drone)]
-    print(state)
     gplan = GreedyPlanner(state, mapper, nb_drone)
     gplan.solve()
     print("GPLAN", gplan.state)
@@ -32,7 +31,7 @@ def get_computed_path(mapper, nb_drone):
         saplan = SimulatedAnnealingPlanner(state, mapper, nb_drone)
         saplan.copy_strategy = "slice"
         saplan.steps = 100000
-        saplan.updates = 0
+        saplan.updates = 100
         print("START ANNEALING")
         saplan.detail_plan()
         itinerary, energy = saplan.solve()

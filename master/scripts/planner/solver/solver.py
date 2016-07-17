@@ -69,9 +69,6 @@ class Solver:
         for d in range(self.nb_drone):
             for s in range(1, len(self.state[d])):
                 try:
-                    if self.state[d][s - 1] == self.state[d][s]:
-                        print("DP", d, s - 1, s)
-                        print("DP", self.state[d])
                     path[d] += self.mapper.paths[(self.state[d][s - 1], self.state[d][s])][0]
                 except ValueError:
                     print("No path between points: " + str(self.state[d][s - 1]) + " and " + str(self.state[d][s]))
@@ -322,7 +319,7 @@ class SimulatedAnnealingPlanner(Annealer, Solver):
                 d += 1
                 if d >= self.nb_drone:
                     d = 0
-            if i >= len(self.state) - 1 and patrol[d][len(patrol[d]) - 1] != self.start_points[d]:
+            if i >= len(self.state) and patrol[d][len(patrol[d]) - 1] != self.start_points[d]:
                 patrol[d].append(self.start_points[d])
         self.state = list(patrol)
 
