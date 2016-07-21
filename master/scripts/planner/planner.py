@@ -30,12 +30,14 @@ def get_computed_path(mapper, nb_drone):
         #auto_schedule = saplan.auto(minutes=1)
         #saplan.set_schedule(auto_schedule)
         saplan.copy_strategy = "slice"
-        saplan.steps = 100000
-        saplan.Tmax = 2500
-        saplan.Tmin = 4
+        saplan.steps = 200000
+        saplan.Tmax = 10000
+        saplan.Tmin = 0.01
         saplan.updates = 100
         saplan.detail_plan()
-        itinerary, energy = saplan.solve()
+        itinerary, energy, lol = saplan.solve()
+        print("ITINERARY EN SORTIE", lol)
+        print("ENERGY", energy)
         saplan.state = list(itinerary)
         saplan.detail_plan()
         sa_collision = gplan.check_collision()
@@ -46,10 +48,11 @@ def get_computed_path(mapper, nb_drone):
     print("GREEDY COLLISION", greedy_collision)
     print("GREEDY NUMBER OF PATROL", gplan.get_number_patrols())
     print("GREEDY BATTERY", gplan.battery_plan)
-    print("SIMULATED ANNEALING PLAN", itinerary)
+    print("SIMULATED ANNEALING PLAN", saplan.state)
     print("SIMULATED ANNEALING COLLISION", sa_collision)
     print("SIMULATED ANNEALING NUMBER OF PATROLS", saplan.get_number_patrols())
     print("SIMULATED ANNEALING BATTERY", saplan.battery_plan)
+    print("VALUE ITINERARY", saplan.compute_performance2(lol))
     converted_plan = saplan.mapper.convert_plan(saplan.plan, nb_drone)
     patrol_lengths = saplan.get_patrol_lengths()
 
