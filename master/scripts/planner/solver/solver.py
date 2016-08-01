@@ -281,6 +281,38 @@ class Solver:
             plt.savefig('data/plot/plan/' + str(self.nb_drone) + "_drones_" + method + "_" + str(settings.X_SIZE) + 'x' + str(settings.Y_SIZE) + '.png', dpi=800)
         plt.clf()
 
+class RandomPlanner(Solver):
+    """
+    Define a random solver.
+    """
+
+    def __init__(self, state, mapper, nb_drone):
+        """
+        Initialize the random solver.
+
+        Keyword arguments:
+        state: Initial plan
+        mapper: Representation of the environment
+        nb_drone: Number of drones
+        """
+
+        Solver.__init__(self, state, mapper, nb_drone)
+
+    def solve(self):
+        """
+
+        """
+
+        self.remove_impossible_targets()
+        best_move = list(self.state)
+        best_perf = self.compute_performance()
+        for i in range(settings.MAX_RANDOM_PLANNER_ITERATION):
+            shuffle(self.state)
+            perf = self.compute_performance
+            if perf < best_perf:
+                best_move = list(self.state)
+
+        self.state = best_move
 
 class GreedyPlanner(Solver):
     """

@@ -3,12 +3,13 @@ Defines the path planner module.
 """
 from sys import path
 from simanneal import Annealer
+from random import shuffle
 
 path.append("..")
 path.append("solver/")
 
 import settings
-from solver.solver import GreedyPlanner, SimulatedAnnealingPlanner
+from solver.solver import GreedyPlanner, SimulatedAnnealingPlanner, RandomPlanner
 
 def get_computed_path(mapper, nb_drone):
     #Initial solution
@@ -21,6 +22,15 @@ def get_computed_path(mapper, nb_drone):
     greedy_collision = gplan.check_collision()
     greedy_perf = gplan.compute_performance()
     gplan.get_battery_plan()
+    print("START RANDOM")
+    state = list(gplan.state)
+    rplan = RandomPlanner(state, mapper, nb_drone)
+    rplan.solve()
+    rplan.detail_plan()
+    rplan.plot("random", False)
+    r_collision = rplan.check_collision()
+    rreedy_perf = rplan.compute_performance()
+    rplan.get_battery_plan()
     #Try to optimize by applying simuled annealing
     print("START SIMULATED ANNEALING")
     state = list(gplan.state)
@@ -47,6 +57,13 @@ def get_computed_path(mapper, nb_drone):
     print("GREEDY PERF", greedy_perf)
     print("GREEDY BATTERY PLAN", gplan.battery_plan)
     print("GREEDY NUMBER OF PATROLS", gplan.get_number_patrols())
+    print("RANDOM STATE", rplan.state)
+    print("RANDOM PLAN", rplan.plan)
+    #print("RANDOM DETAILED PLAN", rplan.detailed_plan)
+    print("RANDOM COLLISION", r_collision)
+    print("RANDOM PERF", rplan_perf)
+    print("RANDOM BATTERY PLAN", rplan.battery_plan)
+    print("RANDOM NUMBER OF PATROLS", rplan.get_number_patrols())
     print("SIMULATED ANNEALING STATE", saplan.state)
     print("SIMULATED ANNEALING PLAN", saplan.plan)
     #print("SIMULATED ANNEALING DETAILED PLAN", saplan.detailed_plan)
