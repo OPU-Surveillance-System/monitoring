@@ -34,8 +34,107 @@ class Solver:
         self.targets = list(self.mapper.default_targets)
         self.mapped_paths = copy.copy(self.mapper.world)
         self.battery_plan = [0 for d in range(self.nb_drone)]
-        self.plan = []
+        self.plan = [[] for d in range(self.nb_drone)]
+        self.detailed_plan = [[] for d in range(self.nb_drone)]
         self.start_points = [mapper.starting_point[d] for d in range(nb_drone)]
+
+    def _build_plan(self):
+        """
+        """
+
+        last_position = [self.start_points[d] for d in range(self.nb_drone)]
+        d = 0
+        start = self.start_points[d]
+        self.plan[d].append(start)
+        limit = 0
+        i = 0
+        while i < len(self.state):
+            if limit + self.mapper.paths[(last_position[d], self.state[i])][1] + self.mapper.paths[(self.state[i], start)][1] < settings.MAX_BATTERY_UNIT:
+                limit += self.mapper.paths[(last_position[d], self.state[i])][1]
+                self.plan[d].append(self.state[i])
+                last_position[d] = self.state[i]
+                i += 1
+            else:
+                last_position[d] = start
+                d += 1
+                if d >= self.nb_drone:
+                    d = 0
+                start = self.start_points[d]
+                self.plan[d].append(start)
+                limit = 0
+        for d in range(self.nb_drone):
+            if self.plan[d][len(self.plan[d]) - 1] != self.start_points[d]:
+                self.plan[d].append(self.start_points[d])
+
+    def _flat_state(self):
+        """
+        Keep only the visit order by removing start/return to base/end points in state
+        """
+
+        #Remove base points and flat state
+        tmp = []
+        for d in range(self.nb_drone):
+            start = self.start_points[d]
+            while start in self.state[d]:
+                self.state[d].remove(start)
+            tmp += self.state[d]
+        self.state = list(tmp)
+        # #Unflate state and order patrols
+        # tmp = []
+        # d = 0
+        # start = self.start_points[d]
+        # limit = self.mapper.paths[(start, self.state[0])][1]
+        # patrol = [self.state[0]]
+        # for i in range(1, len(self.state)):
+        #     if limit + self.mapper.paths[(self.state[i - 1], self.state[i])][1] + self.mapper.paths[(self.state[i], start)][1] < settings.MAX_BATTERY_UNIT:
+        #         limit += self.mapper.paths[(self.state[i - 1], self.state[i])][1]
+        #         patrol.append(self.state[i])
+        #     else:
+        #         tmp.append(list(patrol))
+        #         limit = 0
+        #         previous_drone = d
+        #         d += 1
+        #         if d >= self.nb_drone:
+        #             d = 0
+        #         if d != previous_drone:
+        #             start = self.start_points[d]
+        #         limit += self.mapper.paths[(start, self.state[i])][1]
+        #         patrol = [self.state[i]]
+        # if patrol not in tmp:
+        #     tmp.append(patrol)
+        # #Reflate state
+        # self.state = []
+        # for elt in tmp:
+        #     self.state += elt
+
+
+    def _unflat_state(self):
+        """
+        Build patrols by reinserting start/return to base/end points in state
+        """
+
+        patrol = [[self.start_points[d]] for d in range(self.nb_drone)]
+        i = 0
+        d = 0
+        battery = 0
+        while i < len(self.state):
+            last_position = patrol[d][len(patrol[d]) - 1]
+            target = self.state[i]
+            if battery + self.mapper.paths[(last_position, target)][1] + self.mapper.paths[(target, self.start_points[d])][1] < settings.MAX_BATTERY_UNIT:
+                patrol[d].append(target)
+                battery += self.mapper.paths[(last_position, target)][1]
+                i += 1
+            else:
+                if patrol[d][len(patrol[d]) - 1] != self.start_points[d]:
+                    patrol[d].append(self.start_points[d])
+                    battery += self.mapper.paths[(target, self.start_points[d])][1]
+                battery = 0
+                d += 1
+                if d >= self.nb_drone:
+                    d = 0
+            if i >= len(self.state) and patrol[d][len(patrol[d]) - 1] != self.start_points[d]:
+                patrol[d].append(self.start_points[d])
+        self.state = list(patrol)
 
     def remove_impossible_targets(self):
         """
@@ -45,7 +144,8 @@ class Solver:
         check_targets = {t:[] for t in self.targets}
         for t in self.targets:
             for d in range(self.nb_drone):
-                if self.mapper.paths[(self.state[d][0], t)][1] + self.mapper.paths[(t, self.state[d][0])][1] > settings.MAX_BATTERY_UNIT:
+                start = self.start_points[d]
+                if self.mapper.paths[(start, t)][1] + self.mapper.paths[(t, start)][1] > settings.MAX_BATTERY_UNIT:
                     check_targets[t].append(d)
         for t in check_targets:
             if len(check_targets[t]) == self.nb_drone:
@@ -64,15 +164,15 @@ class Solver:
         Build the detailed plan for each drone.
         """
 
+        self._build_plan()
         path = [[] for d in range(self.nb_drone)]
-        self.plan = []
         for d in range(self.nb_drone):
-            for s in range(1, len(self.state[d])):
+            for s in range(1, len(self.plan[d])):
                 try:
-                    path[d] += self.mapper.paths[(self.state[d][s - 1], self.state[d][s])][0]
+                    path[d] += self.mapper.paths[(self.plan[d][s - 1], self.plan[d][s])][0]
                 except ValueError:
-                    print("No path between points: " + str(self.state[d][s - 1]) + " and " + str(self.state[d][s]))
-            base = self.state[d][0]
+                    print("No path between points: " + str(self.plan[d][s - 1]) + " and " + str(self.plan[d][s]))
+            base = self.plan[d][0]
             tmp = [base]
             plan = []
             for p in range(1, len(path[d])):
@@ -81,22 +181,43 @@ class Solver:
                 if point == base and len(tmp) > 1:
                     plan.append(tmp)
                     tmp = []
-            self.plan.append(plan)
+            self.detailed_plan[d] = list(plan)
 
     def get_battery_plan(self):
         """
         Estimate the battery consumption for each patrol according to the computed plan.
         """
 
-        print("####GETBATTERYPLAN####")
-        print(self.state)
-        self.battery_plan = [["Drone " + str(d + 1)] for d in range(self.nb_drone)]
+        self.battery_plan = [[] for d in range(self.nb_drone)]
+        last_position = [self.start_points[d] for d in range(self.nb_drone)]
+        d = 0
+        start = self.start_points[d]
+        battery = 0
+        i = 0
+        limit = 0
+        while i < len(self.state):
+            if limit + self.mapper.paths[(last_position[d], self.state[i])][1] + self.mapper.paths[(self.state[i], start)][1] < settings.MAX_BATTERY_UNIT:
+                limit += self.mapper.paths[(last_position[d], self.state[i])][1]
+                last_position[d] = self.state[i]
+                i += 1
+            else:
+                limit += self.mapper.paths[(last_position[d], start)][1]
+                self.battery_plan[d].append(limit)
+                limit = 0
+                last_position[d] = start
+                d += 1
+                if d >= self.nb_drone:
+                    d = 0
+                start = self.start_points[d]
         for d in range(self.nb_drone):
-            battery = 0
-            for p in range(1, len(self.state[d])):
-                print(self.state[d][p-1], "->", self.state[d][p], self.mapper.paths[(self.state[d][p - 1], self.state[d][p])][1])
-                battery += self.mapper.paths[(self.state[d][p - 1], self.state[d][p])][1]
-            self.battery_plan[d].append(("Total", battery))
+            if last_position[d] != self.start_points[d]:
+                self.battery_plan[d].append(self.mapper.paths[(last_position[d], start)][1])
+        total = 0
+        for d in range(self.nb_drone):
+            sum_b = sum(self.battery_plan[d])
+            total += sum_b
+            self.battery_plan[d].append(("Total", sum_b))
+        self.battery_plan.append(("Total drones", total))
 
     def check_collision(self):
         """
@@ -106,7 +227,7 @@ class Solver:
         collision = []
         nb_patrol = max(self.get_number_patrols())
         max_patrol_length = max(self.get_patrol_lengths())
-        cpy_plan = copy.deepcopy(self.plan)
+        cpy_plan = copy.deepcopy(self.detailed_plan)
         for d in range(self.nb_drone):
             while len(cpy_plan[d]) < nb_patrol:
                 cpy_plan[d].append([])
@@ -133,12 +254,31 @@ class Solver:
         Count the number of patrols (objective function)
         """
 
-        e = []
+        last_position = [self.start_points[d] for d in range(self.nb_drone)]
+        d = 0
+        start = self.start_points[d]
+        battery = 0
+        i = 0
+        limit = 0
+        while i < len(self.state):
+            if limit + self.mapper.paths[(last_position[d], self.state[i])][1] + self.mapper.paths[(self.state[i], start)][1] < settings.MAX_BATTERY_UNIT:
+                limit += self.mapper.paths[(last_position[d], self.state[i])][1]
+                last_position[d] = self.state[i]
+                i += 1
+            else:
+                limit += self.mapper.paths[(last_position[d], start)][1]
+                battery += limit
+                limit = 0
+                last_position[d] = start
+                d += 1
+                if d >= self.nb_drone:
+                    d = 0
+                start = self.start_points[d]
         for d in range(self.nb_drone):
-            e.append(len(self.plan[d]))
-        e = max(e)
+            if last_position[d] != self.start_points[d]:
+                battery += self.mapper.paths[(last_position[d], start)][1]
 
-        return e
+        return battery
 
     def get_number_patrols(self):
         """
@@ -160,7 +300,7 @@ class Solver:
             patrol = [0 for i in range(self.nb_drone)]
             for d in range(self.nb_drone):
                 try:
-                    patrol[d] = len(self.plan[d][p])
+                    patrol[d] = len(self.detailed_plan[d][p])
                 except IndexError:
                     patrol[d] = 0
             patrol_lengths[p] = max(patrol)
@@ -193,13 +333,13 @@ class Solver:
         plt.scatter(obstacles[0], obstacles[1], color='black', marker=',', s=10)
         plt.scatter(targets[0], targets[1], color='blue', s=40)
         for d in range(self.nb_drone):
-            for p in range(len(self.plan[d])):
+            for p in range(len(self.detailed_plan[d])):
                 x = []
                 y = []
-                for i in range(len(self.plan[d][p])):
+                for i in range(len(self.detailed_plan[d][p])):
                     if i % 2 == 0:
-                        x.append(self.plan[d][p][i][0])
-                        y.append(-self.plan[d][p][i][1])
+                        x.append(self.detailed_plan[d][p][i][0])
+                        y.append(-self.detailed_plan[d][p][i][1])
                 plt.scatter(x, y, color=p_colors[p], marker=d_markers[d], s=10)
         plt.xlim(0, settings.X_SIZE)
         plt.ylim(-settings.Y_SIZE, 0)
@@ -254,24 +394,24 @@ class GreedyPlanner(Solver):
         d = 0
         battery = 0
         base = self.start_points[d]
+        last_position = base
         while len(self.targets) > 0:
-            last_position = self.state[d][len(self.state[d]) - 1]
             closest = self._find_closest_point(last_position, self.targets)
             closest_point = tuple(reversed(closest[0][len(closest[0]) - 1]))
             required_battery = closest[1]
             if battery + required_battery + self.mapper.paths[(closest_point, base)][1] < settings.MAX_BATTERY_UNIT:
-                self.state[d].append(closest_point)
+                self.state.append(closest_point)
                 battery += required_battery
                 self.targets.remove(closest_point)
+                last_position = closest_point
             else:
-                self.state[d].append(base)
                 battery += self.mapper.paths[(last_position, base)][1]
                 battery = 0
                 d += 1
                 if d >= self.nb_drone:
                     d = 0
                 base = self.start_points[d]
-        self.state[d].append(base)
+                last_position = base
 
 
 class SimulatedAnnealingPlanner(Annealer, Solver):
@@ -293,47 +433,6 @@ class SimulatedAnnealingPlanner(Annealer, Solver):
         Solver.__init__(self, state, mapper, nb_drone)
         self.nb_change = nb_change
 
-    def _flat_state(self):
-        """
-        Keep only the visit order by removing start/return to base/end points in state
-        """
-
-        tmp = []
-        for d in range(self.nb_drone):
-            start = self.start_points[d]
-            while start in self.state[d]:
-                self.state[d].remove(start)
-            tmp += self.state[d]
-        self.state = list(tmp)
-
-    def _unflate_state(self):
-        """
-        Build patrols by reinserting start/return to base/end points in state
-        """
-
-        patrol = [[self.start_points[d]] for d in range(self.nb_drone)]
-        i = 0
-        d = 0
-        battery = 0
-        while i < len(self.state):
-            last_position = patrol[d][len(patrol[d]) - 1]
-            target = self.state[i]
-            if battery + self.mapper.paths[(last_position, target)][1] + self.mapper.paths[(target, self.start_points[d])][1] < settings.MAX_BATTERY_UNIT:
-                patrol[d].append(target)
-                battery += self.mapper.paths[(last_position, target)][1]
-                i += 1
-            else:
-                if patrol[d][len(patrol[d]) - 1] != self.start_points[d]:
-                    patrol[d].append(self.start_points[d])
-                    battery += self.mapper.paths[(target, self.start_points[d])][1]
-                battery = 0
-                d += 1
-                if d >= self.nb_drone:
-                    d = 0
-            if i >= len(self.state) and patrol[d][len(patrol[d]) - 1] != self.start_points[d]:
-                patrol[d].append(self.start_points[d])
-        self.state = list(patrol)
-
     def solve(self):
         """
         Launch the annealing process
@@ -341,10 +440,14 @@ class SimulatedAnnealingPlanner(Annealer, Solver):
 
         self._flat_state()
         itinerary, energy = self.anneal()
+        #print("ITI A LA SOURCE", itinerary, len(itinerary))
         self.state = list(itinerary)
-        self._unflate_state()
+        #self._unflat_state()
+        #print("ITI APRES UNFLAT", self.state, len(self.state[0]) + len(self.state[1]))
+        #self._flat_state()
+        #print("TEST REFLAT", self.state, len(self.state))
 
-        return self.state, energy, itinerary
+        return self.state, energy
 
     def move(self):
         """
@@ -359,32 +462,32 @@ class SimulatedAnnealingPlanner(Annealer, Solver):
                 b = random.randint(0, len(self.state) - 1)
             self.state[a], self.state[b] = self.state[b], self.state[a]
 
-    def compute_performance(self):
-        """
-        Count the number of travelled cells (objective function)
-        """
-
-        d = 0
-        start = self.start_points[d]
-        limit = self.mapper.paths[(start, self.state[0])][1]
-        battery = 0
-        for i in range(1, len(self.state)):
-            if limit + self.mapper.paths[(self.state[i - 1], self.state[i])][1] + self.mapper.paths[(self.state[i], start)][1] < settings.MAX_BATTERY_UNIT:
-                limit += self.mapper.paths[(self.state[i - 1], self.state[i])][1]
-            else:
-                limit += self.mapper.paths[(self.state[i - 1], start)][1]
-                battery += limit
-                limit = 0
-                previous_drone = d
-                d += 1
-                if d >= self.nb_drone:
-                    d = 0
-                if d != previous_drone:
-                    start = self.start_points[d]
-                limit += self.mapper.paths[(start, self.state[i])][1]
-        battery += self.mapper.paths[(self.state[i], start)][1]
-
-        return battery
+    # def compute_performance(self):
+    #     """
+    #     Count the number of travelled cells (objective function)
+    #     """
+    #
+    #     d = 0
+    #     start = self.start_points[d]
+    #     limit = self.mapper.paths[(start, self.state[0])][1]
+    #     battery = 0
+    #     for i in range(1, len(self.state)):
+    #         if limit + self.mapper.paths[(self.state[i - 1], self.state[i])][1] + self.mapper.paths[(self.state[i], start)][1] < settings.MAX_BATTERY_UNIT:
+    #             limit += self.mapper.paths[(self.state[i - 1], self.state[i])][1]
+    #         else:
+    #             limit += self.mapper.paths[(self.state[i - 1], start)][1]
+    #             battery += limit
+    #             limit = 0
+    #             previous_drone = d
+    #             d += 1
+    #             if d >= self.nb_drone:
+    #                 d = 0
+    #             if d != previous_drone:
+    #                 start = self.start_points[d]
+    #             limit += self.mapper.paths[(start, self.state[i])][1]
+    #     battery += self.mapper.paths[(self.state[i], start)][1]
+    #
+    #     return battery
 
     def compute_performance2(self, itinerary):
         """
@@ -392,8 +495,46 @@ class SimulatedAnnealingPlanner(Annealer, Solver):
         """
 
         print("####COMPUTEPERFORMANCE2####")
+        print(itinerary)
+        #Remove base points and flat state
+        tmp = []
+        for d in range(self.nb_drone):
+            start = self.start_points[d]
+            while start in itinerary[d]:
+                itinerary[d].remove(start)
+            tmp += itinerary[d]
+        itinerary = list(tmp)
+        #Unflate state and order patrols
+        tmp = []
         d = 0
-        #print(itinerary)
+        start = self.start_points[d]
+        limit = self.mapper.paths[(start, itinerary[0])][1]
+        patrol = [itinerary[0]]
+        for i in range(1, len(itinerary)):
+            if limit + self.mapper.paths[(itinerary[i - 1], itinerary[i])][1] + self.mapper.paths[(itinerary[i], start)][1] < settings.MAX_BATTERY_UNIT:
+                limit += self.mapper.paths[(itinerary[i - 1], itinerary[i])][1]
+                patrol.append(itinerary[i])
+            else:
+                tmp.append(list(patrol))
+                limit = 0
+                previous_drone = d
+                d += 1
+                if d >= self.nb_drone:
+                    d = 0
+                if d != previous_drone:
+                    start = self.start_points[d]
+                limit += self.mapper.paths[(start, itinerary[i])][1]
+                patrol = [itinerary[i]]
+        if patrol not in tmp:
+            tmp.append(patrol)
+        #Reflate state
+        itinerary = []
+        for elt in tmp:
+            itinerary += elt
+        print(itinerary)
+
+        battery_plan = [[] for d in range(self.nb_drone)]
+        d = 0
         start = self.start_points[d]
         limit = self.mapper.paths[(start, itinerary[0])][1]
         print(start, "->", itinerary[0], self.mapper.paths[(start, itinerary[0])][1])
@@ -406,6 +547,7 @@ class SimulatedAnnealingPlanner(Annealer, Solver):
                 limit += self.mapper.paths[(itinerary[i - 1], start)][1]
                 print(itinerary[i-1], "->", start, self.mapper.paths[(itinerary[i-1], start)][1])
                 battery += limit
+                battery_plan[d].append(limit) #
                 limit = 0
                 previous_drone = d
                 d += 1
@@ -415,7 +557,19 @@ class SimulatedAnnealingPlanner(Annealer, Solver):
                     start = self.start_points[d]
                 limit += self.mapper.paths[(start, itinerary[i])][1]
                 print(start, "->", itinerary[i], self.mapper.paths[(start, itinerary[i])][1])
-        battery += self.mapper.paths[(itinerary[i], start)][1]
+        limit += self.mapper.paths[(itinerary[i], start)][1]
+        battery += limit
+        battery_plan[d].append(limit) #
+        print(itinerary[i], "->", start, self.mapper.paths[(itinerary[i], start)][1])
+        print("BAtTERY", battery)
+
+        total = 0
+        for d in range(self.nb_drone):
+            sum_b = sum(battery_plan[d])
+            total += sum_b
+            battery_plan[d].append(("Total", sum_b))
+        battery_plan[d].append(("Total drones", total))
+        print("CP2BP", battery_plan)
 
         return battery
 

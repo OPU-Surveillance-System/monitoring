@@ -19,10 +19,8 @@ import astar
 def project_to_virtual(point):
     """
     Project a given point into a virtual space aligned with east.
-
     Keyword arguments:
     point: Point expressed by Latitude/Longitude values
-
     Output expressed by UTM values
     """
 
@@ -35,10 +33,8 @@ def project_to_virtual(point):
 def project_to_original(point):
     """
     Project a given point into the real space.
-
     Keyword arguments:
     point: Point expressed by UTM values
-
     Output expressed by Latitude/Longitude values
     """
 
@@ -56,7 +52,6 @@ class Mapper():
     def __init__(self, limits, starting_point, obstacles, default_targets):
         """
         Instantiate a Mapper object.
-
         Keyword arguments:
         limits: environment boundaries
         starting_point: drones' patrol starting point
@@ -128,7 +123,6 @@ class Mapper():
     def latlong_to_index(self, point):
         """
         Convert a given geographical point (expressed by latitude and longitude values) in a world's index.
-
         Keyword arguments:
         point: point in latitude/longitude
         """
@@ -142,7 +136,6 @@ class Mapper():
     def index_to_latlong(self, point):
         """
         Convert a given world's index (expressed by x and y values) in latitude and longitude values.
-
         Keyword arguments:
         point: point index
         """
@@ -174,7 +167,6 @@ class Mapper():
     def create_world(self):
         """
         Create a grid representing the given environment.
-
         Grid values:
         0: admissible cell
         1: non admissible cell
@@ -197,7 +189,6 @@ class Mapper():
     def convert_plan(self, plan, nb_drone):
         """
         Convert the given plan's points into latitude/longitude points.
-
         Keyword arguments:
         plan: A plan of paths
         nb_drone: Number of drones
