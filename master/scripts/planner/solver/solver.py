@@ -79,7 +79,7 @@ class Solver:
                     check_targets[t].append(d)
         for t in check_targets:
             if len(check_targets[t]) == self.nb_drone:
-                print(t, "is impossible to reach from base.")
+                #print(t, "is impossible to reach from base.")
                 self.targets.remove(t)
 
     def solve(self):
