@@ -3,7 +3,6 @@ Defines the path planner module.
 """
 
 from sys import path
-from simanneal import Annealer
 
 path.append("..")
 path.append("solver/")
