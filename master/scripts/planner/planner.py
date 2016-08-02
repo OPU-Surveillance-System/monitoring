@@ -3,7 +3,6 @@ Defines the path planner module.
 """
 from sys import path
 from simanneal import Annealer
-from random import shuffle
 
 path.append("..")
 path.append("solver/")
@@ -29,17 +28,17 @@ def get_computed_path(mapper, nb_drone):
     rplan.detail_plan()
     rplan.plot("random", False)
     r_collision = rplan.check_collision()
-    rreedy_perf = rplan.compute_performance()
+    rplan_perf = rplan.compute_performance()
     rplan.get_battery_plan()
     #Try to optimize by applying simuled annealing
     print("START SIMULATED ANNEALING")
-    state = list(gplan.state)
+    state = list(rplan.state)
     sa_collision = [1]
     while sa_collision != []:
         saplan = SimulatedAnnealingPlanner(state, mapper, nb_drone)
         saplan.copy_strategy = "slice"
         saplan.steps = 200000
-        saplan.Tmax = 10000
+        saplan.Tmax = 2884
         saplan.Tmin = 0.01
         saplan.updates = 100
         itinerary, energy = saplan.solve()

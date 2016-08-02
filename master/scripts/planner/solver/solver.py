@@ -304,11 +304,12 @@ class RandomPlanner(Solver):
         """
 
         self.remove_impossible_targets()
-        best_move = list(self.state)
+        random.shuffle(self.targets)
+        best_move = list(self.targets)
         best_perf = self.compute_performance()
         for i in range(settings.MAX_RANDOM_PLANNER_ITERATION):
-            shuffle(self.state)
-            perf = self.compute_performance
+            random.shuffle(self.state)
+            perf = self.compute_performance()
             if perf < best_perf:
                 best_move = list(self.state)
 
