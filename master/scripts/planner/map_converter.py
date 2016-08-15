@@ -8,9 +8,13 @@ import math
 from shapely.geometry import Polygon, Point
 import matplotlib.pyplot as plt
 from matplotlib import colors
+from matplotlib import cm
 from sys import path
 from tqdm import tqdm
 import pickle
+import datetime
+import time
+import random
 path.append("..")
 
 import settings
@@ -97,7 +101,12 @@ class Mapper():
                 print(p, self.paths[p])
 
         #Environment uncertainty
-        #self.uncertainty_grid = self.create_uncertainty_grid()
+        self.uncertainty_grid = np.ones((settings.Y_SIZE, settings.X_SIZE))
+        creation_date = datetime.datetime.now()
+        self.last_visit = [[creation_date for x in range(settings.X_SIZE)] for y in range(settings.Y_SIZE)]
+        time.sleep(1)
+        self.update_uncertainty_grid()
+        self.plot_uncertainty_grid()
 
     def project_limits(self):
         """
@@ -202,12 +211,31 @@ class Mapper():
 
         return converted_plan
 
+    def update_visit_history(self, visit_list):
+        """
+        Update the visit's register.
+        Keyword arguments:
+        visit_list: A dictionnary associating dates of visit to points (index).
+        """
+
+        print("Updating visit history")
+        for visited_point in visit_list:
+            self.last_visit[visited_point[1]][visited_point[0]] = visit_list[visited_point]
+
     def update_uncertainty_grid(self):
         """
         Update the uncertainty level.
         """
 
-        return []
+        timeshot = datetime.datetime.now()
+        print("Updating uncertainty grid")
+        for y in tqdm(range(0, settings.Y_SIZE)):
+            for x in range(0, settings.X_SIZE):
+                diff = timeshot - self.last_visit[y][x]
+                self.uncertainty_grid[y][x] = 1 - math.exp(settings.LAMBDA * diff.seconds)
+                #self.uncertainty_grid[y][x] = random.random()
+        #self.uncertainty_grid[0][0] = 0.01
+        #self.uncertainty_grid[10][10] = 0.39
 
     def plot_world(self, show=True):
         """
@@ -243,3 +271,16 @@ class Mapper():
         """
         Plot the uncertainty level.
         """
+
+        print("Ploting uncertainty grid")
+        i,j = np.unravel_index(self.uncertainty_grid.argmax(), self.uncertainty_grid.shape)
+        max_proba = self.uncertainty_grid[i, j]
+        i,j = np.unravel_index(self.uncertainty_grid.argmin(), self.uncertainty_grid.shape)
+        min_proba = self.uncertainty_grid[i, j]
+        middle_proba = max_proba / 2
+        fig, ax = plt.subplots()
+        cax = ax.imshow(self.uncertainty_grid, interpolation="Nearest", cmap=cm.Greys)
+        ax.set_title('Uncertainty Grid')
+        cbar = fig.colorbar(cax, ticks=[min_proba, middle_proba, max_proba])
+        cbar.ax.set_yticklabels([str(int(min_proba * 100)) + '%', str(int(middle_proba * 100)) + '%', str(int(max_proba * 100)) + '%'])
+        plt.show()
