@@ -104,9 +104,9 @@ class Mapper():
         self.uncertainty_grid = np.ones((settings.Y_SIZE, settings.X_SIZE))
         creation_date = datetime.datetime.now()
         self.last_visit = [[creation_date for x in range(settings.X_SIZE)] for y in range(settings.Y_SIZE)]
-        time.sleep(1)
-        self.update_uncertainty_grid()
-        self.plot_uncertainty_grid()
+        #time.sleep(1)
+        #self.update_uncertainty_grid()
+        #self.plot_uncertainty_grid()
 
     def project_limits(self):
         """

@@ -1,5 +1,5 @@
 """
-Define an abstract solver and a greedy, a simulated annealing solvers.
+Define an abstract solver and a greedy, a random, a simulated annealing solvers.
 """
 
 import copy
@@ -281,7 +281,7 @@ class Solver:
             plt.savefig('data/plot/plan/' + str(self.nb_drone) + "_drones_" + method + "_" + str(settings.X_SIZE) + 'x' + str(settings.Y_SIZE) + '.png', dpi=800)
         plt.clf()
 
-class RandomPlanner(Solver):
+class RandomSolver(Solver):
     """
     Define a random solver.
     """
@@ -315,7 +315,7 @@ class RandomPlanner(Solver):
 
         self.state = best_move
 
-class GreedyPlanner(Solver):
+class GreedySolver(Solver):
     """
     Define a greedy solver.
     """
@@ -377,7 +377,7 @@ class GreedyPlanner(Solver):
                 last_position = base
 
 
-class SimulatedAnnealingPlanner(Annealer, Solver):
+class SimulatedAnnealingSolver(Annealer, Solver):
     """
     Define a simulated annealing solver.
     """
