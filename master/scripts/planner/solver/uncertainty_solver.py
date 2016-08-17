@@ -31,14 +31,18 @@ class UncertaintySolver(Solver):
         """
 
         Solver.__init__(self, state, mapper, nb_drone)
-        self.uncertainty_grid = copy.copy(self.mapper.uncertainty_grid)
+        #self.uncertainty_grid = copy.copy(self.mapper.uncertainty_grid)
+        self.uncertainty_grid = {}
 
     def compute_performance(self):
         """
         Compute the average probability of the uncertainty grid.
         """
 
-        average_probability = np.mean(self.uncertainty_grid)
+        #average_probability = np.mean(self.uncertainty_grid)
+        #print(self.uncertainty_grid.items())
+        #print(self.uncertainty_grid.items())
+        average_probability = np.mean(np.array(list(self.uncertainty_grid.values())))
 
         return average_probability
 
@@ -46,31 +50,54 @@ class UncertaintySolver(Solver):
         """
         """
 
+        # point_time = {}
+        # self.plan = [[] for d in range(self.nb_drone)]
+        # self.detailed_plan = [[] for d in range(self.nb_drone)]
+        # self.detail_plan()
+        # original_timeshot = datetime.datetime.now()
+        # memo_time = []
+        # for d in range(self.nb_drone):
+        #     timeshot = original_timeshot
+        #     for p in range(len(self.detailed_plan[d])):
+        #         for point in self.detailed_plan[d][p]:
+        #             timeshot += datetime.timedelta(milliseconds = settings.TIMESTEP)
+        #             if point in point_time:
+        #                 if point_time[point] < timeshot:
+        #                     point_time[point] = timeshot
+        #             else:
+        #                 point_time[point] = timeshot
+        #     memo_time.append(timeshot)
+        # ref = max(memo_time)
+        # for point in point_time:
+        #     #diff = self.mapper.last_visit[point[1]][point[0]] - point_time[point]
+        #     diff = ref - point_time[point]
+        #     self.uncertainty_grid[point[1]][point[0]] = 1 - math.exp(settings.LAMBDA * diff.seconds)
+        #     #print(diff.seconds, settings.LAMBDA, self.uncertainty_grid[point[1]][point[0]])
+        # self.plan = [[] for d in range(self.nb_drone)]
+        # self.detailed_plan = [[] for d in range(self.nb_drone)]
+
         point_time = {}
         self.plan = [[] for d in range(self.nb_drone)]
-        self.detailed_plan = [[] for d in range(self.nb_drone)]
-        self.detail_plan()
+        self._build_plan()
         original_timeshot = datetime.datetime.now()
-        memo_time = []
         for d in range(self.nb_drone):
             timeshot = original_timeshot
-            for p in range(len(self.detailed_plan[d])):
-                for point in self.detailed_plan[d][p]:
-                    timeshot += datetime.timedelta(milliseconds = settings.TIMESTEP)
-                    if point in point_time:
-                        if point_time[point] < timeshot:
-                            point_time[point] = timeshot
-                    else:
+            for p in range(1, len(self.plan[d])):
+                point = self.plan[d][p]
+                previous_position = self.plan[d][p - 1]
+                number_cells = len(self.mapper.paths[(previous_position, point)][0])
+                delta = number_cells * settings.TIMESTEP
+                timeshot += datetime.timedelta(seconds = delta)
+                if point in point_time:
+                    if point_time[point] < timeshot:
                         point_time[point] = timeshot
-            memo_time.append(timeshot)
-        ref = max(memo_time)
+                else:
+                    point_time[point] = timeshot
+        ref = max(list(point_time.values()))
         for point in point_time:
-            #diff = self.mapper.last_visit[point[1]][point[0]] - point_time[point]
             diff = ref - point_time[point]
-            self.uncertainty_grid[point[1]][point[0]] = 1 - math.exp(settings.LAMBDA * diff.seconds)
-            #print(diff.seconds, settings.LAMBDA, self.uncertainty_grid[point[1]][point[0]])
+            self.uncertainty_grid[(point[1], point[0])] = 1 - math.exp(settings.LAMBDA * diff.seconds)
         self.plan = [[] for d in range(self.nb_drone)]
-        self.detailed_plan = [[] for d in range(self.nb_drone)]
 
 class UncertaintyRandomSolver(UncertaintySolver):
     """
@@ -135,7 +162,7 @@ class UncertaintyGreedySolver(UncertaintySolver):
         Sort the targets by uncertainty (descendant).
         """
 
-        uncertainty_targets = [(t, self.uncertainty_grid[t[1]][t[0]]) for t in self.targets]
+        uncertainty_targets = [(t, self.mapper.uncertainty_grid[t[1]][t[0]]) for t in self.targets]
         uncertainty_targets = list(reversed(sorted(uncertainty_targets, key=operator.itemgetter(1))))
 
         return uncertainty_targets
