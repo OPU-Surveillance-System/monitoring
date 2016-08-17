@@ -10,6 +10,9 @@ import random
 import math
 from sys import path
 from simanneal import Annealer
+import matplotlib.pyplot as plt
+from matplotlib import colors
+from matplotlib import cm
 path.append("../..")
 
 import settings
@@ -31,50 +34,24 @@ class UncertaintySolver(Solver):
         """
 
         Solver.__init__(self, state, mapper, nb_drone)
-        #self.uncertainty_grid = copy.copy(self.mapper.uncertainty_grid)
-        self.uncertainty_grid = {}
+        self.uncertainty_points = {}
+        self.uncertainty_grid = self.mapper.uncertainty_grid
+        self.travel_plan = []
 
     def compute_performance(self):
         """
-        Compute the average probability of the uncertainty grid.
+        Compute the average uncertainty rate of the points of interest.
         """
 
-        #average_probability = np.mean(self.uncertainty_grid)
-        #print(self.uncertainty_grid.items())
-        #print(self.uncertainty_grid.items())
-        average_probability = np.mean(np.array(list(self.uncertainty_grid.values())))
+        self.estimate_uncertainty_points()
+        average_probability = np.mean(np.array(list(self.uncertainty_points.values())))
 
         return average_probability
 
-    def estimate_uncertainty_grid(self):
+    def estimate_uncertainty_points(self):
         """
+        Estimate the uncertainty rate of the points of interest at the end of the patrols.
         """
-
-        # point_time = {}
-        # self.plan = [[] for d in range(self.nb_drone)]
-        # self.detailed_plan = [[] for d in range(self.nb_drone)]
-        # self.detail_plan()
-        # original_timeshot = datetime.datetime.now()
-        # memo_time = []
-        # for d in range(self.nb_drone):
-        #     timeshot = original_timeshot
-        #     for p in range(len(self.detailed_plan[d])):
-        #         for point in self.detailed_plan[d][p]:
-        #             timeshot += datetime.timedelta(milliseconds = settings.TIMESTEP)
-        #             if point in point_time:
-        #                 if point_time[point] < timeshot:
-        #                     point_time[point] = timeshot
-        #             else:
-        #                 point_time[point] = timeshot
-        #     memo_time.append(timeshot)
-        # ref = max(memo_time)
-        # for point in point_time:
-        #     #diff = self.mapper.last_visit[point[1]][point[0]] - point_time[point]
-        #     diff = ref - point_time[point]
-        #     self.uncertainty_grid[point[1]][point[0]] = 1 - math.exp(settings.LAMBDA * diff.seconds)
-        #     #print(diff.seconds, settings.LAMBDA, self.uncertainty_grid[point[1]][point[0]])
-        # self.plan = [[] for d in range(self.nb_drone)]
-        # self.detailed_plan = [[] for d in range(self.nb_drone)]
 
         point_time = {}
         self.plan = [[] for d in range(self.nb_drone)]
@@ -96,8 +73,53 @@ class UncertaintySolver(Solver):
         ref = max(list(point_time.values()))
         for point in point_time:
             diff = ref - point_time[point]
-            self.uncertainty_grid[(point[1], point[0])] = 1 - math.exp(settings.LAMBDA * diff.seconds)
+            self.uncertainty_points[(point[1], point[0])] = 1 - math.exp(settings.LAMBDA * diff.seconds)
         self.plan = [[] for d in range(self.nb_drone)]
+
+    def estimate_uncertainty_grid(self, method, show=True):
+        """
+        """
+
+        point_time = {}
+        self.plan = [[] for d in range(self.nb_drone)]
+        self.detailed_plan = [[] for d in range(self.nb_drone)]
+        self.detail_plan()
+        original_timeshot = datetime.datetime.now()
+        memo_time = []
+        for d in range(self.nb_drone):
+            timeshot = original_timeshot
+            for p in range(len(self.detailed_plan[d])):
+                for point in self.detailed_plan[d][p]:
+                    timeshot += datetime.timedelta(seconds = settings.TIMESTEP)
+                    if point in point_time:
+                        if point_time[point] < timeshot:
+                            point_time[point] = timeshot
+                    else:
+                        point_time[point] = timeshot
+            memo_time.append(timeshot)
+        ref = max(memo_time)
+        for point in point_time:
+
+            diff = ref - point_time[point]
+            self.uncertainty_grid[point[1]][point[0]] = 1 - math.exp(settings.LAMBDA * diff.seconds)
+        self.plan = [[] for d in range(self.nb_drone)]
+        self.detailed_plan = [[] for d in range(self.nb_drone)]
+        i,j = np.unravel_index(self.uncertainty_grid.argmax(), self.uncertainty_grid.shape)
+        max_proba = self.uncertainty_grid[i, j]
+        i,j = np.unravel_index(self.uncertainty_grid.argmin(), self.uncertainty_grid.shape)
+        min_proba = self.uncertainty_grid[i, j]
+        middle_proba = max_proba / 2
+        fig, ax = plt.subplots()
+        cax = ax.imshow(self.uncertainty_grid, interpolation="Nearest", cmap=cm.Greys_r)
+        ax.set_title('Uncertainty Grid ' + method)
+        cbar = fig.colorbar(cax, ticks=[min_proba, middle_proba, max_proba])
+        cbar.ax.set_yticklabels([str(int(min_proba * 100)) + '%', str(int(middle_proba * 100)) + '%', str(int(max_proba * 100)) + '%'])
+        save = True
+        if show:
+            plt.show()
+            save = False
+        if save:
+            plt.savefig('data/plot/plan/uncertainty_grid_' + str(self.nb_drone) + "_drones_" + method + "_" + str(settings.X_SIZE) + 'x' + str(settings.Y_SIZE) + '.png', dpi=800)
 
 class UncertaintyRandomSolver(UncertaintySolver):
     """
@@ -124,16 +146,16 @@ class UncertaintyRandomSolver(UncertaintySolver):
         self.remove_impossible_targets()
         random.shuffle(self.targets)
         best_move = list(self.targets)
-        tmp_uncertainty = copy.copy(self.uncertainty_grid)
-        self.estimate_uncertainty_grid()
+        tmp_uncertainty = copy.copy(self.uncertainty_points)
+        self.estimate_uncertainty_points()
         best_perf = self.compute_performance()
-        self.uncertainty_grid = copy.copy(tmp_uncertainty)
+        self.uncertainty_points = copy.copy(tmp_uncertainty)
         for i in range(settings.MAX_RANDOM_PLANNER_ITERATION):
             random.shuffle(self.state)
-            tmp_uncertainty = copy.copy(self.uncertainty_grid)
-            self.estimate_uncertainty_grid()
+            tmp_uncertainty = copy.copy(self.uncertainty_points)
+            self.estimate_uncertainty_points()
             perf = self.compute_performance()
-            self.uncertainty_grid = copy.copy(tmp_uncertainty)
+            self.uncertainty_points = copy.copy(tmp_uncertainty)
             if perf < best_perf:
                 best_move = list(self.state)
 
@@ -247,10 +269,7 @@ class UncertaintySimulatedAnnealingSolver(Annealer, UncertaintySolver):
         Function required by the Annealer class
         """
 
-        tmp_uncertainty = copy.copy(self.uncertainty_grid)
-        self.estimate_uncertainty_grid()
         e = self.compute_performance()
-        self.uncertainty_grid = copy.copy(tmp_uncertainty)
         e *= 10000
 
         return e
