@@ -229,7 +229,7 @@ class Mapper():
         Plot the environment.
         """
 
-        print("Ploting world")
+        print("Ploting paths")
         cmap = colors.ListedColormap(['white', 'black', 'red', 'orange', 'blue'])
         plt.imshow(self.mapped_paths, interpolation="none", cmap=cmap)
         save = True
