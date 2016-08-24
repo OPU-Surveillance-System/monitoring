@@ -111,6 +111,9 @@ class UncertaintySolver(Solver):
         middle_proba = max_proba / 2
         fig, ax = plt.subplots()
         cax = ax.imshow(self.uncertainty_grid, interpolation="Nearest", cmap=cm.Greys_r)
+        for t in self.targets:
+            circ = plt.Circle((t[0], t[1]), radius=1, color='b')
+            ax.add_patch(circ)
         ax.set_title('Uncertainty Grid ' + method)
         cbar = fig.colorbar(cax, ticks=[min_proba, middle_proba, max_proba])
         cbar.ax.set_yticklabels([str(int(min_proba * 100)) + '%', str(int(middle_proba * 100)) + '%', str(int(max_proba * 100)) + '%'])

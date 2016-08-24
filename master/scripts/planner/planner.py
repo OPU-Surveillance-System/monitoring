@@ -80,8 +80,6 @@ def get_computed_path(mapper, nb_drone):
     patrol_lengths = saplan.get_patrol_lengths()
 
 
-    # print("MAPPER UNCERTAINTY GRID")
-    # print(mapper.uncertainty_grid)
     print("START UNCERTAINTY GREEDY")
     state = []
     gplan = UncertaintyGreedySolver(state, mapper, nb_drone)
