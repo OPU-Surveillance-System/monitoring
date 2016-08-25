@@ -222,7 +222,8 @@ class Mapper():
             plt.show()
             save = False
         if save:
-            plt.savefig('data/plot/world/map_grid_' + str(settings.X_SIZE) + 'x' + str(settings.Y_SIZE) + '.png', dpi=800)
+            #plt.savefig('data/plot/world/map_grid_' + str(settings.X_SIZE) + 'x' + str(settings.Y_SIZE) + '.png', dpi=800)
+            plt.savefig('data/plot/world/map_grid_' + str(settings.X_SIZE) + 'x' + str(settings.Y_SIZE) + '.png')
 
     def plot_paths(self, show=True):
         """
@@ -230,14 +231,19 @@ class Mapper():
         """
 
         print("Ploting paths")
+        fig, ax = plt.subplots()
         cmap = colors.ListedColormap(['white', 'black', 'red', 'orange', 'blue'])
-        plt.imshow(self.mapped_paths, interpolation="none", cmap=cmap)
+        cax = ax.imshow(self.mapped_paths, interpolation="none", cmap=cmap)
+        for t in self.default_targets:
+            circ = plt.Circle((t[0], t[1]), radius=2, color='red')
+            ax.add_patch(circ)
         save = True
         if show:
             plt.show()
             save = False
         if save:
-            plt.savefig('data/plot/paths/map_grid_' + str(settings.X_SIZE) + 'x' + str(settings.Y_SIZE) + '.png', dpi=800)
+            #plt.savefig('data/plot/paths/map_grid_' + str(settings.X_SIZE) + 'x' + str(settings.Y_SIZE) + '.png', dpi=800)
+            plt.savefig('data/plot/paths/map_grid_' + str(settings.X_SIZE) + 'x' + str(settings.Y_SIZE) + '.png')
 
     def plot_uncertainty_grid(self):
         """
