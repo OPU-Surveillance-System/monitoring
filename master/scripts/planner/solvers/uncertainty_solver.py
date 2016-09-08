@@ -16,7 +16,7 @@ from matplotlib import cm
 path.append("../..")
 
 import settings
-from solver.solver import Solver
+from solvers.solver import Solver
 
 class UncertaintySolver(Solver):
     """
@@ -122,7 +122,8 @@ class UncertaintySolver(Solver):
             plt.show()
             save = False
         if save:
-            plt.savefig('data/plot/plan/uncertainty_grid_' + str(self.nb_drone) + "_drones_" + method + "_" + str(settings.X_SIZE) + 'x' + str(settings.Y_SIZE) + '.png', dpi=800)
+            #plt.savefig('data/plot/plan/uncertainty_grid_' + str(self.nb_drone) + "_drones_" + method + "_" + str(settings.X_SIZE) + 'x' + str(settings.Y_SIZE) + '.png', dpi=800)
+            plt.savefig('data/plot/plan/uncertainty_grid_' + str(self.nb_drone) + "_drones_" + method + "_" + str(settings.X_SIZE) + 'x' + str(settings.Y_SIZE) + '.png', dpi=80)
 
 class UncertaintyRandomSolver(UncertaintySolver):
     """

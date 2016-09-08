@@ -11,7 +11,7 @@ STATIC_PATH = "/home/scom/Documents/opu_surveillance_system/monitoring/static/"
 #STATIC_PATH = "/home/jordan/Documents/tobikoma/monitoring/static"
 
 #Map Converter
-COEFF = 4
+COEFF = 0.5
 X_SIZE = int(858 / COEFF)
 Y_SIZE = int(624 / COEFF)
 #X_SIZE = 858
@@ -23,7 +23,7 @@ REFERENCES = [[34.55016, 135.50109], [34.54064, 135.5123]]
 RP_LATLON = [34.55016, 135.50613]
 RP_UTM = (546436.7465413728, 3823275.6881677327, 53, 'S')
 PARTICULAR_PROBA = 0.99
-PARTICULAR_TIME = 600 * 4 #seconds
+PARTICULAR_TIME = 3600 #seconds
 LAMBDA = math.log(1 - PARTICULAR_PROBA) / PARTICULAR_TIME
 
 #Patrol planner

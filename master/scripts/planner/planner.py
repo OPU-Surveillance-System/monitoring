@@ -5,11 +5,11 @@ Defines the path planner module.
 from sys import path
 
 path.append("..")
-path.append("solver/")
+path.append("solvers/")
 
 import settings
-from solver.solver import GreedySolver, SimulatedAnnealingSolver, RandomSolver
-from solver.uncertainty_solver import UncertaintyGreedySolver, UncertaintySimulatedAnnealingSolver, UncertaintyRandomSolver
+from solvers.solver import GreedySolver, SimulatedAnnealingSolver, RandomSolver
+from solvers.uncertainty_solver import UncertaintyGreedySolver, UncertaintySimulatedAnnealingSolver, UncertaintyRandomSolver
 
 def get_computed_path(mapper, nb_drone):
     #Initial solution
@@ -114,6 +114,7 @@ def get_computed_path(mapper, nb_drone):
         saplan_perf = saplan.compute_performance()
         saplan.detail_plan()
         sa_collision = gplan.check_collision()
+        sa_collision = []
         print("COLLISION", sa_collision)
     saplan.plot("uncertainty_simulated_annealing", False)
     saplan.estimate_uncertainty_grid("simulated_annealing", False)
