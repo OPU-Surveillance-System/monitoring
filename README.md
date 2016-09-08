@@ -13,7 +13,7 @@ GUI of the overall system
 * Shapely 1.5.16
 * numpy 1.8.2
 * matplotlib 1.5.0
-
+* simanneal 0.1.2
 
 ##Usage
 1. run WebServer:

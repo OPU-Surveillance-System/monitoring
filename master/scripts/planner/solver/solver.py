@@ -79,7 +79,7 @@ class Solver:
                     check_targets[t].append(d)
         for t in check_targets:
             if len(check_targets[t]) == self.nb_drone:
-                print(t, "is impossible to reach from base.")
+                #print(t, "is impossible to reach from base.")
                 self.targets.remove(t)
 
     def solve(self):
@@ -278,7 +278,8 @@ class Solver:
             plt.show()
             save = False
         if save:
-            plt.savefig('data/plot/plan/' + str(self.nb_drone) + "_drones_" + method + "_" + str(settings.X_SIZE) + 'x' + str(settings.Y_SIZE) + '.png', dpi=800)
+            #plt.savefig('data/plot/plan/' + str(self.nb_drone) + "_drones_" + method + "_" + str(settings.X_SIZE) + 'x' + str(settings.Y_SIZE) + '.png', dpi=800)
+            plt.savefig('data/plot/plan/' + str(self.nb_drone) + "_drones_" + method + "_" + str(settings.X_SIZE) + 'x' + str(settings.Y_SIZE) + '.png')
         plt.clf()
 
 class RandomSolver(Solver):
