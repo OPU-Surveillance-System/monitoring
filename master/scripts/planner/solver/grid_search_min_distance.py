@@ -3,7 +3,7 @@ import pickle
 from sys import path
 path.append("..")
 
-from solver import SimulatedAnnealingPlanner, RandomPlanner
+from solvers.solver import SimulatedAnnealingPlanner, RandomPlanner
 import map_converter as m
 
 STEPS = [2000000, 1000000, 500000, 250000, 12500, 50000, 25000, 12500, 5000, 2500, 1250, 500, 250, 125, 50, 25, 12]

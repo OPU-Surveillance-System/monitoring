@@ -3,7 +3,7 @@ import pickle
 from sys import path
 path.append("..")
 
-from solver import SimulatedAnnealingPlanner, RandomPlanner
+from solvers.solver import SimulatedAnnealingSolver, RandomSolver
 import map_converter as m
 
 STEPS = [2000000, 1000000, 500000, 250000, 12500, 50000, 25000, 12500, 5000, 2500, 1250, 500, 250, 125, 50, 25, 12]
@@ -21,9 +21,9 @@ for s in tqdm(STEPS):
         for tmin in TMIN:
             mean = []
             for i in range(20):
-                rplan = RandomPlanner(state, mapper, nb_drone)
+                rplan = RandomSolver(state, mapper, nb_drone)
                 rplan.solve()
-                saplan = SimulatedAnnealingPlanner(rplan.state, mapper, nb_drone)
+                saplan = SimulatedAnnealingSolver(rplan.state, mapper, nb_drone)
                 saplan.copy_strategy = "slice"
                 saplan.steps = s
                 saplan.Tmax = tmax
