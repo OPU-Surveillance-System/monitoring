@@ -76,7 +76,7 @@ class UncertaintySolver(Solver):
             self.uncertainty_points[(point[1], point[0])] = 1 - math.exp(settings.LAMBDA * diff.seconds)
         self.plan = [[] for d in range(self.nb_drone)]
 
-    def estimate_uncertainty_grid(self, method, show=True):
+    def plot_uncertainty_grid(self, method, show=True):
         """
         """
 
@@ -144,7 +144,8 @@ class UncertaintyRandomSolver(UncertaintySolver):
 
     def solve(self):
         """
-
+        Shuffle the order of visit for MAX_RANDOM_PLANNER_ITERATION and return
+        the best solution found.
         """
 
         self.remove_impossible_targets()

@@ -38,7 +38,7 @@ def get_computed_path(mapper, nb_drone):
     while sa_collision != []:
         saplan = SimulatedAnnealingSolver(state, mapper, nb_drone)
         saplan.copy_strategy = "slice"
-        saplan.steps = 1000000
+        saplan.steps = 10
         saplan.Tmax = 250
         saplan.Tmin = 1
         saplan.updates = 100
@@ -85,7 +85,7 @@ def get_computed_path(mapper, nb_drone):
     gplan = UncertaintyGreedySolver(state, mapper, nb_drone)
     gplan.solve()
     greedy_perf = gplan.compute_performance()
-    gplan.estimate_uncertainty_grid("greedy", False)
+    gplan.plot_uncertainty_grid("greedy", False)
     gplan.detail_plan()
     gplan.plot("uncertainty_greedy", False)
     greedy_collision = gplan.check_collision()
@@ -95,7 +95,7 @@ def get_computed_path(mapper, nb_drone):
     rplan = UncertaintyRandomSolver(state, mapper, nb_drone)
     rplan.solve()
     rplan_perf = rplan.compute_performance()
-    rplan.estimate_uncertainty_grid("random", False)
+    rplan.plot_uncertainty_grid("random", False)
     rplan.detail_plan()
     rplan.plot("uncertainty_random", False)
     r_collision = rplan.check_collision()
@@ -106,7 +106,7 @@ def get_computed_path(mapper, nb_drone):
     while sa_collision != []:
         saplan = UncertaintySimulatedAnnealingSolver(state, mapper, nb_drone)
         saplan.copy_strategy = "slice"
-        saplan.steps = 200000
+        saplan.steps = 10
         saplan.Tmax = 1197
         saplan.Tmin = 0.01
         saplan.updates = 100
@@ -117,7 +117,7 @@ def get_computed_path(mapper, nb_drone):
         sa_collision = []
         print("COLLISION", sa_collision)
     saplan.plot("uncertainty_simulated_annealing", False)
-    saplan.estimate_uncertainty_grid("simulated_annealing", False)
+    saplan.plot_uncertainty_grid("simulated_annealing", False)
     saplan.detail_plan()
     print("UNCERTAINTY GREEDY STATE", gplan.state)
     print("UNCERTAINTY GREEDY PLAN", gplan.plan)
