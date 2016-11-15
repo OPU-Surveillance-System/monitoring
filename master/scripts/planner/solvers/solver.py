@@ -40,6 +40,8 @@ class Solver:
 
     def _build_plan(self):
         """
+        Build the non detailed plan (non precise path, just order of visits and
+        return to base) for each drone.
         """
 
         last_position = [self.start_points[d] for d in range(self.nb_drone)]
@@ -301,7 +303,8 @@ class RandomSolver(Solver):
 
     def solve(self):
         """
-
+        Shuffle the order of visit for MAX_RANDOM_PLANNER_ITERATION and return
+        the best solution found.
         """
 
         self.remove_impossible_targets()
