@@ -78,6 +78,12 @@ class UncertaintySolver(Solver):
 
     def plot_uncertainty_grid(self, method, show=True):
         """
+        Plot the expected state of the uncertainty grid at the end of the
+        computed solution.
+
+        Keyword arguments:
+        method: String representing the name of the solver
+        show: Boolean indicating if the plot should be shown (true) or save (false)
         """
 
         point_time = {}
