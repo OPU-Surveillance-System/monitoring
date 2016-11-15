@@ -111,13 +111,14 @@ def get_computed_path(mapper, nb_drone):
         saplan.Tmin = 0.01
         saplan.updates = 100
         itinerary, energy = saplan.solve()
-        saplan_perf = saplan.compute_performance()
         saplan.detail_plan()
         sa_collision = gplan.check_collision()
-        sa_collision = []
         print("COLLISION", sa_collision)
+        sa_collision = []
     saplan.plot("uncertainty_simulated_annealing", False)
     saplan.plot_uncertainty_grid("simulated_annealing", False)
+    saplan.get_battery_plan()
+    saplan_perf = saplan.compute_performance()
     saplan.detail_plan()
     print("UNCERTAINTY GREEDY STATE", gplan.state)
     print("UNCERTAINTY GREEDY PLAN", gplan.plan)
@@ -138,7 +139,7 @@ def get_computed_path(mapper, nb_drone):
     print("UNCERTAINTY SIMULATED ANNEALING BATTERY PLAN", saplan.battery_plan)
     print("UNCERTAINTY SIMULATED ANNEALING NUMBER OF PATROLS", saplan.get_number_patrols())
 
-    saplan2 = UncertaintySimulatedAnnealingSolver(distance_saplan_state, mapper, nb_drone)
-    print("SIMULATED ANNEALING UNCERTAINTY PERF", saplan2.compute_performance())
+    #saplan2 = UncertaintySimulatedAnnealingSolver(distance_saplan_state, mapper, nb_drone)
+    #print("SIMULATED ANNEALING UNCERTAINTY PERF", saplan2.compute_performance())
 
     return converted_plan, max(saplan.get_number_patrols()), patrol_lengths
