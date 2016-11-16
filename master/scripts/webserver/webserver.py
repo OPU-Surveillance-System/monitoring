@@ -10,12 +10,13 @@ path.append("../planner")
 path.append("../simulator")
 
 import settings
+import paths
 import planner as ppl
 import map_converter as m
 
 app = Flask(__name__,
-            template_folder=settings.TEMPLATE_PATH,
-            static_url_path=settings.STATIC_PATH)
+            template_folder=paths.TEMPLATE_PATH,
+            static_url_path=paths.STATIC_PATH)
 
 @app.route('/')
 def signUp():
@@ -31,7 +32,7 @@ def send_js(path):
     Links static files
     """
 
-    return send_from_directory(settings.STATIC_PATH, path)
+    return send_from_directory(paths.STATIC_PATH, path)
 
 @app.route("/mapConverter", methods=['POST'])
 def converter():

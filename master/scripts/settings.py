@@ -4,12 +4,6 @@ Define global variables for the overall system
 
 import math
 
-#Path variables
-#TEMPLATE_PATH = "/home/scom/Documents/opu_surveillance_system/monitoring/master/"
-#STATIC_PATH = "/home/scom/Documents/opu_surveillance_system/monitoring/static/"
-TEMPLATE_PATH = "/home/jordan/Documents/tobikoma/monitoring/master/"
-STATIC_PATH = "/home/jordan/Documents/tobikoma/monitoring/static"
-
 #Map Converter
 COEFF = 0.5
 X_SIZE = int(858 / COEFF)
