@@ -38,7 +38,7 @@ def get_computed_path(mapper, nb_drone):
     while sa_collision != []:
         saplan = SimulatedAnnealingSolver(state, mapper, nb_drone)
         saplan.copy_strategy = "slice"
-        saplan.steps = 10
+        saplan.steps = 2000000
         saplan.Tmax = 250
         saplan.Tmin = 1
         saplan.updates = 100
@@ -106,9 +106,9 @@ def get_computed_path(mapper, nb_drone):
     while sa_collision != []:
         saplan = UncertaintySimulatedAnnealingSolver(state, mapper, nb_drone)
         saplan.copy_strategy = "slice"
-        saplan.steps = 10
-        saplan.Tmax = 1197
-        saplan.Tmin = 0.01
+        saplan.steps = 1000000
+        saplan.Tmax = 50
+        saplan.Tmin = 12
         saplan.updates = 100
         itinerary, energy = saplan.solve()
         saplan.detail_plan()
