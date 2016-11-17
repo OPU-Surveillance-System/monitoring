@@ -15,12 +15,19 @@ GUI of the overall system
 * matplotlib 1.5.0
 * simanneal 0.1.2
 
+##Initial steps
+Adapt the paths variables (in master/script/paths.py) to your environment.
+Every time you make change in this file, you need to indicate to git to ignore it:
+
+```bash
+git update-index --assume-unchanged master/scripts/paths.py
+```
+
 ##Usage
-1. run WebServer:
+Launch the server:
 
 ```bash
 python3 master/scripts/webserver/webserver.py
 ```
 
-2. open browser
-3. go to: http://127.0.0.1:5000/
+Then open your browser and go to http://127.0.0.1:5000/
