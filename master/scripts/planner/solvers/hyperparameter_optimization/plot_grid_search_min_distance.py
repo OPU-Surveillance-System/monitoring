@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import operator
 
-with open("memo_grid_search", "r") as f:
+with open("memo_min_dist", "r") as f:
     data = f.read()
 data = data.split("\n")[:-1]
 data = [data[i].split(" ") for i in range(len(data))]
@@ -12,9 +12,9 @@ for i in range(10):
 best_iteration = sorted_data[0][0][0]
 best_tmax = sorted_data[0][0][1]
 best_tmin = sorted_data[0][0][2]
-iteration = [1000000, 900000, 800000, 700000, 500000, 400000, 300000, 200000, 100000, 90000, 80000, 70000, 50000, 40000, 30000, 20000, 10000, 9000, 8000, 7000, 6000, 5000, 4000, 3000, 2000, 1000, 500, 250, 100, 50, 25, 10]
-tmax = [100000, 50000, 25000, 10000, 9000, 8000, 7000, 6000, 5000, 4000, 3000, 2000, 1000, 500, 250, 100]
-tmin = [50, 40, 30, 20, 10, 5, 2, 1, 0.5, 0.25, 0.1, 0.09, 0.08, 0.07, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01]
+iteration = [2000000, 1000000, 500000, 250000, 50000, 25000, 12500, 5000, 2500, 1250, 500, 250, 125, 50, 25, 12]
+tmax = [5000, 2500, 1250, 750, 500, 250, 125, 100, 90, 80, 70, 60, 50, 40, 30, 20, 15]
+tmin = [12, 10, 9, 8, 5, 4, 1, 0.9, 0.8, 0.5, 0.4, 0.1, 0.09, 0.08, 0.07, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01]
 plot_iteration = []
 for i in iteration:
     plot_iteration.append(data[(i, best_tmax, best_tmin)])
