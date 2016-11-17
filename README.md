@@ -3,8 +3,8 @@ GUI of the overall system
 
 ##Requirements
 **JavaScript:**
-* Leaflet 0.7.7
-* jQuery 2.2.3
+* Leaflet 1.0.1
+* jQuery 3.1.1
 
 **Python (v3):**
 * Flask 0.10.1
@@ -23,6 +23,9 @@ Every time you make change in this file, you need to indicate to git to ignore i
 git update-index --assume-unchanged master/scripts/paths.py
 ```
 
+Download *jQuery.3.1.1.min.js* and *Leaflet 1.0.1* on the Web.
+Create a folder *lib* in *static/*. Then copy/past jQuery and Leaflet in *static/lib*.
+Finally extract the Leaflet archive.   
 ##Usage
 Launch the server:
 
