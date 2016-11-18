@@ -1,5 +1,6 @@
 """
-Define an abstract solver and a greedy, a random, a simulated annealing solvers considering an uncertainty grid.
+Define an abstract solver and a greedy, a random, a simulated annealing solvers
+considering an uncertainty grid.
 """
 
 import numpy as np
@@ -171,7 +172,6 @@ class UncertaintyRandomSolver(UncertaintySolver):
                 best_move = list(self.state)
 
         self.state = best_move
-
 
 class UncertaintyGreedySolver(UncertaintySolver):
     """

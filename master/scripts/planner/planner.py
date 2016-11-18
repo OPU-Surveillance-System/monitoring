@@ -10,6 +10,7 @@ path.append("solvers/")
 import settings
 from solvers.solver import GreedySolver, SimulatedAnnealingSolver, RandomSolver
 from solvers.uncertainty_solver import UncertaintyGreedySolver, UncertaintySimulatedAnnealingSolver, UncertaintyRandomSolver
+from solvers.uncertainty_battery_solver import UncertaintyBatteryRandomSolver
 
 def get_computed_path(mapper, nb_drone):
     #Initial solution
@@ -38,7 +39,7 @@ def get_computed_path(mapper, nb_drone):
     while sa_collision != []:
         saplan = SimulatedAnnealingSolver(state, mapper, nb_drone)
         saplan.copy_strategy = "slice"
-        saplan.steps = 2000000
+        saplan.steps = 20
         saplan.Tmax = 250
         saplan.Tmin = 1
         saplan.updates = 100
@@ -106,7 +107,7 @@ def get_computed_path(mapper, nb_drone):
     while sa_collision != []:
         saplan = UncertaintySimulatedAnnealingSolver(state, mapper, nb_drone)
         saplan.copy_strategy = "slice"
-        saplan.steps = 1000000
+        saplan.steps = 10
         saplan.Tmax = 50
         saplan.Tmin = 12
         saplan.updates = 100
@@ -141,5 +142,17 @@ def get_computed_path(mapper, nb_drone):
 
     #saplan2 = UncertaintySimulatedAnnealingSolver(distance_saplan_state, mapper, nb_drone)
     #print("SIMULATED ANNEALING UNCERTAINTY PERF", saplan2.compute_performance())
+
+    print("START UNCERTAINTY RANDOM")
+    state = list(gplan.state)
+    rplan = UncertaintyBatteryRandomSolver(state, mapper, nb_drone)
+    rplan.solve()
+    rplan_perf = rplan.compute_performance()
+    rplan.plot_uncertainty_grid("random", False)
+    rplan.detail_plan()
+    rplan.plot("uncertainty_random", False)
+    r_collision = rplan.check_collision()
+    print("UNCERTAINTY BATTERY RANDOM BATTERY", rplan.battery_consumption)
+    print("UNCERTAINTY BATTERY RANDOM UNCERTAINTY RATE", rplan.uncertainty_rate)
 
     return converted_plan, max(saplan.get_number_patrols()), patrol_lengths
