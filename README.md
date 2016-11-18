@@ -16,6 +16,23 @@ GUI of the overall system
 * simanneal 0.1.2
 
 ##Initial steps
+First install *python3*, *pip* and *virtualenv*:
+
+```bash
+sudo apt-get install python3 python3-dev python3-pip virtualenv
+```
+
+Create a folder *opu_surveillance_system* and clone this repository inside it.
+
+Then, initialize a virtualenv in the *opu_surveillance_system* folder
+(**PATH** is the path to your *opu_surveillance_system* folder):
+
+```bash
+virtualenv --system-site-packages -p python3 PATH
+source PATH/bin/activate
+pip install -r requirements.txt
+```
+
 Adapt the paths variables (in master/script/paths.py) to your environment.
 Every time you make change in this file, you need to indicate to git to ignore it:
 
