@@ -42,7 +42,19 @@ git update-index --assume-unchanged master/scripts/paths.py
 
 Download *jQuery.3.1.1.min.js* and *Leaflet 1.0.1* on the Web.
 Create a folder *lib* in *static/*. Then copy/past jQuery and Leaflet in *static/lib*.
-Finally extract the Leaflet archive.   
+Finally extract the Leaflet archive.
+
+Make directories that will contain serialized files and plots (this directories
+  have to be inside the *monitoring* folder):
+
+```bash
+mkdir master/scripts/webserver/data
+cd master/scripts/webserver/data
+mkdir plot serialization
+cd plot
+mkdir world paths plan
+```
+
 ##Usage
 Launch the server:
 
