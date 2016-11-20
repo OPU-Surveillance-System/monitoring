@@ -181,7 +181,7 @@ class Solver:
 
         return collision
 
-    def compute_performance(self):
+    def get_battery_consumption(self):
         """
         Count the number of traveled cells (objective function)
         """
@@ -211,6 +211,10 @@ class Solver:
                 battery += self.mapper.paths[(last_position[d], start)][1]
 
         return battery
+
+    def compute_performance(self):
+
+        return self.get_battery_consumption()
 
     def get_number_patrols(self):
         """

@@ -47,9 +47,9 @@ class UncertaintyBatterySolver(UncertaintySolver):
 
         self.estimate_uncertainty_points()
         self.uncertainty_rate = np.mean(np.array(list(self.uncertainty_points.values())))
-        self.battery_consumption = self.get_battery_plan()[1][1]
+        self.battery_consumption = self.get_battery_consumption()
 
-        return self.uncertainty_rate * 100 + settings.PENALIZATION_COEFFICIENT * self.battery_consumption
+        return self.uncertainty_rate * 10000 + settings.PENALIZATION_COEFFICIENT * self.battery_consumption
 
 class UncertaintyBatteryRandomSolver(UncertaintyBatterySolver):
     """
@@ -91,3 +91,55 @@ class UncertaintyBatteryRandomSolver(UncertaintyBatterySolver):
                 best_move = list(self.state)
 
         self.state = best_move
+
+class UncertaintyBatterySimulatedAnnealingSolver(Annealer, UncertaintyBatterySolver):
+    """
+    Define a simulated annealing solver.
+    """
+
+    def __init__(self, state, mapper, nb_drone, nb_change=1):
+        """
+        Initialize the simulated annealing solver.
+
+        Keyword arguments:
+        state: Initial plan
+        mapper: Representation of the environment
+        nb_drone: Number of drones
+        nb_change: Number of random permutations (see annealing process)
+        """
+
+        UncertaintySolver.__init__(self, state, mapper, nb_drone)
+        self.nb_change = nb_change
+
+    def solve(self):
+        """
+        Launch the annealing process
+        """
+
+        self.remove_impossible_targets()
+        itinerary, energy = self.anneal()
+        self.state = list(itinerary)
+
+        return self.state, energy
+
+    def move(self):
+        """
+        Define the annealing process (required by the Annealer class)
+        """
+
+        for c in range(self.nb_change):
+            a = 0
+            b = 0
+            while a == b:
+                a = random.randint(0, len(self.state) - 1)
+                b = random.randint(0, len(self.state) - 1)
+            self.state[a], self.state[b] = self.state[b], self.state[a]
+
+    def energy(self):
+        """
+        Function required by the Annealer class
+        """
+
+        e = self.compute_performance()
+
+        return e

@@ -39,7 +39,7 @@ def get_computed_path(mapper, nb_drone):
     while sa_collision != []:
         saplan = SimulatedAnnealingSolver(state, mapper, nb_drone)
         saplan.copy_strategy = "slice"
-        saplan.steps = 20
+        saplan.steps = 2000000
         saplan.Tmax = 250
         saplan.Tmin = 1
         saplan.updates = 100
@@ -107,7 +107,7 @@ def get_computed_path(mapper, nb_drone):
     while sa_collision != []:
         saplan = UncertaintySimulatedAnnealingSolver(state, mapper, nb_drone)
         saplan.copy_strategy = "slice"
-        saplan.steps = 10
+        saplan.steps = 2000000
         saplan.Tmax = 50
         saplan.Tmin = 12
         saplan.updates = 100
@@ -143,16 +143,46 @@ def get_computed_path(mapper, nb_drone):
     #saplan2 = UncertaintySimulatedAnnealingSolver(distance_saplan_state, mapper, nb_drone)
     #print("SIMULATED ANNEALING UNCERTAINTY PERF", saplan2.compute_performance())
 
-    print("START UNCERTAINTY RANDOM")
+    print("START UNCERTAINTY+BATTERY RANDOM")
     state = list(gplan.state)
     rplan = UncertaintyBatteryRandomSolver(state, mapper, nb_drone)
     rplan.solve()
     rplan_perf = rplan.compute_performance()
-    rplan.plot_uncertainty_grid("random", False)
+    rplan.plot_uncertainty_grid("uncertainty_battery_random", False)
     rplan.detail_plan()
-    rplan.plot("uncertainty_random", False)
+    rplan.plot("uncertainty_battery_random", False)
     r_collision = rplan.check_collision()
-    print("UNCERTAINTY BATTERY RANDOM BATTERY", rplan.battery_consumption)
-    print("UNCERTAINTY BATTERY RANDOM UNCERTAINTY RATE", rplan.uncertainty_rate)
+    print("START UNCERTAINTY+BATTERY SIMULATED ANNEALING")
+    state = list(rplan.state)
+    sa_collision = [1]
+    while sa_collision != []:
+        saplan = UncertaintySimulatedAnnealingSolver(state, mapper, nb_drone)
+        saplan.copy_strategy = "slice"
+        saplan.steps = 2000000
+        saplan.Tmax = 50
+        saplan.Tmin = 12
+        saplan.updates = 100
+        itinerary, energy = saplan.solve()
+        saplan.detail_plan()
+        sa_collision = gplan.check_collision()
+        print("COLLISION", sa_collision)
+        sa_collision = []
+    saplan.plot("uncertainty_battery_simulated_annealing", False)
+    saplan.plot_uncertainty_grid("uncertainty_battery_simulated_annealing", False)
+    saplan.get_battery_plan()
+    saplan_perf = saplan.compute_performance()
+    saplan.detail_plan()
+    print("UNCERTAINTY+BATTERY RANDOM STATE", rplan.state)
+    print("UNCERTAINTY+BATTERY RANDOM PLAN", rplan.plan)
+    print("UNCERTAINTY+BATTERY RANDOM COLLISION", r_collision)
+    print("UNCERTAINTY+BATTERY RANDOM PERF", rplan_perf)
+    print("UNCERTAINTY+BATTERY RANDOM BATTERY PLAN", rplan.battery_plan)
+    print("UNCERTAINTY+BATTERY RANDOM NUMBER OF PATROLS", rplan.get_number_patrols())
+    print("UNCERTAINTY+BATTERY SIMULATED ANNEALING STATE", saplan.state)
+    print("UNCERTAINTY+BATTERY SIMULATED ANNEALING PLAN", saplan.plan)
+    print("UNCERTAINTY+BATTERY SIMULATED ANNEALING COLLISION", sa_collision)
+    print("UNCERTAINTY+BATTERY SIMULATED ANNEALING PERF", saplan_perf)
+    print("UNCERTAINTY+BATTERY SIMULATED ANNEALING BATTERY PLAN", saplan.battery_plan)
+    print("UNCERTAINTY+BATTERY SIMULATED ANNEALING NUMBER OF PATROLS", saplan.get_number_patrols())
 
     return converted_plan, max(saplan.get_number_patrols()), patrol_lengths
