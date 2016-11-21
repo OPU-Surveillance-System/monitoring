@@ -30,10 +30,10 @@ Then, initialize a virtualenv in the *opu_surveillance_system* folder
 ```bash
 virtualenv --system-site-packages -p python3 PATH
 source PATH/bin/activate
-pip install -r requirements.txt
+pip install -r PATH/monitoring/requirements.txt
 ```
 
-Adapt the paths variables (in master/script/paths.py) to your environment.
+Adapt the paths variables (in *master/script/paths.py*) to your environment.
 Every time you make change in this file, you need to indicate to git to ignore it:
 
 ```bash
