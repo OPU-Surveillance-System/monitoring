@@ -1,5 +1,5 @@
 """
-Defines the path planner module.
+Define the path planner module.
 """
 
 from sys import path
@@ -10,7 +10,7 @@ path.append("solvers/")
 import settings
 from solvers.solver import GreedySolver, SimulatedAnnealingSolver, RandomSolver
 from solvers.uncertainty_solver import UncertaintyGreedySolver, UncertaintySimulatedAnnealingSolver, UncertaintyRandomSolver
-from solvers.uncertainty_battery_solver import UncertaintyBatteryRandomSolver
+from solvers.uncertainty_battery_solver import UncertaintyBatteryRandomSolver, UncertaintyBatterySimulatedAnnealingSolver
 
 def get_computed_path(mapper, nb_drone):
     #Initial solution
@@ -77,6 +77,8 @@ def get_computed_path(mapper, nb_drone):
     print("SIMULATED ANNEALING PERF", saplan_perf)
     print("SIMULATED ANNEALING BATTERY PLAN", saplan.battery_plan)
     print("SIMULATED ANNEALING NUMBER OF PATROLS", saplan.get_number_patrols())
+    saplan = UncertaintySimulatedAnnealingSolver(state, mapper, nb_drone)
+    print("SIMULATED ANNEALING UNCERTAINTY RATE", saplan.compute_performance())
     converted_plan = saplan.mapper.convert_plan(saplan.detailed_plan, nb_drone)
     patrol_lengths = saplan.get_patrol_lengths()
 
@@ -156,7 +158,7 @@ def get_computed_path(mapper, nb_drone):
     state = list(rplan.state)
     sa_collision = [1]
     while sa_collision != []:
-        saplan = UncertaintySimulatedAnnealingSolver(state, mapper, nb_drone)
+        saplan = UncertaintyBatterySimulatedAnnealingSolver(state, mapper, nb_drone)
         saplan.copy_strategy = "slice"
         saplan.steps = 2000000
         saplan.Tmax = 50
