@@ -119,6 +119,7 @@ class UncertaintyBatterySimulatedAnnealingSolver(Annealer, UncertaintyBatterySol
         self.remove_impossible_targets()
         itinerary, energy = self.anneal()
         self.state = list(itinerary)
+        self.compute_performance()
 
         return self.state, energy
 

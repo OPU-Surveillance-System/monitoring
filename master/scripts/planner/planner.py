@@ -183,7 +183,8 @@ def get_computed_path(mapper, nb_drone):
     print("UNCERTAINTY+BATTERY SIMULATED ANNEALING STATE", saplan.state)
     print("UNCERTAINTY+BATTERY SIMULATED ANNEALING PLAN", saplan.plan)
     print("UNCERTAINTY+BATTERY SIMULATED ANNEALING COLLISION", sa_collision)
-    print("UNCERTAINTY+BATTERY SIMULATED ANNEALING PERF", saplan_perf)
+    print("UNCERTAINTY+BATTERY SIMULATED ANNEALING PERF", saplan.uncertainty_rate)
+    print("UNCERTAINTY+BATTERY SIMULATED ANNEALING PERF", saplan.battery_consumption)
     print("UNCERTAINTY+BATTERY SIMULATED ANNEALING BATTERY PLAN", saplan.battery_plan)
     print("UNCERTAINTY+BATTERY SIMULATED ANNEALING NUMBER OF PATROLS", saplan.get_number_patrols())
 
