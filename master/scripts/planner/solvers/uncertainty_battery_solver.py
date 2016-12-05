@@ -26,7 +26,7 @@ class UncertaintyBatterySolver(UncertaintySolver):
     penalizing large battery consumption.
     """
 
-    def __init__(self, state, mapper, nb_drone):
+    def __init__(self, state, mapper, nb_drone, penalizer=None):
         """
         Initialize the abstract solver.
 
@@ -39,6 +39,10 @@ class UncertaintyBatterySolver(UncertaintySolver):
         UncertaintySolver.__init__(self, state, mapper, nb_drone)
         self.uncertainty_rate = 0
         self.battery_consumption = 0
+        if penalizer != None:
+            self.penalizer = penalizer
+        else:
+            self.penalizer = settings.PENALIZATION_COEFFICIENT
 
     def compute_performance(self):
         """
@@ -49,14 +53,14 @@ class UncertaintyBatterySolver(UncertaintySolver):
         self.uncertainty_rate = np.mean(np.array(list(self.uncertainty_points.values())))
         self.battery_consumption = self.get_battery_consumption()
 
-        return self.uncertainty_rate * 10000 + settings.PENALIZATION_COEFFICIENT * self.battery_consumption
+        return self.uncertainty_rate * 10000 + self.penalizer * self.battery_consumption
 
 class UncertaintyBatteryRandomSolver(UncertaintyBatterySolver):
     """
     Define a random solver.
     """
 
-    def __init__(self, state, mapper, nb_drone):
+    def __init__(self, state, mapper, nb_drone, penalizer=None):
         """
         Initialize the random solver.
 
@@ -66,7 +70,7 @@ class UncertaintyBatteryRandomSolver(UncertaintyBatterySolver):
         nb_drone: Number of drones
         """
 
-        UncertaintyBatterySolver.__init__(self, state, mapper, nb_drone)
+        UncertaintyBatterySolver.__init__(self, state, mapper, nb_drone, penalizer)
 
     def solve(self):
         """
@@ -97,7 +101,7 @@ class UncertaintyBatterySimulatedAnnealingSolver(Annealer, UncertaintyBatterySol
     Define a simulated annealing solver.
     """
 
-    def __init__(self, state, mapper, nb_drone, nb_change=1):
+    def __init__(self, state, mapper, nb_drone, nb_change=1, penalizer=None):
         """
         Initialize the simulated annealing solver.
 
@@ -108,7 +112,7 @@ class UncertaintyBatterySimulatedAnnealingSolver(Annealer, UncertaintyBatterySol
         nb_change: Number of random permutations (see annealing process)
         """
 
-        UncertaintySolver.__init__(self, state, mapper, nb_drone)
+        UncertaintyBatterySolver.__init__(self, state, mapper, nb_drone, penalizer)
         self.nb_change = nb_change
 
     def solve(self):
