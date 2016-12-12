@@ -9,6 +9,7 @@ from sys import path
 import operator
 from simanneal import Annealer
 import random
+import math
 path.append("../..")
 
 import settings
@@ -436,3 +437,48 @@ class SimulatedAnnealingSolver(Annealer, Solver):
         e = self.compute_performance()
 
         return e
+
+class BayesianSolver(Solver):
+    """
+    Define a Bayesian Optimization solver.
+    """
+
+    def __init__(self, state, mapper, nb_drone, nb_iteration=100):
+        """
+        Initialize the Bayesian solver.
+
+        Keyword arguments:
+        state: Initial plan
+        mapper: Representation of the environment
+        nb_drone: Number of drones
+        nb_iteration: Number of maximum iteration of the optimizer
+        """
+
+        Solver.__init__(self, state, mapper, nb_drone)
+        a = [(i, sum([i[0]**2, i[1]**2)) for i in self.mapper.default_targets]
+        a = sorted(lst, key=lambda x: x[1])
+        self.id_to_loc = {i+1:a[i][0] for i in range(len(a))}
+        self.alphabet = [i for i in range(1, len(a) + 1)]
+        #Initialize the bayesian optimizer (creation of the bounds etc...)
+
+    def evaluation(self, x):
+        """
+        Evaluate a given permutation.
+        """
+
+        #id_perm = Convert the int (lehmer code) to the corresponding permutation
+        self.state = [self.id_to_loc[i] for i in id_perm]
+        e = self.compute_performance()
+
+        return e
+
+    def solve(self):
+        """
+        Run the Baysian solver (estimate the best permutation).
+        """
+
+        #Call the run method of bayesian optimiser
+        #self.state = optimizer.x (mettre self.state au x optimum estimé)
+        #energy = optimizer.f_x (performance du meilleur x estimé)
+
+        return self.state, enegy
