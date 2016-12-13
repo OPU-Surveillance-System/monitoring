@@ -13,6 +13,7 @@ import math
 import numpy as np
 import GPy
 import GPyOpt
+from tqdm import tqdm
 
 path.append("../..")
 
@@ -57,6 +58,7 @@ class Solver:
         limit = 0
         i = 0
         while i < len(self.state):
+            #print("i", "statei", self.state[i], "state", self.state)
             if limit + self.mapper.paths[(last_position[d], self.state[i])][1] + self.mapper.paths[(self.state[i], start)][1] < settings.MAX_BATTERY_UNIT:
                 limit += self.mapper.paths[(last_position[d], self.state[i])][1]
                 self.plan[d].append(self.state[i])
@@ -443,6 +445,18 @@ class SimulatedAnnealingSolver(Annealer, Solver):
 
         return e
 
+def evaluation(x, alphabet, state, id_to_loc):
+    """
+    Evaluate a given permutation.
+    """
+
+    id_perm = lehmer.perm_from_int(self.alphabet, int(x[:,0][0]))
+    self.state = [self.id_to_loc[i] for i in id_perm]
+    e = self.compute_performance()
+    print("perm:", int(x[:,0][0]), "cost:", e)
+
+    return e
+
 class BayesianSolver(Solver):
     """
     Define a Bayesian Optimization solver.
@@ -465,16 +479,11 @@ class BayesianSolver(Solver):
         a = sorted(a, key=lambda x: x[1])
         self.id_to_loc = {i+1:a[i][0] for i in range(len(a))}
         self.alphabet = [i for i in range(1, len(a) + 1)]
-        np.random.seed(123456)
-        X = [lehmer.perm_from_int(self.alphabet, x) for x in range(1)]
-        self.bounds = [{'name':'permutation', 'type':'discrete', 'domain':(0, int(math.factorial(len(self.alphabet))))}]
-        initial_design = GPyOpt.util.stats.initial_design('random', self.bounds, 10)
-        print("INIT OPT")
+        self.bounds = [{'name':'permutation', 'type':'continuous', 'domain':(0, int(math.factorial(len(self.alphabet))))}]
         self.optimizer = GPyOpt.methods.BayesianOptimization(self.evaluation,
-                                                        domain  = self.bounds,
-                                                        model_type = 'GP',
-                                                        acquisition_type = 'EI',
-                                                        initial_design=initial_design)
+                                                             domain  = self.bounds,
+                                                             model_type = 'GP',
+                                                             acquisition_type = 'EI')
         print("INIT DONE")
 
     def evaluation(self, x):
@@ -482,10 +491,11 @@ class BayesianSolver(Solver):
         Evaluate a given permutation.
         """
 
-        id_perm = lehmer.perm_from_int(self.alphabet, int(x[:,0][0]))
+        sample = int(x[:,0][0])
+        id_perm = lehmer.perm_from_int(self.alphabet, sample)
         self.state = [self.id_to_loc[i] for i in id_perm]
         e = self.compute_performance()
-        print("perm:", int(x[:,0][0]), "cost:", e)
+        #print("perm:", sample, "cost:", e)
 
         return e
 
@@ -494,12 +504,13 @@ class BayesianSolver(Solver):
         Run the Baysian solver (estimate the best permutation).
         """
 
-        for i in range(self.nb_iteration):
-            print("iteration:", i)
-            self.optimizer.run_optimization(max_iter=1)
-
-        best_perm = lehmer.perm_from_int(self.alphabet, int(self.optimizer.x_opt[0]))
-        self.state = best_perm
+        max_iter=self.nb_iteration
+        #for i in tqdm(range(max_iter)):
+        self.optimizer.run_optimization(max_iter, eps=-1.0, report_file="bayes")
+        best_id_perm = lehmer.perm_from_int(self.alphabet, int(self.optimizer.x_opt[0]))
+        self.state = [self.id_to_loc[i] for i in best_id_perm]
         energy = self.optimizer.fx_opt
+        #self.optimizer.plot_acquisition()
+        self.optimizer.plot_convergence()
 
-        return self.state, enegy[0]
+        return self.state, energy[0]
