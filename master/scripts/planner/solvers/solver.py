@@ -10,8 +10,13 @@ import operator
 from simanneal import Annealer
 import random
 import math
+import numpy as np
+import GPy
+import GPyOpt
+
 path.append("../..")
 
+import lehmer
 import settings
 
 class Solver:
@@ -455,20 +460,32 @@ class BayesianSolver(Solver):
         """
 
         Solver.__init__(self, state, mapper, nb_drone)
-        a = [(i, sum([i[0]**2, i[1]**2)) for i in self.mapper.default_targets]
-        a = sorted(lst, key=lambda x: x[1])
+        self.nb_iteration = nb_iteration
+        a = [(i, sum([i[0]**2, i[1]**2])) for i in self.mapper.default_targets]
+        a = sorted(a, key=lambda x: x[1])
         self.id_to_loc = {i+1:a[i][0] for i in range(len(a))}
         self.alphabet = [i for i in range(1, len(a) + 1)]
-        #Initialize the bayesian optimizer (creation of the bounds etc...)
+        np.random.seed(123456)
+        X = [lehmer.perm_from_int(self.alphabet, x) for x in range(1)]
+        self.bounds = [{'name':'permutation', 'type':'discrete', 'domain':(0, int(math.factorial(len(self.alphabet))))}]
+        initial_design = GPyOpt.util.stats.initial_design('random', self.bounds, 10)
+        print("INIT OPT")
+        self.optimizer = GPyOpt.methods.BayesianOptimization(self.evaluation,
+                                                        domain  = self.bounds,
+                                                        model_type = 'GP',
+                                                        acquisition_type = 'EI',
+                                                        initial_design=initial_design)
+        print("INIT DONE")
 
     def evaluation(self, x):
         """
         Evaluate a given permutation.
         """
 
-        #id_perm = Convert the int (lehmer code) to the corresponding permutation
+        id_perm = lehmer.perm_from_int(self.alphabet, int(x[:,0][0]))
         self.state = [self.id_to_loc[i] for i in id_perm]
         e = self.compute_performance()
+        print("perm:", int(x[:,0][0]), "cost:", e)
 
         return e
 
@@ -477,8 +494,12 @@ class BayesianSolver(Solver):
         Run the Baysian solver (estimate the best permutation).
         """
 
-        #Call the run method of bayesian optimiser
-        #self.state = optimizer.x (mettre self.state au x optimum estimé)
-        #energy = optimizer.f_x (performance du meilleur x estimé)
+        for i in range(self.nb_iteration):
+            print("iteration:", i)
+            self.optimizer.run_optimization(max_iter=1)
 
-        return self.state, enegy
+        best_perm = lehmer.perm_from_int(self.alphabet, int(self.optimizer.x_opt[0]))
+        self.state = best_perm
+        energy = self.optimizer.fx_opt
+
+        return self.state, enegy[0]
