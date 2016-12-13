@@ -479,7 +479,9 @@ class BayesianSolver(Solver):
         a = sorted(a, key=lambda x: x[1])
         self.id_to_loc = {i+1:a[i][0] for i in range(len(a))}
         self.alphabet = [i for i in range(1, len(a) + 1)]
-        self.bounds = [{'name':'permutation', 'type':'continuous', 'domain':(0, int(math.factorial(len(self.alphabet))))}]
+        #self.bounds = [{'name':'permutation', 'type':'continuous', 'domain':(0, int(math.factorial(len(self.alphabet))))}]
+        self.fact = int(math.factorial(len(self.alphabet)))
+        self.bounds = [{'name':'permutation', 'type':'continuous', 'domain':(0, 100)}]
         self.optimizer = GPyOpt.methods.BayesianOptimization(self.evaluation,
                                                              domain  = self.bounds,
                                                              model_type = 'GP',
@@ -487,9 +489,9 @@ class BayesianSolver(Solver):
                                                              initial_design_numdata=10,
                                                              model_update_interval=1,
                                                              normalize_Y = True,
-                                                             evaluator_type='random',
-                                                             batch_size=4,
-                                                             num_cores=4,
+                                                             evaluator_type='sequential',
+                                                             batch_size=1,
+                                                             num_cores=1,
                                                              acquisition_jitter=0)
         print("INIT DONE")
 
@@ -498,11 +500,12 @@ class BayesianSolver(Solver):
         Evaluate a given permutation.
         """
 
-        sample = int(x[:,0][0])
+        #sample = int(x[:,0][0])
+        sample = int((self.fact * x[:,0][0]) / 100)
         id_perm = lehmer.perm_from_int(self.alphabet, sample)
         self.state = [self.id_to_loc[i] for i in id_perm]
         e = self.compute_performance()
-        print("perm:", sample, "cost:", e)
+        print("perm:", x[:,0][0], "cost:", e)
 
         return e
 
@@ -517,7 +520,7 @@ class BayesianSolver(Solver):
         best_id_perm = lehmer.perm_from_int(self.alphabet, int(self.optimizer.x_opt[0]))
         self.state = [self.id_to_loc[i] for i in best_id_perm]
         energy = self.optimizer.fx_opt
-        #self.optimizer.plot_acquisition()
+        self.optimizer.plot_acquisition()
         self.optimizer.plot_convergence()
 
         return self.state, energy[0]
