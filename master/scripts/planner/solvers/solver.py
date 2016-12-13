@@ -483,7 +483,14 @@ class BayesianSolver(Solver):
         self.optimizer = GPyOpt.methods.BayesianOptimization(self.evaluation,
                                                              domain  = self.bounds,
                                                              model_type = 'GP',
-                                                             acquisition_type = 'EI')
+                                                             acquisition_type = 'EI',
+                                                             initial_design_numdata=10,
+                                                             model_update_interval=1,
+                                                             normalize_Y = True,
+                                                             evaluator_type='random',
+                                                             batch_size=4,
+                                                             num_cores=4,
+                                                             acquisition_jitter=0)
         print("INIT DONE")
 
     def evaluation(self, x):
@@ -495,7 +502,7 @@ class BayesianSolver(Solver):
         id_perm = lehmer.perm_from_int(self.alphabet, sample)
         self.state = [self.id_to_loc[i] for i in id_perm]
         e = self.compute_performance()
-        #print("perm:", sample, "cost:", e)
+        print("perm:", sample, "cost:", e)
 
         return e
 
