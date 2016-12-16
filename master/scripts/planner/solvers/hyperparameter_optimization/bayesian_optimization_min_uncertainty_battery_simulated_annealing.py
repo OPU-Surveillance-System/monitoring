@@ -19,13 +19,13 @@ def bayesian_optimization_min_uncertainty_battery_simulated_annealing(x):
     state = [(1059, 842), (505, 1214), (400, 1122), (502, 339), (866, 512), (1073, 82), (669, 1202), (32, 1122), (45, 52), (209, 993), (118, 653), (487, 896), (748, 638), (271, 1067), (1576, 567), (683, 316), (1483, 1156), (1448, 634), (303, 1220), (759, 823), (1614, 991), (1387, 174), (1618, 227), (367, 39), (35, 902), (967, 690), (944, 327), (912, 1029), (184, 1205), (779, 1026), (694, 123), (1502, 395)]
     mean = []
     print(x[:,0], x[:,1], x[:,2])
-    for i in range(20):
+    for i in range(1):
         rplan = UncertaintyBatteryRandomSolver(state, mapper, nb_drone)
         rplan.solve()
         penalizer = x[:,2]
         saplan = UncertaintyBatterySimulatedAnnealingSolver(rplan.state, mapper, nb_drone, penalizer=penalizer)
         saplan.copy_strategy = "slice"
-        saplan.steps = 2000000
+        saplan.steps = 10
         saplan.Tmax = x[:,0]
         saplan.Tmin = x[:,1]
         saplan.updates = 0
@@ -44,8 +44,9 @@ optimizer = GPyOpt.methods.BayesianOptimization(bayesian_optimization_min_uncert
                                               model_type = 'GP',
                                               acquisition_type = 'EI',
                                               normalize_Y = True,
-                                              verbosity = True)
-max_iter = 100
+                                              verbosity = True,
+                                              verbosity_model = True)
+max_iter = 1
 t_start = time.time()
 optimizer.run_optimization(max_iter, verbosity = True)
 t_end = time.time()
