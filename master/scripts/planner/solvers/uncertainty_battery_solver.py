@@ -49,11 +49,9 @@ class UncertaintyBatterySolver(UncertaintySolver):
         Compute the average uncertainty rate of the points of interest.
         """
 
-        self.estimate_uncertainty_points()
-        self.uncertainty_rate = np.mean(np.array(list(self.uncertainty_points.values())))
-        self.battery_consumption = self.get_battery_consumption()
+        mean, battery = self.estimate_uncertainty_points()
 
-        return self.uncertainty_rate * 10000 + self.penalizer * self.battery_consumption
+        return mean * 10000 + self.penalizer * battery
 
 class UncertaintyBatteryRandomSolver(UncertaintyBatterySolver):
     """
@@ -81,16 +79,10 @@ class UncertaintyBatteryRandomSolver(UncertaintyBatterySolver):
         self.remove_impossible_targets()
         random.shuffle(self.targets)
         best_move = list(self.targets)
-        tmp_uncertainty = copy.copy(self.uncertainty_points)
-        self.estimate_uncertainty_points()
         best_perf = self.compute_performance()
-        self.uncertainty_points = copy.copy(tmp_uncertainty)
         for i in range(settings.MAX_RANDOM_PLANNER_ITERATION):
             random.shuffle(self.state)
-            tmp_uncertainty = copy.copy(self.uncertainty_points)
-            self.estimate_uncertainty_points()
             perf = self.compute_performance()
-            self.uncertainty_points = copy.copy(tmp_uncertainty)
             if perf < best_perf:
                 best_move = list(self.state)
 

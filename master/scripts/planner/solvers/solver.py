@@ -209,7 +209,6 @@ class Solver:
         for d in range(self.nb_drone):
             if last_position[d] != self.start_points[d]:
                 battery += self.mapper.paths[(last_position[d], start)][1]
-
         return battery
 
     def compute_performance(self):
