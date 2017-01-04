@@ -77,6 +77,44 @@ class UncertaintySolver(Solver):
             self.uncertainty_points[(point[1], point[0])] = 1 - math.exp(settings.LAMBDA * diff.seconds)
         self.plan = [[] for d in range(self.nb_drone)]
 
+    def estimate_uncertainty_points2(self):
+        """
+        Estimate the uncertainty rate of the points of interest at the end of the patrols.
+        """
+
+        last_position = [self.start_points[d] for d in range(self.nb_drone)]
+        d = 0
+        start = self.start_points[d]
+        battery = 0
+        i = 0
+        limit = 0
+        point_time = {}
+        drone_ellapsed_time = [0 for i in range(self.nb_drone)]
+        while i < len(self.state):
+            if limit + self.mapper.paths[(last_position[d], self.state[i])][1] + self.mapper.paths[(self.state[i], start)][1] < settings.MAX_BATTERY_UNIT:
+                limit += self.mapper.paths[(last_position[d], self.state[i])][1]
+                drone_ellapsed_time[d] += self.mapper.paths[(last_position[d], self.state[i])][1] * settings.TIMESTEP
+                point_time[self.state[i]] = drone_ellapsed_time[d]
+                last_position[d] = self.state[i]
+                i += 1
+            else:
+                limit += self.mapper.paths[(last_position[d], start)][1]
+                drone_ellapsed_time[d] += self.mapper.paths[(last_position[d], start)][1] * settings.TIMESTEP
+                battery += limit
+                limit = 0
+                last_position[d] = start
+                d += 1
+                if d >= self.nb_drone:
+                    d = 0
+                start = self.start_points[d]
+        for d in range(self.nb_drone):
+            if last_position[d] != self.start_points[d]:
+                battery += self.mapper.paths[(last_position[d], start)][1]
+                drone_ellapsed_time[d] += self.mapper.paths[(last_position[d], start)][1] * settings.TIMESTEP
+        print(drone_ellapsed_time)
+
+        return battery
+
     def plot_uncertainty_grid(self, method, show=True):
         """
         Plot the expected state of the uncertainty grid at the end of the
