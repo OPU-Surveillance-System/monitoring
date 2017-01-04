@@ -254,31 +254,35 @@ class Solver:
 
         #TODO: Create more markers and colors in order to handle a larger number of drones
         d_markers = ["^", "x", ".", "s", "p", "*", "h", "d"]
-        p_colors = ["red", "green", "orange", "cyan", "yellow", "purple", "pink", "blue", "indigo", "turquoise", "salmon", "skyblue", "coral", "teal", "olive", "chartreuse", "moccasin", "greenyellow"]
+        #p_colors = ["red", "green", "orange", "cyan", "yellow", "purple", "pink", "blue", "indigo", "turquoise", "salmon", "skyblue", "coral", "teal", "olive", "chartreuse", "moccasin", "greenyellow"]
+        c = plt.get_cmap("Greys_r")
+        r = list(range(c.N))[30::1]
+        s = int(len(r) / len(self.detailed_plan[0]))
+        r = list(range(c.N))[0::s]
+        p_colors = []
+        for i in r:
+            rgb = c(i)[:3]
+            p_colors.append(colors.rgb2hex(rgb))
         obstacles = [[],[]]
         paths = [[],[]]
         targets = [[],[]]
-        for j in range(len(self.mapped_paths)):
-            for i in range(len(self.mapped_paths[j])):
-                if self.mapper.world[j][i] == 1:
-                    obstacles[0].append(i)
-                    obstacles[1].append(-j)
-                elif self.mapper.world[j][i] == 3:
-                    targets[0].append(i)
-                    targets[1].append(-j)
-        plt.scatter(obstacles[0], obstacles[1], color='black', marker=',', s=10)
-        plt.scatter(targets[0], targets[1], color='blue', s=40)
+        fig, ax = plt.subplots()
+        cmap = colors.ListedColormap(['white', 'black', 'red', 'orange'])
+        plt.imshow(self.mapper.world, interpolation="none", cmap=cmap)
         for d in range(self.nb_drone):
             for p in range(len(self.detailed_plan[d])):
-                x = []
-                y = []
                 for i in range(len(self.detailed_plan[d][p])):
-                    if i % 2 == 0:
-                        x.append(self.detailed_plan[d][p][i][0])
-                        y.append(-self.detailed_plan[d][p][i][1])
-                plt.scatter(x, y, color=p_colors[p], marker=d_markers[d], s=10)
+                    l = list(self.detailed_plan[d][p])[0::30]
+                    pos_text = l[int(len(l) / 2)]
+                    plt.text(pos_text[0] + 2, pos_text[1], str(p+1))
+                    x = []
+                    y = []
+                    for i in l:
+                            x.append(i[0])
+                            y.append(i[1])
+                    plt.scatter(x, y, color=p_colors[p], marker=d_markers[d], s=10)
         plt.xlim(0, settings.X_SIZE)
-        plt.ylim(-settings.Y_SIZE, 0)
+        plt.ylim(settings.Y_SIZE, 0)
         save = True
         if show:
             plt.show()
