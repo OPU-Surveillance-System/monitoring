@@ -237,6 +237,27 @@ class Mapper():
         #self.uncertainty_grid[0][0] = 0.01
         #self.uncertainty_grid[10][10] = 0.39
 
+    def plot_world_default_targets(self, show=True):
+        """
+        Plot default targets.
+        """
+
+        print("Ploting default targets")
+        fig, ax = plt.subplots()
+        cmap = colors.ListedColormap(['white', 'black', 'red', 'orange'])
+        ax.imshow(self.world, interpolation="none", cmap=cmap)
+        for t in self.default_targets:
+            circle1 = plt.Circle((t[0], t[1]), 10, color='grey')
+            ax.add_artist(circle1)
+        ax.scatter(self.starting_point[0][0], self.starting_point[0][1], marker="*", s=30)
+        save = True
+        if show:
+            plt.show()
+            save = False
+        if save:
+            #plt.savefig('data/plot/world/map_grid_' + str(settings.X_SIZE) + 'x' + str(settings.Y_SIZE) + '.png', dpi=800)
+            plt.savefig('data/plot/world/map_grid_target_points' + str(settings.X_SIZE) + 'x' + str(settings.Y_SIZE) + '.png')
+
     def plot_world(self, show=True):
         """
         Plot the environment.
