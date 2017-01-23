@@ -75,9 +75,12 @@ class Mapper():
         self.C = self.A - self.B
 
         #Environment elements
+        default_targets = get_random_target_points()
         self.starting_point = [self.latlong_to_index(s) for s in starting_point]
         self.obstacles = obstacles
-        self.default_targets = [self.latlong_to_index(t) for t in default_targets]
+        #self.default_targets = [self.latlong_to_index(t) for t in default_targets]
+        self.default_targets = self.get_random_target_points(50)
+
         for s in self.starting_point:
             self.default_targets.append(s)
         self.world = self.create_world()
@@ -107,6 +110,25 @@ class Mapper():
         #time.sleep(1)
         #self.update_uncertainty_grid()
         #self.plot_uncertainty_grid()
+
+    def get_random_target_points(self, num):
+        """
+        """
+        i = 0
+        proj_obs = [[self.latlong_to_index(o) for o in obs] for obs in self.obstacles]
+        poly_obs = [Polygon(o) for o in proj_obs]
+        random_target_points = []
+        while i < num:
+            is_inadmissible = True
+            while is_inadmissible:
+                x = random.randint(0, X_SIZE)
+                y = random.randint(0, Y_SIZE)
+                if !self.is_non_admissible((x, y), poly_obs):
+                    is_inadmissible = False
+            random_target_points.append((x, y))
+            i += 1
+
+        return random_target_points
 
     def project_limits(self):
         """
