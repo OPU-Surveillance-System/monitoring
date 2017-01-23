@@ -123,7 +123,7 @@ class Mapper():
             while is_inadmissible:
                 x = random.randint(0, X_SIZE)
                 y = random.randint(0, Y_SIZE)
-                if !self.is_non_admissible((x, y), poly_obs):
+                if not self.is_non_admissible((x, y), poly_obs):
                     is_inadmissible = False
             random_target_points.append((x, y))
             i += 1
