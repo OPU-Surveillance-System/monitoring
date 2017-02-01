@@ -5,33 +5,39 @@ from sys import path
 import pickle
 import time
 from tqdm import tqdm
+from random import shuffle
 path.append("..")
 path.append("../..")
 path.append("../../..")
 
-from solver import SimulatedAnnealingSolver, RandomSolver
+from uncertainty_battery_solver import UncertaintyBatterySimulatedAnnealingSolver, UncertaintyBatteryRandomSolver
 import map_converter as m
 
 fs = open("../../../webserver/data/serialization/mapper.pickle", "rb")
 mapper = pickle.load(fs)
 fs.close()
-nb_drone = 1
-state = [(1059, 842), (505, 1214), (400, 1122), (502, 339), (866, 512), (1073, 82), (669, 1202), (32, 1122), (45, 52), (209, 993), (118, 653), (487, 896), (748, 638), (271, 1067), (1576, 567), (683, 316), (1483, 1156), (1448, 634), (303, 1220), (759, 823), (1614, 991), (1387, 174), (1618, 227), (367, 39), (35, 902), (967, 690), (944, 327), (912, 1029), (184, 1205), (779, 1026), (694, 123), (1502, 395)]
-rplan = RandomSolver(state, mapper, nb_drone)
-saplan = SimulatedAnnealingSolver(rplan.state, mapper, nb_drone)
+state = mapper.default_targets
+rplan = UncertaintyBatteryRandomSolver(state, mapper, 2)
+saplan = UncertaintyBatterySimulatedAnnealingSolver(rplan.state, mapper, 2, penalizer = 0.2)
+rplan.solve()
+saplan.state = list(rplan.state)
 hist = []
-for i in tqdm(range(100)):
-    rplan.solve()
-    saplan.state = list(rplan.state)
+hist_u = []
+hist_d = []
+for i in tqdm(range(10)):
+    shuffle(saplan.state)
     saplan.copy_strategy = "slice"
-    saplan.steps = 10000000
-    tmax = 987.57443341
-    tmin = 1
-    saplan.Tmax = tmax
-    saplan.Tmin = tmin
+    saplan.steps = 3000000
+    saplan.Tmax = 45.58
+    saplan.Tmin = 21.56
     saplan.updates = 0
     itinerary, energy = saplan.solve()
     hist.append(energy)
+    hist_u.append(saplan.uncertainty_rate)
+    hist_d.append(saplan.battery_consumption)
 hist = np.array(hist)
-print("Mean:", np.mean(hist), "Var:", np.var(hist), "Std:", np.std(hist))
-print(hist)
+hist_u = np.array(hist_u)
+hist_d = np.array(hist_d)
+print("COST", "Mean:", np.mean(hist), "Var:", np.var(hist), "Std:", np.std(hist), "Max:", np.max(hist), "Min:", np.min(hist))
+print("UNCERTAINTY RATE", "Mean:", np.mean(hist_u), "Var:", np.var(hist_u), "Std:", np.std(hist_u), "Max:", np.max(hist_u), "Min:", np.min(hist_u))
+print("BATTERY", "Mean:", np.mean(hist_d), "Var:", np.var(hist_d), "Std:", np.std(hist_d), "Max:", np.max(hist_d), "Min:", np.min(hist_d))
