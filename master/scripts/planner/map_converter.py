@@ -77,8 +77,8 @@ class Mapper():
         #Environment elements
         self.starting_point = [self.latlong_to_index(s) for s in starting_point]
         self.obstacles = obstacles
-        #self.default_targets = [self.latlong_to_index(t) for t in default_targets]
-        self.default_targets = self.get_random_target_points(50)
+        self.default_targets = [self.latlong_to_index(t) for t in default_targets]
+        #self.default_targets = self.get_random_target_points(50)
 
         for s in self.starting_point:
             self.default_targets.append(s)
@@ -108,7 +108,7 @@ class Mapper():
         #time.sleep(1)
         #self.update_uncertainty_grid()
         #self.plot_uncertainty_grid()
-        self.plot_world_default_targets()
+        #self.plot_world_default_targets()
 
     def get_random_target_points(self, num):
         """
