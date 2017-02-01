@@ -98,10 +98,8 @@ class Solver:
 
         self._build_plan()
         path = [[] for d in range(self.nb_drone)]
-        print(self.plan)
         for d in range(self.nb_drone):
             for s in range(1, len(self.plan[d])):
-                print(d, self.plan[d][s - 1], self.plan[d][s], s, len(self.plan[d]))
                 try:
                     path[d] += self.mapper.paths[(self.plan[d][s - 1], self.plan[d][s])][0]
                 except KeyError:
