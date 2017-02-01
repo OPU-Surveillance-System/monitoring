@@ -78,6 +78,8 @@ class Mapper():
         self.starting_point = [self.latlong_to_index(s) for s in starting_point]
         self.obstacles = obstacles
         self.default_targets = [self.latlong_to_index(t) for t in default_targets]
+        #self.default_targets = self.get_random_target_points(50)
+
         for s in self.starting_point:
             self.default_targets.append(s)
         self.world = self.create_world()
@@ -99,7 +101,6 @@ class Mapper():
         for p in self.paths:
             if self.paths[p][1] == 1:
                 print(p, self.paths[p])
-
         #Environment uncertainty
         self.uncertainty_grid = np.ones((settings.Y_SIZE, settings.X_SIZE))
         creation_date = datetime.datetime.now()
@@ -107,6 +108,26 @@ class Mapper():
         #time.sleep(1)
         #self.update_uncertainty_grid()
         #self.plot_uncertainty_grid()
+        #self.plot_world_default_targets()
+
+    def get_random_target_points(self, num):
+        """
+        """
+        i = 0
+        proj_obs = [[self.latlong_to_index(o) for o in obs] for obs in self.obstacles]
+        poly_obs = [Polygon(o) for o in proj_obs]
+        random_target_points = []
+        while i < num:
+            is_inadmissible = True
+            while is_inadmissible:
+                x = random.randint(0, settings.X_SIZE - 1)
+                y = random.randint(0, settings.Y_SIZE - 1)
+                if not self.is_non_admissible((x, y), poly_obs):
+                    is_inadmissible = False
+            random_target_points.append((x, y))
+            i += 1
+
+        return random_target_points
 
     def project_limits(self):
         """
@@ -236,6 +257,27 @@ class Mapper():
                 #self.uncertainty_grid[y][x] = random.random()
         #self.uncertainty_grid[0][0] = 0.01
         #self.uncertainty_grid[10][10] = 0.39
+
+    def plot_world_default_targets(self, show=True):
+        """
+        Plot default targets.
+        """
+
+        print("Ploting default targets")
+        fig, ax = plt.subplots()
+        cmap = colors.ListedColormap(['white', 'black', 'red', 'orange'])
+        ax.imshow(self.world, interpolation="none", cmap=cmap)
+        for t in self.default_targets:
+            circle1 = plt.Circle((t[0], t[1]), 10, color='grey')
+            ax.add_artist(circle1)
+        ax.scatter(self.starting_point[0][0], self.starting_point[0][1], marker="*", s=30)
+        save = True
+        if show:
+            plt.show()
+            save = False
+        if save:
+            #plt.savefig('data/plot/world/map_grid_' + str(settings.X_SIZE) + 'x' + str(settings.Y_SIZE) + '.png', dpi=800)
+            plt.savefig('data/plot/world/map_grid_target_points' + str(settings.X_SIZE) + 'x' + str(settings.Y_SIZE) + '.png')
 
     def plot_world(self, show=True):
         """

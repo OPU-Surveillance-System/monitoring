@@ -26,7 +26,7 @@ class UncertaintyBatterySolver(UncertaintySolver):
     penalizing large battery consumption.
     """
 
-    def __init__(self, state, mapper, nb_drone):
+    def __init__(self, state, mapper, nb_drone, penalizer=None):
         """
         Initialize the abstract solver.
 
@@ -39,24 +39,26 @@ class UncertaintyBatterySolver(UncertaintySolver):
         UncertaintySolver.__init__(self, state, mapper, nb_drone)
         self.uncertainty_rate = 0
         self.battery_consumption = 0
+        if penalizer != None:
+            self.penalizer = penalizer
+        else:
+            self.penalizer = settings.PENALIZATION_COEFFICIENT
 
     def compute_performance(self):
         """
         Compute the average uncertainty rate of the points of interest.
         """
 
-        self.estimate_uncertainty_points()
-        self.uncertainty_rate = np.mean(np.array(list(self.uncertainty_points.values())))
-        self.battery_consumption = self.get_battery_consumption()
+        mean, battery = self.estimate_uncertainty_points()
 
-        return self.uncertainty_rate * 10000 + settings.PENALIZATION_COEFFICIENT * self.battery_consumption
+        return mean, battery
 
 class UncertaintyBatteryRandomSolver(UncertaintyBatterySolver):
     """
     Define a random solver.
     """
 
-    def __init__(self, state, mapper, nb_drone):
+    def __init__(self, state, mapper, nb_drone, penalizer=None):
         """
         Initialize the random solver.
 
@@ -66,7 +68,7 @@ class UncertaintyBatteryRandomSolver(UncertaintyBatterySolver):
         nb_drone: Number of drones
         """
 
-        UncertaintyBatterySolver.__init__(self, state, mapper, nb_drone)
+        UncertaintyBatterySolver.__init__(self, state, mapper, nb_drone, penalizer)
 
     def solve(self):
         """
@@ -77,16 +79,12 @@ class UncertaintyBatteryRandomSolver(UncertaintyBatterySolver):
         self.remove_impossible_targets()
         random.shuffle(self.targets)
         best_move = list(self.targets)
-        tmp_uncertainty = copy.copy(self.uncertainty_points)
-        self.estimate_uncertainty_points()
-        best_perf = self.compute_performance()
-        self.uncertainty_points = copy.copy(tmp_uncertainty)
+        mean, battery = self.compute_performance()
+        best_perf = 10000 * mean + self.penalizer * battery
         for i in range(settings.MAX_RANDOM_PLANNER_ITERATION):
             random.shuffle(self.state)
-            tmp_uncertainty = copy.copy(self.uncertainty_points)
-            self.estimate_uncertainty_points()
-            perf = self.compute_performance()
-            self.uncertainty_points = copy.copy(tmp_uncertainty)
+            mean, battery = self.compute_performance()
+            perf = 10000 * mean + self.penalizer * battery
             if perf < best_perf:
                 best_move = list(self.state)
 
@@ -97,7 +95,7 @@ class UncertaintyBatterySimulatedAnnealingSolver(Annealer, UncertaintyBatterySol
     Define a simulated annealing solver.
     """
 
-    def __init__(self, state, mapper, nb_drone, nb_change=1):
+    def __init__(self, state, mapper, nb_drone, nb_change=1, penalizer=None):
         """
         Initialize the simulated annealing solver.
 
@@ -108,7 +106,7 @@ class UncertaintyBatterySimulatedAnnealingSolver(Annealer, UncertaintyBatterySol
         nb_change: Number of random permutations (see annealing process)
         """
 
-        UncertaintySolver.__init__(self, state, mapper, nb_drone)
+        UncertaintyBatterySolver.__init__(self, state, mapper, nb_drone, penalizer)
         self.nb_change = nb_change
 
     def solve(self):
@@ -119,7 +117,9 @@ class UncertaintyBatterySimulatedAnnealingSolver(Annealer, UncertaintyBatterySol
         self.remove_impossible_targets()
         itinerary, energy = self.anneal()
         self.state = list(itinerary)
-        self.compute_performance()
+        mean, battery = self.compute_performance()
+        self.uncertainty_rate = mean
+        self.battery_consumption = battery
 
         return self.state, energy
 
@@ -141,6 +141,7 @@ class UncertaintyBatterySimulatedAnnealingSolver(Annealer, UncertaintyBatterySol
         Function required by the Annealer class
         """
 
-        e = self.compute_performance()
+        mean, battery = self.compute_performance()
+        e = mean * 10000 + self.penalizer * battery
 
         return e
