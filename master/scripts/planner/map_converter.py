@@ -75,7 +75,6 @@ class Mapper():
         self.C = self.A - self.B
 
         #Environment elements
-        default_targets = get_random_target_points()
         self.starting_point = [self.latlong_to_index(s) for s in starting_point]
         self.obstacles = obstacles
         #self.default_targets = [self.latlong_to_index(t) for t in default_targets]
@@ -102,7 +101,6 @@ class Mapper():
         for p in self.paths:
             if self.paths[p][1] == 1:
                 print(p, self.paths[p])
-
         #Environment uncertainty
         self.uncertainty_grid = np.ones((settings.Y_SIZE, settings.X_SIZE))
         creation_date = datetime.datetime.now()
@@ -110,6 +108,7 @@ class Mapper():
         #time.sleep(1)
         #self.update_uncertainty_grid()
         #self.plot_uncertainty_grid()
+        self.plot_world_default_targets()
 
     def get_random_target_points(self, num):
         """
@@ -121,8 +120,8 @@ class Mapper():
         while i < num:
             is_inadmissible = True
             while is_inadmissible:
-                x = random.randint(0, X_SIZE)
-                y = random.randint(0, Y_SIZE)
+                x = random.randint(0, settings.X_SIZE - 1)
+                y = random.randint(0, settings.Y_SIZE - 1)
                 if not self.is_non_admissible((x, y), poly_obs):
                     is_inadmissible = False
             random_target_points.append((x, y))
