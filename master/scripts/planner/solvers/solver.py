@@ -280,8 +280,8 @@ class Solver:
             for p in range(len(self.detailed_plan[d])):
                 for i in range(len(self.detailed_plan[d][p])):
                     l = list(self.detailed_plan[d][p])[0::30]
-                    pos_text = l[int(len(l) / 2)]
-                    plt.text(pos_text[0] + 2, pos_text[1], str(p+1))
+                    #pos_text = l[int(len(l) / 2)]
+                    #plt.text(pos_text[0] + 2, pos_text[1], str(p+1))
                     x = []
                     y = []
                     for i in l:
