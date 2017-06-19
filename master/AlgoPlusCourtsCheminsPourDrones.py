@@ -1,13 +1,18 @@
 #Algo plus courts chemins pour drones
 
 import math
+
 import random
+
+import matplotlib.pyplot as plt
 
 import pickle
 with open("mapper.pickle", "rb") as f:
 	a = pickle.load(f)
 
 import settings
+
+import 
 
 a.paths[((528, 999), (528, 999))] = 0
 
@@ -17,26 +22,10 @@ constante = 0.001279214
 # Paramètre alpha:
 paramAlpha = 2
 
-# "Base"
+# "Base": Point de départ et de retour des drones
 O = 528, 999
 
-# Points aléatoires
-#A = -9,9
-#B = -4,8
-#C = -7,5
-#D = 4,7
-#E = 7,4
-#F = 2,2
-#G = 4,-3
-#H = 8,-5
-#I = 5,-8
-#J = -5,-7
-#K = -4,-2
-#L = -9,-3
-
-Solution2 = [(1059, 842), (505, 1214), (400, 1122), (502, 339), (866, 512), (1073, 82), (669, 1202), (32, 1122), (45, 52), (209, 993), (118, 653), (487, 896), (748, 638), (271, 1067), (1576, 567), (683, 316), (1483, 1156), (1448, 634), (303, 1220), (759, 823), (1614, 991), (1387, 174), (1618, 227), (367, 39), (35, 902), (967, 690), (944, 327), (912, 1029), (184, 1205), (779, 1026), (694, 123), (1502, 395)]
-
-#Points = [A,B,C,D,E,F,G,H,I,J,K,L]
+# "Checkpoints": Points à visiter
 PointsListe = [(32, 1122), (271, 1067), (209, 993), (184, 1205), (303, 1220), (400, 1122), (505, 1214), (669, 1202), (779, 1026), (912, 1029), (1483, 1156), (1614, 991), (1576, 567), (1502, 395), (1618, 227), (1448, 634), (967, 690), (1059, 842), (759, 823), (1387, 174), (1073, 82), (944, 327), (866, 512), (748, 638), (487, 896), (118, 653), (35, 902), (502, 339), (683, 316), (694, 123), (45, 52), (367, 39)]
 
 # Liste de chemins de la solution initiale
@@ -45,8 +34,12 @@ Routes = []
 # Liste des solutions
 Solutions = []
 
+# Solution de base
+Solution2 = [(1059, 842), (505, 1214), (400, 1122), (502, 339), (866, 512), (1073, 82), (669, 1202), (32, 1122), (45, 52), (209, 993), (118, 653), (487, 896), (748, 638), (271, 1067), (1576, 567), (683, 316), (1483, 1156), (1448, 634), (303, 1220), (759, 823), (1614, 991), (1387, 174), (1618, 227), (367, 39), (35, 902), (967, 690), (944, 327), (912, 1029), (184, 1205), (779, 1026), (694, 123), (1502, 395)]
+
 # Energie maximale du drone (rechargée à chaque retour à la base)
 energyMax = 3000
+
 
 # Copier liste
 def copieListe(Liste):
@@ -57,16 +50,17 @@ def copieListe(Liste):
 
 Points = copieListe(PointsListe)
 
+
 # Distance entre deux points
 def distance(x,y):
-    #r = math.sqrt(math.pow(abs(x[0] - y[0]),2) + math.pow(abs(x[1] - y[1]),2))
     r = a.paths[((x),(y))]
     if isinstance(r,int):
         return 0
     else:
         return r[1]
-    #return r
 
+
+# FONCTIONS DE CALCUL DE LA SOLUTION INITIALE:
 # Distance minimale entre un point donné (x) et les autres points (Liste)
 def minDistance(x,Liste,indexs):
     j = indexs[0]
@@ -90,7 +84,7 @@ def pointsPlusLoin(x,Liste):
             indexs.append(i)
     return indexs
 
-# Calcul des points situés 'entre' l'origine et un point donné (x)
+# Calcul des points situés entre l'origine et un point donné (x)
 def pointsDeRetour(x,Liste):
     m = distance(x,O)
     indexs = []
@@ -112,6 +106,8 @@ def isPossible(Liste):
         r = False
     return r
 
+
+# FONCTIONS DE CALCUL LIéES AUX ROUTES
 # Calcule le cout d'un chemin
 def cout(Liste):
     c = 0
@@ -119,14 +115,55 @@ def cout(Liste):
         c = c + distance(Liste[i],Liste[i+1])
     return c
 
-# Calcule la distance totale parcourue
-def distanceTotale(ListeDeListe):
+# Calcule le cout total d'une liste de chemins
+def coutTotal(ListeDeListe):
     s = 0
     for Liste in ListeDeListe:
         s = s + cout(Liste)
     return s
 
+# Calcule l'incertitude moyenne des points d'un chemin
+def incertitude(Liste):
+    dTot = cout(Liste)
+    d = 0
+    uTot = 0
+    c = 0
+    if len(Liste) == 0:
+        return 0
+    for i in range(0,len(Liste)-1):
+        d = d + distance(Liste[i],Liste[i+1])
+        if i > 0:
+            c = c + 1
+            t = (dTot - d)  / 2
+            uTot = uTot + 1 - math.exp(-(constante * t))
+    return (uTot / c)
 
+# Calcule l'incertitude moyenne des points d'une liste de chemins
+def incertitudeTotale(ListeDeListe):
+    dTot = coutTotal(ListeDeListe)
+    d = 0
+    uTot = 0
+    c = 0
+    if len(ListeDeListe) == 0:
+        return 0
+    for Liste in ListeDeListe:
+        for i in range(0,len(Liste)-1):
+            d = d + distance(Liste[i],Liste[i+1])
+            if i > 0:
+                c = c + 1
+                t = (dTot - d) / 2
+                uTot = uTot + 1 - math.exp(-(constante * t))
+    return (uTot / c)
+
+# Calcule le nombre de points d'une liste de chemins:
+def longueur(ListeDeListe):
+    l = 0
+    for Liste in ListeDeListe:
+        l = l + len(Liste)
+    return l
+
+
+# FONCTIONS DE TRANSFORMATION DE ROUTES
 # Fusionne les routes en une seule
 def fusionner(Routes):
     routeComplete = []
@@ -189,24 +226,9 @@ def randomSwap(Liste,n):
             L = swap(L,(x,y))
     return L
 
-# Calcule l'incertitude moyenne des points à partir d'une solution
-def incertitude(ListeDeListe):
-    dTot = distanceTotale(ListeDeListe)
-    d = 0
-    uTot = 0
-    c = 0
-    for Liste in ListeDeListe:
-        for i in range(0,len(Liste)-1):
-            d = d + distance(Liste[i],Liste[i+1])
-            if i > 0:
-                c = c + 1
-                t = d / 2
-                uTot = uTot + 1 - math.exp(-(constante * t))
-    return (uTot / c)
 
-
-# PARTIE FIREFLY:
-# Distance de Hamming:
+# FONCTIONS DE FIREFLY:
+# Distance de Hamming: (nombre d'éléments placés différemment d'une liste à une autre)
 def hammingDistance(sol1, sol2):
     h = 0
     for i in range(0,len(sol1)):
@@ -221,12 +243,12 @@ def beta(sol1,sol2):
     B = 1 / (1 + 0.1 * h)
     p = copieListe(PointsListe)
     for i in range(0,len(sol1)):
-        if sol1[i] == sol2[i]:      # Si les deux firefly ont la même valeur, on la garde
+        if sol1[i] == sol2[i]:      # Si les deux firefly ont la même valeur à un emplacement, on la garde
             sol.append(sol1[i])
             p.remove(sol1[i])
         else:                           # Sinon, on accepte la nouvelle selon un certain % de probabilité
             r = random.randint(0,100) / 100
-            if r > B:
+            if r < B:
                 v = sol1[i]
             else:
                 v = sol2[i]
@@ -259,12 +281,81 @@ def alpha(solA,n):
     return solB
 
 
-# Initialisation paramètres
+# FONCTIONS DE DISTRIBUTION DE ROUTES POUR 2 DRONES:
+# Distribution équitable selon nombre de points
+def distribution1(Routes):
+    R = copieListe(Routes)
+    d1 = []
+    d2 = []
+    while len(R) > 0:
+        L = list(map(len, R))
+        i = L.index(max(L))
+        if longueur(d1) <= longueur(d2):
+            d1.append(R[i])
+        else:
+            d2.append(R[i])
+        del R[i]
+    return d1,d2
+
+# Distribution équitable selon coût des chemins
+def distribution2(Routes):
+    R = copieListe(Routes)
+    d1 = []
+    d2 = []
+    while len(R) > 0:
+        L = list(map(cout, R))
+        i = L.index(max(L))
+        if coutTotal(d1) <= coutTotal(d2):
+            d1.append(R[i])
+        else:
+            d2.append(R[i])
+        del R[i]
+    return d1,d2
+
+# Distribution équitable selon incertitude des chemins
+def distribution3(Routes):
+    R = copieListe(Routes)
+    d1 = []
+    d2 = []
+    while len(R) > 0:
+        L = list(map(incertitude, R))
+        i = L.index(max(L))
+        if incertitudeTotale(d1) <= incertitudeTotale(d2):
+            d1.append(R[i])
+        else:
+            d2.append(R[i])
+        del R[i]
+    return d1,d2
+
+
+# FONCTIONS DE FIREFLY (Bis):
+# Distance de Levenshtein (comme distance de Hamming, mais compte aussi les vides):
+def levenshtein(sol1,sol2):
+    l = min(len(sol1),len(sol2))
+    h = 0
+    for i in range(0,l):
+        if sol1[i] != sol2[i]:
+            h = h + 1
+    return h + abs(len(sol1) - len(sol2))
+
+# Etape Beta 2:
+
+
+def info(doubleRoutes):
+    for n in range(0,2):
+        c = coutTotal(doubleRoutes[n])
+        i = incertitudeTotale(doubleRoutes[n])
+        L = fusionner(doubleRoutes[n])
+        print("Drone ",n+1)
+        print("Longueur: ",len(L)," Cout: ",c," Incertitude: ",i)
+
+
+
+# Partie calcul de la solution initiale
 Route = [O]
 energy = energyMax
 continuer = isPossible(Points)
 retour = False
-
 # Boucle principale
 while((len(Points) > 0) & continuer):
     last = Route[len(Route)-1] # Point de référence: dernier point de la liste actuelle
@@ -306,8 +397,8 @@ while((len(Points) > 0) & continuer):
 b = fusionner(Routes)
 #b = Solution2
 b = diviser(b)
-c = distanceTotale(b)
-d = incertitude(b)
+c = coutTotal(b)
+d = incertitudeTotale(b)
 b = fusionner(b)
 Solutions.append((b,c,d))
 
@@ -315,18 +406,23 @@ Solutions.append((b,c,d))
 for i in range(0,9):
     x = randomSwap(b,5)
     x = diviser(x)
-    y = distanceTotale(x)
-    z = incertitude(x)
+    y = coutTotal(x)
+    z = incertitudeTotale(x)
     x = fusionner(x)
     Solutions.append((x,y,z))
 
+# Affichage des 10 firefly de départ (1 solution initiale + 9 créées)
 for i in range(0, len(Solutions)):
     print("Cout: ", Solutions[i][1], ", Incertitude: ", Solutions[i][2])
 
-nombre = 10000
+
+# Partie Firefly
+nombre = 0
 last = Solutions[0][1]
 compteur = 0
-print("Etapes Beta et Alpha (", nombre, " fois)")
+tab = ([0],[Solutions[0][1]],[Solutions[0][2]])
+print("Etapes Beta et Alpha (",nombre," fois)")
+# Boucle effectuée pour chaque itération
 for n in range(1,nombre+1):
     # Etape Beta
     for i in range(0, len(Solutions)):
@@ -342,8 +438,8 @@ for n in range(1,nombre+1):
                     k = i
                 x = beta(sol1,sol2)                     # On applique l'étape Beta
                 x = diviser(x)
-                y = distanceTotale(x)
-                z = incertitude(x)
+                y = coutTotal(x)
+                z = incertitudeTotale(x)
                 x = fusionner(x)
                 Solutions[k] = (x,y,z)              # Et on remplace donc la plus 'mauvaise' par la nouvelle créée
     # Best Firefly
@@ -353,7 +449,7 @@ for n in range(1,nombre+1):
         if Solutions[i][1] <= best:
             best = Solutions[i][1]
             bestIndex = i
-    if best == last:
+    if best == last:                            # Si la meilleure firefly n'a pas changé, on incrémente le compteur
         compteur = compteur + 1
     else:
         compteur = 0
@@ -361,59 +457,25 @@ for n in range(1,nombre+1):
     if n % 1000 == 0:
         print("Iteration: ", n)
         print("Best firefly: ", "Cout: ", Solutions[bestIndex][1], ", Incertitude: ", Solutions[bestIndex][2])
+        tab[0].append(n)
+        tab[1].append(Solutions[bestIndex][1])
+        tab[2].append(Solutions[bestIndex][2])
     # Etape Alpha
     for i in range(0, len(Solutions)):
-        if i != bestIndex:
-            if compteur >= 1001:
-                x = alpha(Solutions[i][0], paramAlpha+1)
-            else:
-                x = alpha(Solutions[i][0], paramAlpha)
+        if (i != bestIndex) | (compteur > 1000):       # Si le compteur a dépassé 1000, la meilleure se débloque
+            x = alpha(Solutions[i][0], paramAlpha)
             x = diviser(x)
-            y = distanceTotale(x)
-            z = incertitude(x)
+            y = coutTotal(x)
+            z = incertitudeTotale(x)
             x = fusionner(x)
             Solutions[i] = (x,y,z)
-
+    # Affichage des Firefly (toutes les 1000 itérations)
     if n % 1000 == 0:
-        #print("Iteration: ", n)
         for i in range(0, len(Solutions)):
             print("Cout: ", Solutions[i][1], ", Incertitude: ", Solutions[i][2])
 
-
-# Affichage des solutions
-#for r in Routes:
-#    l = []
-#    for i in r:
-#        if i == (0,0):
-#            l.append('O')
-#        if i == (-9,9):
-#            l.append('A')
-#        if i == (-4,8):
-#            l.append('B')
-#        if i == (-7,5):
-#            l.append('C')
-#        if i == (4,7):
-#            l.append('D')
-#        if i == (7,4):
-#            l.append('E')
-#        if i == (2,2):
-#            l.append('F')
-#        if i == (4,-3):
-#            l.append('G')
-#        if i == (8,-5):
-#            l.append('H')
-#        if i == (5,-8):
-#            l.append('I')
-#        if i == (-5,-7):
-#            l.append('J')
-#        if i == (-4,-2):
-#            l.append('K')
-#        if i == (-9,-3):
-#            l.append('L')
-#    print(l)
-
-# for r in Routes:
-#     print(r)
-
-# print("Distance totale: ",distanceTotale(Routes))
-
+# Graphique de l'évolution des solutions
+plt.plot(tab[0],tab[1])
+plt.xlabel('Iterations')
+plt.ylabel('Best Firefly Cost')
+plt.show()
