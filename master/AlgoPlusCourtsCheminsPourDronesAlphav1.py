@@ -9,7 +9,7 @@ import copy
 import matplotlib.pyplot as plt
 
 import pickle
-with open("mapper.pickle", "rb") as f:
+with open("scripts/webserver/data/serialization/mapper.pickle", "rb") as f:
 	a = pickle.load(f)
 
 import settings
