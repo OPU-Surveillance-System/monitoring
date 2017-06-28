@@ -537,7 +537,7 @@ for i in range(0, len(Solutions)):
 
 
 # Partie Firefly
-nombre = 100000
+nombre = 1000000
 last = Solutions[0][1]
 best = Solutions[0][1]
 bestIndex = 0
