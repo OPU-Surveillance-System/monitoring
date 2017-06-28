@@ -12,6 +12,8 @@ from sys import path
 
 path.append("..")
 
+path.append("../..")
+
 import pickle
 with open("../../webserver/data/serialization/mapper.pickle", "rb") as f:
 	a = pickle.load(f)
