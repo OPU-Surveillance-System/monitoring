@@ -27,7 +27,7 @@ a.paths[((528, 999), (528, 999))] = 0
 constante = 0.001279214
 
 # Paramètre alpha:
-paramAlpha = 5
+paramAlpha = 3
 
 # "Base": Point de départ et de retour des drones
 O = 528, 999
@@ -504,7 +504,7 @@ y = incertitudeTotale(s)
 s = fusionner(s)
 Solutions.append((s,x,y))
 
-# Création de 19 firefly à partir de la firefly initiale
+# Création de 49 firefly à partir de la firefly initiale
 for i in range(0,19):
     t = randomSwap(s,5)
     t = diviser(t)
@@ -537,10 +537,11 @@ for i in range(0, len(Solutions)):
 
 
 # Partie Firefly
-nombre = 1000000
+nombre = 100000
 last = Solutions[0][1]
 best = Solutions[0][1]
 bestIndex = 0
+bestOfTheBest = Solutions[0]
 compteur = 0
 f3 = copy.deepcopy(PointsListe)
 tab = ([0],[Solutions[0][1]],[Solutions[0][2]])
@@ -576,6 +577,8 @@ for n in range(1,nombre+1):
     else:                                           # Sinon, on le réinitialise
         compteur = 0
         last = best
+    if best < bestOfTheBest:
+        bestOfTheBest = Solutions[bestIndex]
     if n % 1000 == 0:
         print("Iteration: ", n)
         print("Best firefly:  Cout: ", Solutions[bestIndex][1], ", Incertitude: ", Solutions[bestIndex][2])
@@ -616,6 +619,8 @@ for n in range(1,nombre+1):
     #if n % 1000 == 0:
         #for i in range(0, len(Solutions)):
             #print("Cout: ", Solutions[i][1], ", Incertitude: ", Solutions[i][2])
+
+print("Best of the best firefly:  Cout: ", bestOfTheBest[1], ", Incertitude: ", bestOfTheBest[2])
 
 # Graphique de l'évolution des solutions
 plt.plot(tab[0],tab[1])
