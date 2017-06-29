@@ -27,7 +27,7 @@ a.paths[((528, 999), (528, 999))] = 0
 constante = 0.001279214
 
 # Paramètre alpha:
-paramAlpha = 4
+paramAlpha = 5
 
 # "Base": Point de départ et de retour des drones
 O = 528, 999
