@@ -577,7 +577,7 @@ for n in range(1,nombre+1):
     else:                                           # Sinon, on le réinitialise
         compteur = 0
         last = best
-    if best < bestOfTheBest:
+    if best < bestOfTheBest[1]:
         bestOfTheBest = Solutions[bestIndex]
     if n % 1000 == 0:
         print("Iteration: ", n)
