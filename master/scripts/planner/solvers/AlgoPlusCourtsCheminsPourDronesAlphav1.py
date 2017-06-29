@@ -495,135 +495,146 @@ while((len(Points) > 0) & continuer):
         continuer = isPossible(Points) # On regarde si les points restants sont atteignables (normalement oui)
 
 
-# Re-calcul de la firefly initiale
-#s = Solution2
-s = fusionner(Routes)
-s = diviser(s)
-x = coutTotal(s)
-y = incertitudeTotale(s)
-s = fusionner(s)
-Solutions.append((s,x,y))
+for m in range(0,5):
+    Solutions = []
 
-# Création de 39 firefly à partir de la firefly initiale
-for i in range(0,39):
-    t = randomSwap(s,5)
-    t = diviser(t)
-    x = coutTotal(t)
-    y = incertitudeTotale(t)
-    t = fusionner(t)
-    Solutions.append((t,x,y))
+    # Re-calcul de la firefly initiale
+    #s = Solution2
+    s = fusionner(Routes)
+    s = diviser(s)
+    x = coutTotal(s)
+    y = incertitudeTotale(s)
+    s = fusionner(s)
+    Solutions.append((s,x,y))
 
-# Re-calcul de la firefly initiale
-#f = distribution1(Routes)
-#f = fusionnerMulti(f)
-#f = diviserMulti(f)
-#x = coutTotalMulti(f)
-#y = incertitudeTotaleMulti(f)
-#f = fusionnerMulti(f)
-#Solutions.append((f,x,y))
+    # Création de 19 firefly à partir de la firefly initiale
+    for i in range(0,19):
+        t = randomSwap(s,5)
+        t = diviser(t)
+        x = coutTotal(t)
+        y = incertitudeTotale(t)
+        t = fusionner(t)
+        Solutions.append((t,x,y))
 
-# Création de 9 firefly à partir de la firefly initiale
-#for i in range(0,9):
-    #g = randomSwapMulti(f,3)
-    #g = diviserMulti(g)
-    #x = coutTotalMulti(g)
-    #y = incertitudeTotaleMulti(g)
-    #g = fusionnerMulti(g)
-    #Solutions.append((g,x,y))
+    # Re-calcul de la firefly initiale
+    #f = distribution1(Routes)
+    #f = fusionnerMulti(f)
+    #f = diviserMulti(f)
+    #x = coutTotalMulti(f)
+    #y = incertitudeTotaleMulti(f)
+    #f = fusionnerMulti(f)
+    #Solutions.append((f,x,y))
 
-# Affichage des 10 firefly de départ (1 solution initiale + 9 créées)
-for i in range(0, len(Solutions)):
-    print("Cout: ", Solutions[i][1], ", Incertitude: ", Solutions[i][2])
+    # Création de 9 firefly à partir de la firefly initiale
+    #for i in range(0,9):
+        #g = randomSwapMulti(f,3)
+        #g = diviserMulti(g)
+        #x = coutTotalMulti(g)
+        #y = incertitudeTotaleMulti(g)
+        #g = fusionnerMulti(g)
+        #Solutions.append((g,x,y))
+
+    # Affichage des 10 firefly de départ (1 solution initiale + 9 créées)
+    for i in range(0, len(Solutions)):
+        print("Cout: ", Solutions[i][1], ", Incertitude: ", Solutions[i][2])
 
 
-# Partie Firefly
-nombre = 100000
-last = Solutions[0][1]
-best = Solutions[0][1]
-bestIndex = 0
-bestOfTheBest = Solutions[0]
-compteur = 0
-f3 = copy.deepcopy(PointsListe)
-tab = ([0],[Solutions[0][1]],[Solutions[0][2]])
-print("Etapes Beta et Alpha (",nombre," fois)")
-# Boucle effectuée pour chaque itération
-for n in range(1,nombre+1):
-    # Etape Beta
-    for i in range(0, len(Solutions)-1):
-        for j in range(i+1, len(Solutions)):
-            if Solutions[i][1] != Solutions[j][1]:
-                if Solutions[i][1] < Solutions[j][1]:       # On regarde quelle est la 'meilleure' firefly des deux
-                    f1 = Solutions[i][0]
-                    f2 = Solutions[j][0]
-                    k = j
-                else:
-                    f1 = Solutions[j][0]
-                    f2 = Solutions[i][0]
-                    k = i
-                g = beta(f1,f2,0.1)                     # On applique l'étape Beta
+    # Partie Firefly
+    nombre = 100000
+    last = Solutions[0][1]
+    best = Solutions[0][1]
+    lasts = []
+    bests = []
+    bestIndex = 0
+    bestOfTheBest = Solutions[0]
+    compteur = 0
+    f3 = copy.deepcopy(PointsListe)
+    tab = ([0],[Solutions[0][1]],[Solutions[0][2]])
+    print("Etapes Beta et Alpha (",nombre," fois)")
+    # Boucle effectuée pour chaque itération
+    for n in range(1,nombre+1):
+        # Etape Beta
+        for i in range(0, len(Solutions)-1):
+            for j in range(i+1, len(Solutions)):
+                if Solutions[i][1] != Solutions[j][1]:
+                    if Solutions[i][1] < Solutions[j][1]:       # On regarde quelle est la 'meilleure' firefly des deux
+                        f1 = Solutions[i][0]
+                        f2 = Solutions[j][0]
+                        k = j
+                    else:
+                        f1 = Solutions[j][0]
+                        f2 = Solutions[i][0]
+                        k = i
+                    g = beta(f1,f2,0.1)                     # On applique l'étape Beta
+                    g = diviser(g)
+                    x = coutTotal(g)
+                    y = incertitudeTotale(g)
+                    g = fusionner(g)
+                    Solutions[k] = (g,x,y)              # Et on remplace donc la plus 'mauvaise' par la nouvelle créée
+
+        # Best Firefly
+        for i in range(0, len(Solutions)):
+            if Solutions[i][1] < best:
+                best = Solutions[i][1]
+                bestIndex = i
+        if best == last:                            # Si la meilleure firefly n'a pas changé, on incrémente le compteur
+            compteur = compteur + 1
+        else:                                           # Sinon, on le réinitialise
+            compteur = 0
+            last = best
+        if best < bestOfTheBest[1]:
+            bestOfTheBest = Solutions[bestIndex]
+        if n % 1000 == 0:
+            print("Iteration: ", n)
+            print("Best firefly:  Cout: ", Solutions[bestIndex][1], ", Incertitude: ", Solutions[bestIndex][2])
+            tab[0].append(n)
+            tab[1].append(Solutions[bestIndex][1])
+            tab[2].append(Solutions[bestIndex][2])
+
+        # Etape Delta
+        #for i in range(0, len(Solutions)):
+            #if (i != bestIndex) | (compteur > 1000): 
+                #random.shuffle(f3)
+                #g = beta(f3,g,0.1)
+                #g = diviser(g)
+                #x = coutTotal(g)
+                #y = incertitudeTotale(g)
+                #g = fusionner(g)
+                #Solutions[i] = (g,x,y)
+                #if (i == bestIndex):
+                    #compteur = 0
+                    #best = Solutions[i][1]
+                    #last = best
+        
+        # Etape Alpha
+        for i in range(0, len(Solutions)):
+            if (i != bestIndex) | (compteur > 1000):       # Si le compteur a dépassé 1000, la meilleure se débloque
+                g = alpha(Solutions[i][0], paramAlpha)
                 g = diviser(g)
                 x = coutTotal(g)
                 y = incertitudeTotale(g)
                 g = fusionner(g)
-                Solutions[k] = (g,x,y)              # Et on remplace donc la plus 'mauvaise' par la nouvelle créée
+                Solutions[i] = (g,x,y)
+                if (i == bestIndex):
+                    compteur = 0
+                    best = Solutions[i][1]
+                    last = best
+        
+        # Affichage des Firefly (toutes les 1000 itérations)
+        #if n % 1000 == 0:
+            #for i in range(0, len(Solutions)):
+                #print("Cout: ", Solutions[i][1], ", Incertitude: ", Solutions[i][2])
 
-    # Best Firefly
-    for i in range(0, len(Solutions)):
-        if Solutions[i][1] < best:
-            best = Solutions[i][1]
-            bestIndex = i
-    if best == last:                            # Si la meilleure firefly n'a pas changé, on incrémente le compteur
-        compteur = compteur + 1
-    else:                                           # Sinon, on le réinitialise
-        compteur = 0
-        last = best
-    if best < bestOfTheBest[1]:
-        bestOfTheBest = Solutions[bestIndex]
-    if n % 1000 == 0:
-        print("Iteration: ", n)
-        print("Best firefly:  Cout: ", Solutions[bestIndex][1], ", Incertitude: ", Solutions[bestIndex][2])
-        tab[0].append(n)
-        tab[1].append(Solutions[bestIndex][1])
-        tab[2].append(Solutions[bestIndex][2])
+    print("Best of the best firefly:  Cout: ", bestOfTheBest[1], ", Incertitude: ", bestOfTheBest[2])
 
-    # Etape Delta
-    #for i in range(0, len(Solutions)):
-        #if (i != bestIndex) | (compteur > 1000): 
-            #random.shuffle(f3)
-            #g = beta(f3,g,0.1)
-            #g = diviser(g)
-            #x = coutTotal(g)
-            #y = incertitudeTotale(g)
-            #g = fusionner(g)
-            #Solutions[i] = (g,x,y)
-            #if (i == bestIndex):
-                #compteur = 0
-                #best = Solutions[i][1]
-                #last = best
-    
-    # Etape Alpha
-    for i in range(0, len(Solutions)):
-        if (i != bestIndex) | (compteur > 1000):       # Si le compteur a dépassé 1000, la meilleure se débloque
-            g = alpha(Solutions[i][0], paramAlpha)
-            g = diviser(g)
-            x = coutTotal(g)
-            y = incertitudeTotale(g)
-            g = fusionner(g)
-            Solutions[i] = (g,x,y)
-            if (i == bestIndex):
-                compteur = 0
-                best = Solutions[i][1]
-                last = best
-    
-    # Affichage des Firefly (toutes les 1000 itérations)
-    #if n % 1000 == 0:
-        #for i in range(0, len(Solutions)):
-            #print("Cout: ", Solutions[i][1], ", Incertitude: ", Solutions[i][2])
+    # Graphique de l'évolution des solutions
+    #plt.plot(tab[0],tab[1])
+    #plt.xlabel('Iterations')
+    #plt.ylabel('Best Firefly Cost')
+    #plt.show()
 
-print("Best of the best firefly:  Cout: ", bestOfTheBest[1], ", Incertitude: ", bestOfTheBest[2])
+    lasts.append(last)
+    bests.append(bestOfTheBest[1])
 
-# Graphique de l'évolution des solutions
-plt.plot(tab[0],tab[1])
-plt.xlabel('Iterations')
-plt.ylabel('Best Firefly Cost')
-plt.show()
+print("Liste Lasts: ",lasts)
+print("Liste Bests: ",bests)
