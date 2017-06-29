@@ -27,7 +27,7 @@ a.paths[((528, 999), (528, 999))] = 0
 constante = 0.001279214
 
 # Paramètre alpha:
-paramAlpha = 3
+paramAlpha = 4
 
 # "Base": Point de départ et de retour des drones
 O = 528, 999
@@ -504,7 +504,7 @@ y = incertitudeTotale(s)
 s = fusionner(s)
 Solutions.append((s,x,y))
 
-# Création de 49 firefly à partir de la firefly initiale
+# Création de 19 firefly à partir de la firefly initiale
 for i in range(0,19):
     t = randomSwap(s,5)
     t = diviser(t)
