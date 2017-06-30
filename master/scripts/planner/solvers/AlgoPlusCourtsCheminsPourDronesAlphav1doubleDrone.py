@@ -498,7 +498,7 @@ lasts = []
 bests = []
 bestCheminEver = []
 
-for m in range(0,3):
+for m in range(0,10):
     Solutions = []
     
     # Re-calcul de la firefly initiale
@@ -543,7 +543,7 @@ for m in range(0,3):
 
 
     # Partie Firefly
-    nombre = 1000
+    nombre = 1000000
     last = Solutions[0][1]
     best = Solutions[0][1]
     bestIndex = 0
