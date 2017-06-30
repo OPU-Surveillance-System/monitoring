@@ -629,7 +629,7 @@ for m in range(0,10):
     print("Best of the best firefly:  Cout: ", bestOfTheBest[1], ", Incertitude: ", bestOfTheBest[2])
 
     meilleur = True
-    for i in bests:
+    for i in range(0,len(bests)):
         if bestOfTheBest[1] > bests[i]:
             meilleur = False
     if meilleur:
