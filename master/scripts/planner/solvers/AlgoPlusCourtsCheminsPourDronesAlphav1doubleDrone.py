@@ -494,7 +494,7 @@ while((len(Points) > 0) & continuer):
         energy = energyMax
         continuer = isPossible(Points) # On regarde si les points restants sont atteignables (normalement oui)
 
-for m in range(0,2):
+for m in range(0,3):
     Solutions = []
     
     # Re-calcul de la firefly initiale
@@ -539,9 +539,12 @@ for m in range(0,2):
 
 
     # Partie Firefly
-    nombre = 10000
+    nombre = 1000
     last = Solutions[0][1]
     best = Solutions[0][1]
+    lasts = []
+    bests = []
+    bestCheminEver = []
     bestIndex = 0
     bestOfTheBest = Solutions[0]
     compteur = 0
@@ -624,6 +627,13 @@ for m in range(0,2):
 
     print("Best of the best firefly:  Cout: ", bestOfTheBest[1], ", Incertitude: ", bestOfTheBest[2])
 
+    meilleur = True
+    for i in bests:
+        if bestOfTheBest[1] > bests[i]:
+            meilleur = False
+    if meilleur:
+        bestCheminEver = bestOfTheBest[0]
+    
     lasts.append(last)
     bests.append(bestOfTheBest[1])
 
@@ -636,3 +646,4 @@ for m in range(0,2):
 
 print("Liste Lasts: ",lasts)
 print("Liste Bests: ",bests)
+print("Best chemin ever:",bestCheminEver)
