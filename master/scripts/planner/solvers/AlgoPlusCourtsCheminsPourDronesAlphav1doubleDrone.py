@@ -643,6 +643,7 @@ for m in range(0,3):
     plt.ylabel('Best Firefly Cost')
     plt.savefig("plots/%d.png"%(m))
     #plt.show()
+    plt.clf()
 
 print("Liste Lasts: ",lasts)
 print("Liste Bests: ",bests)
