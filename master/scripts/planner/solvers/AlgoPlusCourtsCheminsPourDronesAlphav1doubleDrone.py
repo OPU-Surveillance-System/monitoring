@@ -641,7 +641,7 @@ for m in range(0,3):
     plt.plot(tab[0],tab[1])
     plt.xlabel('Iterations')
     plt.ylabel('Best Firefly Cost')
-    plt.savefig("plots/",m,".png")
+    plt.savefig("plots/%d.png"%(m))
     #plt.show()
 
 print("Liste Lasts: ",lasts)
