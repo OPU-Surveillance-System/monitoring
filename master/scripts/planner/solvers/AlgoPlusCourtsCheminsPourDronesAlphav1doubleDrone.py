@@ -494,6 +494,10 @@ while((len(Points) > 0) & continuer):
         energy = energyMax
         continuer = isPossible(Points) # On regarde si les points restants sont atteignables (normalement oui)
 
+lasts = []
+bests = []
+bestCheminEver = []
+
 for m in range(0,3):
     Solutions = []
     
@@ -542,9 +546,6 @@ for m in range(0,3):
     nombre = 1000
     last = Solutions[0][1]
     best = Solutions[0][1]
-    lasts = []
-    bests = []
-    bestCheminEver = []
     bestIndex = 0
     bestOfTheBest = Solutions[0]
     compteur = 0
