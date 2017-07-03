@@ -27,7 +27,7 @@ a.paths[((528, 999), (528, 999))] = 0
 constante = 0.001279214
 
 # Paramètre beta (en fait c'est plutot gamma):
-paramBeta = 0.1
+paramBeta = 0.2
 
 # Paramètre alpha:
 paramAlpha = 2
