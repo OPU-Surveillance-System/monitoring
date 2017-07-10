@@ -667,16 +667,17 @@ max_time = 60
 eps = 10e-6
 
 # stores the problem
+seed(123)
 myProblem = GPyOpt.methods.BayesianOptimization(myf,bounds, acquisition_type='EI',exact_feval = True)
 
 # run the optimization for the given number of iterations
 myProblem.run_optimization(max_iter, max_time, eps)
 
 # best found location
-myProblem.x_opt
+#myProblem.x_opt
 
 # predicted value of f(x)
-myProblem.fx_opt
+#myProblem.fx_opt
 
 # result of the optimization
 myProblem.plot_acquisition()
