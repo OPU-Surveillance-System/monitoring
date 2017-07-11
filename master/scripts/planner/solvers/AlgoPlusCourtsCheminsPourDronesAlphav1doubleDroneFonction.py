@@ -642,9 +642,12 @@ from numpy.random import seed
 def myf(x):
     return (2*x)**2
 
-bounds = [{'name': 'var_1', 'type': 'continuous',  'domain': (-1,1)}]
+def myf(x):
+    test(20,x,2,1000)
 
-max_iter = 15
+bounds = [{'name': 'var_1', 'type': 'continuous',  'domain': (0,1)}]
+
+max_iter = 5
 
 
 # stores the problem
