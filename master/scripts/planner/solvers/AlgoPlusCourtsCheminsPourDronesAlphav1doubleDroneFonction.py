@@ -504,24 +504,6 @@ def test(firefly, beta, alpha, iteration):
         Solutions = []
         
         # Re-calcul de la firefly initiale
-        #s = Solution2
-        #s = fusionner(Routes)
-        #s = diviser(s)
-        #x = coutTotal(s)
-        #y = incertitudeTotale(s)
-        #s = fusionner(s)
-        #Solutions.append((s,x,y))
-
-        # Création de firefly à partir de la firefly initiale
-        #for i in range(0,19):
-            #t = randomSwap(s,5)
-            #t = diviser(t)
-            #x = coutTotal(t)
-            #y = incertitudeTotale(t)
-            #t = fusionner(t)
-            #Solutions.append((t,x,y))
-
-        # Re-calcul de la firefly initiale
         f = distribution1(Routes)
         f = fusionnerMulti(f)
         f = diviserMulti(f)
@@ -663,22 +645,21 @@ def myf(x):
 bounds = [{'name': 'var_1', 'type': 'continuous',  'domain': (-1,1)}]
 
 max_iter = 15
-max_time = 60
-eps = 10e-6
+
 
 # stores the problem
-seed(123)
-myProblem = GPyOpt.methods.BayesianOptimization(myf,bounds, acquisition_type='EI',exact_feval = True)
-
+#seed(123)
+#myProblem = GPyOpt.methods.BayesianOptimization(myf,bounds, acquisition_type='EI',exact_feval = True)
+myProblem = GPyOpt.methods.BayesianOptimization(myf,bounds)
 # run the optimization for the given number of iterations
-myProblem.run_optimization(max_iter, max_time, eps)
+myProblem.run_optimization(max_iter)
 
 # best found location
-#myProblem.x_opt
+myProblem.x_opt
 
 # predicted value of f(x)
-#myProblem.fx_opt
+myProblem.fx_opt
 
 # result of the optimization
-myProblem.plot_acquisition()
+#myProblem.plot_acquisition()
 
