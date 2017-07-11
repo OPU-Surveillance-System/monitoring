@@ -634,7 +634,7 @@ def test(firefly, beta, alpha, iteration):
     print("Liste Bests: ",bests)
     print("Best chemin ever:",bestCheminEver)
 
-    return coutTotalMulti(bestCheminEver)
+    return coutTotalMulti(diviserMulti(bestCheminEver))
 
 
 import GPy
