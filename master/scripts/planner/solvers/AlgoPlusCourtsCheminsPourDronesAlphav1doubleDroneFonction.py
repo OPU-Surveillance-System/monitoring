@@ -606,7 +606,7 @@ def test(firefly, beta, alpha, iteration):
                         #last = best
             
             # Affichage des Firefly (toutes les 1000 itérations)
-            if n % 100 == 0:
+            if n % 1000 == 0:
                 for i in range(0, len(Solutions)):
                     print("Cout: ", Solutions[i][1], ", Incertitude: ", Solutions[i][2])
 
