@@ -644,11 +644,8 @@ from numpy.random import seed
 #def myf(x):
     #return (2*x)**2
 
-numero= 0
-
 def myf(x):
-    t = test(20,x,2,100, numero)
-    numero = numero + 1
+    t = test(20,x,2,100, x)
     return t
 
 bounds = [{'name': 'var_1', 'type': 'continuous',  'domain': (0,1)}]
