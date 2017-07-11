@@ -651,14 +651,15 @@ max_iter = 15
 #seed(123)
 #myProblem = GPyOpt.methods.BayesianOptimization(myf,bounds, acquisition_type='EI',exact_feval = True)
 myProblem = GPyOpt.methods.BayesianOptimization(myf,bounds)
+
 # run the optimization for the given number of iterations
 myProblem.run_optimization(max_iter)
 
 # best found location
-myProblem.x_opt
+print(myProblem.x_opt)
 
 # predicted value of f(x)
-myProblem.fx_opt
+print(myProblem.fx_opt)
 
 # result of the optimization
 #myProblem.plot_acquisition()
