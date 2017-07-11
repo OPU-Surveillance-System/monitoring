@@ -645,7 +645,7 @@ from numpy.random import seed
     #return (2*x)**2
 
 def myf(x):
-    t = test(20,x,2,1, x)
+    t = test(20,x[0],x[1],10, x[0])
     return t
 
 bounds = [{'name': 'var_1', 'type': 'continuous',  'domain': (0,2)},
