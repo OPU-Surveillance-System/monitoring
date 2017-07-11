@@ -569,7 +569,7 @@ def test(firefly, beta, alpha, iteration):
                 last = best
             if best < bestOfTheBest[1]:
                 bestOfTheBest = Solutions[bestIndex]
-            if n % 100 == 0:
+            if n % 1000 == 0:
                 print("Iteration: ", n)
                 print("Best firefly:  Cout: ", Solutions[bestIndex][1], ", Incertitude: ", Solutions[bestIndex][2])
                 tab[0].append(n)
@@ -593,17 +593,17 @@ def test(firefly, beta, alpha, iteration):
             
             # Etape Alpha
             for i in range(0, len(Solutions)):
-                if (i != bestIndex) | (compteur > 1000):       # Si le compteur a dépassé 1000, la meilleure se débloque
+                if (i != bestIndex): #| (compteur > 1000):       # Si le compteur a dépassé 1000, la meilleure se débloque
                     g = alpha2(Solutions[i][0], paramAlpha)
                     g = diviserMulti(g)
                     x = coutTotalMulti(g)
                     y = incertitudeTotaleMulti(g)
                     g = fusionnerMulti(g)
                     Solutions[i] = (g,x,y)
-                    if (i == bestIndex):
-                        compteur = 0
-                        best = Solutions[i][1]
-                        last = best
+                    #if (i == bestIndex):
+                        #compteur = 0
+                        #best = Solutions[i][1]
+                        #last = best
             
             # Affichage des Firefly (toutes les 1000 itérations)
             if n % 100 == 0:
@@ -623,24 +623,26 @@ def test(firefly, beta, alpha, iteration):
         bests.append(bestOfTheBest[1])
 
         # Graphique de l'évolution des solutions
-        plt.plot(tab[0],tab[1])
-        plt.xlabel('Iterations')
-        plt.ylabel('Best Firefly Cost')
-        plt.savefig("plots/%d.png"%(m))
+        #plt.plot(tab[0],tab[1])
+        #plt.xlabel('Iterations')
+        #plt.ylabel('Best Firefly Cost')
+        #plt.savefig("plots/%d.png"%(m))
         #plt.show()
-        plt.clf()
+        #plt.clf()
 
     print("Liste Lasts: ",lasts)
     print("Liste Bests: ",bests)
     print("Best chemin ever:",bestCheminEver)
+
+    return coutTotalMulti(bestCheminEver)
 
 
 import GPy
 import GPyOpt
 from numpy.random import seed
 
-def myf(x):
-    return (2*x)**2
+#def myf(x):
+    #return (2*x)**2
 
 def myf(x):
     test(20,x,2,1000)
