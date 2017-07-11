@@ -1,6 +1,6 @@
 #Algo plus courts chemins pour drones
 
-def test(firefly, beta, alpha, iteration):
+def test(firefly, beta, alpha, iteration, n):
     
     import math
 
@@ -623,10 +623,10 @@ def test(firefly, beta, alpha, iteration):
         bests.append(bestOfTheBest[1])
 
         # Graphique de l'évolution des solutions
-        #plt.plot(tab[0],tab[1])
-        #plt.xlabel('Iterations')
-        #plt.ylabel('Best Firefly Cost')
-        #plt.savefig("plots/%d.png"%(m))
+        plt.plot(tab[0],tab[1])
+        plt.xlabel('Iterations')
+        plt.ylabel('Best Firefly Cost')
+        plt.savefig("plots/%d.png"%(n))
         #plt.show()
         #plt.clf()
 
@@ -644,8 +644,12 @@ from numpy.random import seed
 #def myf(x):
     #return (2*x)**2
 
+numero= 0
+
 def myf(x):
-    test(20,x,2,1000)
+    t = test(20,x,2,100, numero)
+    numero = numero + 1
+    return t
 
 bounds = [{'name': 'var_1', 'type': 'continuous',  'domain': (0,1)}]
 
