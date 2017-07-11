@@ -1,6 +1,6 @@
 #Algo plus courts chemins pour drones
 
-def test(firefly, beta, alpha, iteration, n):
+def test(firefly, beta, alpha, iteration, numero):
     
     import math
 
@@ -576,30 +576,30 @@ def test(firefly, beta, alpha, iteration, n):
                 tab[1].append(Solutions[bestIndex][1])
                 tab[2].append(Solutions[bestIndex][2])
 
-            # Etape Delta
-            #for i in range(0, len(Solutions)):
-                #if (i != bestIndex) | (compteur > 1000): 
-                    #random.shuffle(f3)
-                    #g = beta(f3,g,0.1)
-                    #g = diviser(g)
-                    #x = coutTotal(g)
-                    #y = incertitudeTotale(g)
-                    #g = fusionner(g)
-                    #Solutions[i] = (g,x,y)
+            # Etape Alpha du prof
+            for i in range(0, len(Solutions)):
+                if (i != bestIndex): #| (compteur > 1000): 
+                    random.shuffle(f3)
+                    g = beta(f3,g,paramAlpha)
+                    g = diviserMulti(g)
+                    x = coutTotalMulti(g)
+                    y = incertitudeTotaleMulti(g)
+                    g = fusionnerMulti(g)
+                    Solutions[i] = (g,x,y)
                     #if (i == bestIndex):
                         #compteur = 0
                         #best = Solutions[i][1]
                         #last = best
             
             # Etape Alpha
-            for i in range(0, len(Solutions)):
-                if (i != bestIndex): #| (compteur > 1000):       # Si le compteur a dépassé 1000, la meilleure se débloque
-                    g = alpha2(Solutions[i][0], paramAlpha)
-                    g = diviserMulti(g)
-                    x = coutTotalMulti(g)
-                    y = incertitudeTotaleMulti(g)
-                    g = fusionnerMulti(g)
-                    Solutions[i] = (g,x,y)
+            #for i in range(0, len(Solutions)):
+                #if (i != bestIndex): #| (compteur > 1000):       # Si le compteur a dépassé 1000, la meilleure se débloque
+                    #g = alpha2(Solutions[i][0], paramAlpha)
+                    #g = diviserMulti(g)
+                    #x = coutTotalMulti(g)
+                    #y = incertitudeTotaleMulti(g)
+                    #g = fusionnerMulti(g)
+                    #Solutions[i] = (g,x,y)
                     #if (i == bestIndex):
                         #compteur = 0
                         #best = Solutions[i][1]
@@ -626,7 +626,7 @@ def test(firefly, beta, alpha, iteration, n):
         plt.plot(tab[0],tab[1])
         plt.xlabel('Iterations')
         plt.ylabel('Best Firefly Cost')
-        plt.savefig("plots/%d.png"%(n))
+        plt.savefig("plots/%d.svg"%(numero), format="svg")
         #plt.show()
         #plt.clf()
 
@@ -645,10 +645,11 @@ from numpy.random import seed
     #return (2*x)**2
 
 def myf(x):
-    t = test(20,x,2,100, x)
+    t = test(20,x,2,1, x)
     return t
 
-bounds = [{'name': 'var_1', 'type': 'continuous',  'domain': (0,1)}]
+bounds = [{'name': 'var_1', 'type': 'continuous',  'domain': (0,2)},
+                {'name': 'var_2', 'type': 'continuous', 'domain': (0,2)}]
 
 max_iter = 1
 
@@ -656,7 +657,7 @@ max_iter = 1
 # stores the problem
 #seed(123)
 #myProblem = GPyOpt.methods.BayesianOptimization(myf,bounds, acquisition_type='EI',exact_feval = True)
-myProblem = GPyOpt.methods.BayesianOptimization(myf,bounds)
+myProblem = GPyOpt.methods.BayesianOptimization(myf,bounds,batch_size=6,num_cores=6,evaluator_type="random")
 
 # run the optimization for the given number of iterations
 myProblem.run_optimization(max_iter)
