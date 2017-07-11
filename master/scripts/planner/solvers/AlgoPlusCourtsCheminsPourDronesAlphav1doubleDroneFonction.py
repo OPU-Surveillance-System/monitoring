@@ -569,9 +569,9 @@ def test(firefly, beta, alpha, iteration, n):
                 last = best
             if best < bestOfTheBest[1]:
                 bestOfTheBest = Solutions[bestIndex]
-            if n % 1000 == 0:
-                print("Iteration: ", n)
-                print("Best firefly:  Cout: ", Solutions[bestIndex][1], ", Incertitude: ", Solutions[bestIndex][2])
+            if n % 100 == 0:
+                #print("Iteration: ", n)
+                #print("Best firefly:  Cout: ", Solutions[bestIndex][1], ", Incertitude: ", Solutions[bestIndex][2])
                 tab[0].append(n)
                 tab[1].append(Solutions[bestIndex][1])
                 tab[2].append(Solutions[bestIndex][2])
@@ -606,9 +606,9 @@ def test(firefly, beta, alpha, iteration, n):
                         #last = best
             
             # Affichage des Firefly (toutes les 1000 itérations)
-            if n % 1000 == 0:
-                for i in range(0, len(Solutions)):
-                    print("Cout: ", Solutions[i][1], ", Incertitude: ", Solutions[i][2])
+            #if n % 1000 == 0:
+                #for i in range(0, len(Solutions)):
+                    #print("Cout: ", Solutions[i][1], ", Incertitude: ", Solutions[i][2])
 
         print("Best of the best firefly:  Cout: ", bestOfTheBest[1], ", Incertitude: ", bestOfTheBest[2])
 
@@ -645,12 +645,12 @@ from numpy.random import seed
     #return (2*x)**2
 
 def myf(x):
-    t = test(20,x,2,100, x)
+    t = test(20,x,2,10000, x)
     return t
 
 bounds = [{'name': 'var_1', 'type': 'continuous',  'domain': (0,1)}]
 
-max_iter = 5
+max_iter = 10
 
 
 # stores the problem
