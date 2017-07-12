@@ -580,7 +580,7 @@ def test(firefly, beta, alpha, iteration, numero):
             for i in range(0, len(Solutions)):
                 if (i != bestIndex): #| (compteur > 1000): 
                     random.shuffle(f3)
-                    g = beta(f3,g,paramAlpha)
+                    g = beta2(f3,g,paramAlpha)
                     g = diviserMulti(g)
                     x = coutTotalMulti(g)
                     y = incertitudeTotaleMulti(g)
