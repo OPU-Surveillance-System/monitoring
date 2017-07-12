@@ -373,6 +373,17 @@ def test(firefly, beta, alpha, iteration, numero):
             del R[i]
         return d1,d2
 
+    # Distribution random
+    def distributionRandom(Points):
+        n = random.randint(1, len(Points)-2)
+        d1 = []
+        d2 = []
+        for i in range(0,n+1):
+            d1.append(Points[i])
+        for j in range(n+1, len(Points)-1):
+            d2.append(Points[j])
+    return d1,d2
+
 
     # FONCTIONS DE FIREFLY (Bis):
     # Distance de Levenshtein (comme distance de Hamming, mais compte aussi les vides):
@@ -580,8 +591,7 @@ def test(firefly, beta, alpha, iteration, numero):
             for i in range(0, len(Solutions)):
                 if (i != bestIndex): #| (compteur > 1000): 
                     random.shuffle(f3)
-                    f3bis = diviser(f3)
-                    f3bis = distribution1(f3)
+                    f3bis = distributionRandom(f3)
                     g = beta2(f3bis,g,paramAlpha)
                     g = diviserMulti(g)
                     x = coutTotalMulti(g)
