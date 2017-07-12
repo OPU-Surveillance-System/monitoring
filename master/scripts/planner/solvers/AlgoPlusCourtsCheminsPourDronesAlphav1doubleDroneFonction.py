@@ -380,7 +380,7 @@ def test(firefly, beta, alpha, iteration, numero):
         d2 = []
         for i in range(0,n+1):
             d1.append(Points[i])
-        for j in range(n+1, len(Points)-1):
+        for j in range(n+1, len(Points)):
             d2.append(Points[j])
         return d1,d2
 
