@@ -656,13 +656,13 @@ from numpy.random import seed
 
 def myf(x):
     print("beta: ", x[:,0], "alpha:", x[:,1])
-    t = test(20,x[:,0],x[:,1],100, x[:,0])
+    t = test(20,x[:,0],x[:,1],100000, x[:,0])
     return t
 
 bounds = [{'name': 'var_1', 'type': 'continuous',  'domain': (0,2)},
                 {'name': 'var_2', 'type': 'continuous', 'domain': (0,4)}]
 
-max_iter = 2
+max_iter = 100
 
 
 # stores the problem
