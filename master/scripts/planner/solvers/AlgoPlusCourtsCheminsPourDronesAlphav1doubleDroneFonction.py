@@ -649,12 +649,10 @@ def test(firefly, beta, alpha, iteration, numero):
     return coutTotalMulti(diviserMulti(bestCheminEver))
 
 
+# Partie Optimisation Bayesienne:
 import GPy
 import GPyOpt
 from numpy.random import seed
-
-#def myf(x):
-    #return (2*x)**2
 
 def myf(x):
     print("beta: ", x[:,0], "alpha:", x[:,1])
@@ -662,9 +660,9 @@ def myf(x):
     return t
 
 bounds = [{'name': 'var_1', 'type': 'continuous',  'domain': (0,2)},
-                {'name': 'var_2', 'type': 'discrete', 'domain': (0,2)}]
+                {'name': 'var_2', 'type': 'continuous', 'domain': (0,4)}]
 
-max_iter = 1
+max_iter = 100
 
 
 # stores the problem
@@ -683,4 +681,6 @@ print(myProblem.fx_opt)
 
 # result of the optimization
 #myProblem.plot_acquisition()
+
+myProblem.plot_convergence()
 
