@@ -382,7 +382,7 @@ def test(firefly, beta, alpha, iteration, numero):
             d1.append(Points[i])
         for j in range(n+1, len(Points)-1):
             d2.append(Points[j])
-    return d1,d2
+        return d1,d2
 
 
     # FONCTIONS DE FIREFLY (Bis):
