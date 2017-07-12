@@ -522,8 +522,8 @@ def test(firefly, beta, alpha, iteration, numero):
             Solutions.append((g,x,y))
 
         # Affichage des firefly de départ
-        for i in range(0, len(Solutions)):
-            print("Cout: ", Solutions[i][1], ", Incertitude: ", Solutions[i][2])
+        #for i in range(0, len(Solutions)):
+            #print("Cout: ", Solutions[i][1], ", Incertitude: ", Solutions[i][2])
 
 
         # Partie Firefly
@@ -612,7 +612,7 @@ def test(firefly, beta, alpha, iteration, numero):
                 #for i in range(0, len(Solutions)):
                     #print("Cout: ", Solutions[i][1], ", Incertitude: ", Solutions[i][2])
 
-        print("Best of the best firefly:  Cout: ", bestOfTheBest[1], ", Incertitude: ", bestOfTheBest[2])
+        #print("Best of the best firefly:  Cout: ", bestOfTheBest[1], ", Incertitude: ", bestOfTheBest[2])
 
         meilleur = True
         for i in range(0,len(bests)):
