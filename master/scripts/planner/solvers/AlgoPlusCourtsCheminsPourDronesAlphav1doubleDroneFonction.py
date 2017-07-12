@@ -662,7 +662,7 @@ def myf(x):
 bounds = [{'name': 'var_1', 'type': 'continuous',  'domain': (0,2)},
                 {'name': 'var_2', 'type': 'continuous', 'domain': (0,4)}]
 
-max_iter = 100
+max_iter = 2
 
 
 # stores the problem
