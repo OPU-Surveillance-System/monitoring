@@ -5,6 +5,17 @@ def test(firefly, beta, alpha, iteration):
     firefly = int(firefly)
     beta = beta * 10
     alpha = alpha * 10
+
+    #Ecriture
+    with open("plots/bayesian/parameters", 'a') as f:
+        line = '%d\t%.f\t%.f\n'%(firefly, alpha, beta)	
+        f.write(line)
+
+    #Lecture
+    #with open("plots/bayesian/parameters", 'r') as f:
+            #content = f.read()
+    #content.split('\n')[:-1]
+    #content = [[int(c[0]), float(c[1]), float(c[2])] for l in content for c l.split('\t')]
     
     print("Firefly:", firefly, " Beta:", beta, " Alpha:", alpha)
     
@@ -526,7 +537,7 @@ def test(firefly, beta, alpha, iteration):
     bests = []
     #bestCheminEver = []
 
-    for m in range(0,10):
+    for m in range(0,2):
         Solutions = []
         
         # Re-calcul de la firefly initiale
