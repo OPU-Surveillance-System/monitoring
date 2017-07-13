@@ -2,8 +2,11 @@
 
 def test(firefly, beta, alpha, iteration):
     firefly = firefly * 50
-    #beta = beta * 1
+    firefly = int(firefly)
+    beta = beta * 10
     alpha = alpha * 10
+    
+    print("Firefly: ", x[:,0], "Beta: ", x[:,1], "Alpha:", x[:,2])
     
     import math
 
@@ -36,8 +39,6 @@ def test(firefly, beta, alpha, iteration):
 
     # Paramètre alpha:
     paramAlpha = alpha
-
-    firefly = int(firefly)
 
     # "Base": Point de départ et de retour des drones
     O = 528, 999
@@ -530,7 +531,7 @@ def test(firefly, beta, alpha, iteration):
     bests = []
     bestCheminEver = []
 
-    for m in range(0,1):
+    for m in range(0,10):
         Solutions = []
         
         # Re-calcul de la firefly initiale
@@ -565,7 +566,7 @@ def test(firefly, beta, alpha, iteration):
         compteur = 0
         f3 = copy.deepcopy(PointsListe)
         #tab = ([0],[Solutions[0][1]],[Solutions[0][2]])
-        print("Etapes Beta et Alpha (",nombre," fois)")
+        #print("Etapes Beta et Alpha (",nombre," fois)")
         # Boucle effectuée pour chaque itération
         for n in range(1,nombre+1):
             # Etape Beta
@@ -658,14 +659,14 @@ def test(firefly, beta, alpha, iteration):
 
         #print("Best of the best firefly:  Cout: ", bestOfTheBest[1], ", Incertitude: ", bestOfTheBest[2])
 
-        meilleur = True
-        for i in range(0,len(bests)):
-            if bestOfTheBest[1] > bests[i]:
-                meilleur = False
-        if meilleur:
-            bestCheminEver = bestOfTheBest[0]
+        #meilleur = True
+        #for i in range(0,len(bests)):
+            #if bestOfTheBest[1] > bests[i]:
+                #meilleur = False
+        #if meilleur:
+            #bestCheminEver = bestOfTheBest[0]
         
-        lasts.append(last)
+        #lasts.append(last)
         bests.append(bestOfTheBest[1])
 
         # Graphique de l'évolution des solutions
@@ -676,11 +677,12 @@ def test(firefly, beta, alpha, iteration):
         #plt.show()
         #plt.clf()
 
-    print("Liste Lasts: ",lasts)
+    #print("Liste Lasts: ",lasts)
     print("Liste Bests: ",bests)
-    print("Best chemin ever:",bestCheminEver)
+    #print("Best chemin ever:",bestCheminEver)
 
-    return coutTotalMulti(diviserMulti(bestCheminEver))
+    #return coutTotalMulti(diviserMulti(bestCheminEver))
+    return (sum(bests) / len(bests))
 
 
 # Partie Optimisation Bayesienne:
@@ -689,7 +691,7 @@ import GPyOpt
 from numpy.random import seed
 
 def myf(x):
-    print("firefly: ", x[:,0], "beta: ", x[:,1], "alpha:", x[:,2])
+    #print("firefly: ", x[:,0], "beta: ", x[:,1], "alpha:", x[:,2])
     t = test(x[:,0],x[:,1],x[:,2],10)
     return t
 
@@ -697,7 +699,7 @@ bounds = [{'name': 'var_1', 'type': 'continuous',  'domain': (0.2,1)},       # F
                 {'name': 'var_2', 'type': 'continuous', 'domain': (0,1)},           # Beta (Gamma)
                 {'name': 'var_3', 'type': 'continuous', 'domain': (0,1)}]          # Alpha
 
-n_iter = 4
+n_iter = 3
 max_iter = 1
 
 xOpt =[]
