@@ -6,7 +6,7 @@ def test(firefly, beta, alpha, iteration):
     beta = beta * 10
     alpha = alpha * 10
     
-    print("Firefly: ", x[:,0], "Beta: ", x[:,1], "Alpha:", x[:,2])
+    print("Firefly: ", firefly, "Beta: ", beta, "Alpha:", alpha)
     
     import math
 
