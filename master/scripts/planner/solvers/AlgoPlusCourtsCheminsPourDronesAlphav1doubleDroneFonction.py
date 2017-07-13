@@ -6,11 +6,6 @@ def test(firefly, beta, alpha, iteration):
     beta = beta * 10
     alpha = alpha * 10
 
-    #Ecriture
-    with open("plots/bayesian/parameters", 'a') as f:
-        line = '%d\t%.4f\t%.4f\n'%(firefly, beta, alpha)	
-        f.write(line)
-
     #Lecture
     #with open("plots/bayesian/parameters", 'r') as f:
             #content = f.read()
@@ -688,6 +683,11 @@ def test(firefly, beta, alpha, iteration):
     #print("Best chemin ever:",bestCheminEver)
     s = (sum(bests) / len(bests))
     print("Moyenne Bests:",s)
+
+    #Ecriture
+    with open("plots/bayesian/parameters", 'a') as f:
+        line = '%d\t%.4f\t%.4f\n%.f'%(firefly, beta, alpha, s)	
+        f.write(line)
 
     #return coutTotalMulti(diviserMulti(bestCheminEver))
     return s
