@@ -723,7 +723,7 @@ for i in range(0,n_iter):
     # result of the optimization
     #myProblem.plot_acquisition()
 
-myProblem.plot_convergence(filename="plots/bayesian/plot%bayes.png"%(i+1))
+    myProblem.plot_convergence(filename="plots/bayesian/plot%bayes.png"%(i+1))
 
 k = fxOpt.index(min(fxOpt))
 print("best x: ", xOpt[k])
