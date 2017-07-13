@@ -531,7 +531,7 @@ def test(fi, be, al, it):
     bests = []
     #bestCheminEver = []
 
-    for m in range(0,2):
+    for m in range(0,10):
         Solutions = []
         
         # Re-calcul de la firefly initiale
@@ -699,14 +699,14 @@ from numpy.random import seed
 
 def myf(x):
     #print("firefly: ", x[:,0], "beta: ", x[:,1], "alpha:", x[:,2])
-    t = test(x[:,0],x[:,1],x[:,2],10)
+    t = test(x[:,0],x[:,1],x[:,2],100000)
     return t
 
 bounds = [{'name': 'var_1', 'type': 'continuous',  'domain': (0.2,1)},       # Firefly
                 {'name': 'var_2', 'type': 'continuous', 'domain': (0,1)},           # Beta (Gamma)
                 {'name': 'var_3', 'type': 'continuous', 'domain': (0,1)}]          # Alpha
 
-n_iter = 3
+n_iter = 100
 max_iter = 1
 
 xOpt =[]
