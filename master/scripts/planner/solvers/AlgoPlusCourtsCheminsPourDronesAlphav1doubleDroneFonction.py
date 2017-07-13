@@ -1,6 +1,9 @@
 #Algo plus courts chemins pour drones
 
 def test(firefly, beta, alpha, iteration):
+    firefly = firefly * 50
+    #beta = beta * 1
+    alpha = alpha * 10
     
     import math
 
@@ -690,9 +693,9 @@ def myf(x):
     t = test(x[:,0],x[:,1],x[:,2],10)
     return t
 
-bounds = [{'name': 'var_1', 'type': 'discrete',  'domain': range(10,50)},     # Firefly
-                {'name': 'var_2', 'type': 'continuous', 'domain': (0,2)},         # Beta (Gamma)
-                {'name': 'var_3', 'type': 'continuous', 'domain': (0,10)}]       # Alpha
+bounds = [{'name': 'var_1', 'type': 'continuous',  'domain': (0.2,1)},       # Firefly
+                {'name': 'var_2', 'type': 'continuous', 'domain': (0,1)},           # Beta (Gamma)
+                {'name': 'var_3', 'type': 'continuous', 'domain': (0,1)}]          # Alpha
 
 n_iter = 4
 max_iter = 1
@@ -705,17 +708,17 @@ fxOpt = []
 #myProblem = GPyOpt.methods.BayesianOptimization(myf,bounds, acquisition_type='EI',exact_feval = True)
 myProblem = GPyOpt.methods.BayesianOptimization(myf,bounds,batch_size=6,num_cores=6,evaluator_type="random")
 
-#for i in n_iter:
+for i in n_iter:
     # run the optimization for the given number of iterations
-myProblem.run_optimization(max_iter)
+    myProblem.run_optimization(max_iter)
 
     # best found location
     #print(myProblem.x_opt)
-xOpt.append(myProblem.x_opt)
+    xOpt.append(myProblem.x_opt)
 
     # predicted value of f(x)
     #print(myProblem.fx_opt)
-fxOpt.append(myProblem.fx_opt)
+    fxOpt.append(myProblem.fx_opt)
 
     # result of the optimization
     #myProblem.plot_acquisition()
