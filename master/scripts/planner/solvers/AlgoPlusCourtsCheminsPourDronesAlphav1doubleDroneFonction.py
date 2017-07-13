@@ -688,7 +688,7 @@ def myf(x):
     t = test(x[:,0],x[:,1],x[:,2],10)
     return t
 
-bounds = [{'name': 'var_1', 'type': 'continuous',  'domain': (10,50)},     # Firefly
+bounds = [{'name': 'var_1', 'type': 'discrete',  'domain': range(10,50)},     # Firefly
                 {'name': 'var_2', 'type': 'continuous', 'domain': (0,2)},         # Beta (Gamma)
                 {'name': 'var_3', 'type': 'continuous', 'domain': (0,10)}]       # Alpha
 
