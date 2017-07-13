@@ -34,6 +34,8 @@ def test(firefly, beta, alpha, iteration):
     # Paramètre alpha:
     paramAlpha = alpha
 
+    firefly = int(firefly)
+
     # "Base": Point de départ et de retour des drones
     O = 528, 999
 
