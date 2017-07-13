@@ -40,10 +40,10 @@ def test(fi, be, al, it):
     constante = 0.001279214
 
     # Paramètre beta (en fait c'est plutot gamma):
-    paramBeta = beta
+    paramBeta = be
 
     # Paramètre alpha:
-    paramAlpha = alpha
+    paramAlpha = al
 
     # "Base": Point de départ et de retour des drones
     O = 528, 999
@@ -544,7 +544,7 @@ def test(fi, be, al, it):
         Solutions.append((f,x,y))
 
         # Création de firefly à partir de la firefly initiale
-        for i in range(0,firefly-1):
+        for i in range(0,fi-1):
             g = randomSwapMulti(f,3)
             g = diviserMulti(g)
             x = coutTotalMulti(g)
@@ -558,7 +558,7 @@ def test(fi, be, al, it):
 
 
         # Partie Firefly
-        nombre = iteration
+        nombre = it
         last = Solutions[0][1]
         best = Solutions[0][1]
         bestIndex = 0
