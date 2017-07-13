@@ -681,12 +681,12 @@ def test(firefly, beta, alpha, iteration):
     #print("Liste Lasts: ",lasts)
     #print("Liste Bests: ",bests)
     #print("Best chemin ever:",bestCheminEver)
-    s = (sum(bests) / len(bests))
+    s = int((sum(bests) / len(bests)))
     print("Moyenne Bests:",s)
 
     #Ecriture
     with open("plots/bayesian/parameters", 'a') as f:
-        line = '%d\t%.4f\t%.4f\t%.f\n'%(firefly, beta, alpha, s)	
+        line = '%d\t%.4f\t%.4f\t%.d\n'%(firefly, beta, alpha, s)	
         f.write(line)
 
     #return coutTotalMulti(diviserMulti(bestCheminEver))
