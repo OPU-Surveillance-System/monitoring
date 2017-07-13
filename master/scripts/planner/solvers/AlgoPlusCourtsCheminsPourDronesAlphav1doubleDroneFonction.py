@@ -1,23 +1,17 @@
 #Algo plus courts chemins pour drones
 
-def test(firefly, beta, alpha, iteration):
-    firefly = firefly * 50
-    firefly = int(firefly)
-    beta = beta * 10
-    alpha = alpha * 10
+def test(fi, be, al, it):
+    fi = int(fi * 50)
+    be = be * 10
+    al = al * 10
 
-    #Ecriture
-    with open("plots/bayesian/parameters", 'a') as f:
-        line = '%d\t%.4f\t%.4f\n'%(firefly, beta, alpha)
-        f.write(line)
-    
     #Lecture
     #with open("plots/bayesian/parameters", 'r') as f:
             #content = f.read()
     #content.split('\n')[:-1]
     #content = [[int(c[0]), float(c[1]), float(c[2])] for l in content for c l.split('\t')]
     
-    print("Firefly:", firefly, " Beta:", beta, " Alpha:", alpha)
+    print("Firefly:", fi, " Beta:", be, " Alpha:", al)
     
     import math
 
@@ -688,6 +682,11 @@ def test(firefly, beta, alpha, iteration):
     #print("Best chemin ever:",bestCheminEver)
     s = (sum(bests) / len(bests))
     print("Moyenne Bests:",s)
+
+    #Ecriture
+    with open("plots/bayesian/parameters", 'a') as f:
+        line = '%d\t%.4f\t%.4f\t%f\n'%(fi, be, al, s)
+        f.write(line)
 
     #return coutTotalMulti(diviserMulti(bestCheminEver))
     return s
