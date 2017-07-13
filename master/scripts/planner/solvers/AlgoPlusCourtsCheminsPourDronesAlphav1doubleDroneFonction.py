@@ -707,20 +707,20 @@ myProblem = GPyOpt.methods.BayesianOptimization(myf,bounds,batch_size=6,num_core
 
 #for i in n_iter:
     # run the optimization for the given number of iterations
-    myProblem.run_optimization(max_iter)
+myProblem.run_optimization(max_iter)
 
     # best found location
     #print(myProblem.x_opt)
-    xOpt.append(myProblem.x_opt)
+xOpt.append(myProblem.x_opt)
 
     # predicted value of f(x)
     #print(myProblem.fx_opt)
-    fxOpt.append(myProblem.fx_opt)
+fxOpt.append(myProblem.fx_opt)
 
     # result of the optimization
     #myProblem.plot_acquisition()
 
-    myProblem.plot_convergence(filename="/plots/bayesian/%.svg"%(i+1))
+myProblem.plot_convergence(filename="/plots/bayesian/%.svg"%(i+1))
 
 k = fxOpt.index(min(fxOpt))
 print("best x: ", xOpt[k])
