@@ -8,7 +8,7 @@ def test(firefly, beta, alpha, iteration):
 
     #Ecriture
     with open("plots/bayesian/parameters", 'a') as f:
-        line = '%d\t%.f\t%.f\n'%(firefly, alpha, beta)	
+        line = '%d\t%.4f\t%.4f\n'%(firefly, beta, alpha)	
         f.write(line)
 
     #Lecture
