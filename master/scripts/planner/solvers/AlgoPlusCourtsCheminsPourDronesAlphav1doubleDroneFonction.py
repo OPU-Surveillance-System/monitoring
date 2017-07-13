@@ -686,7 +686,7 @@ def test(firefly, beta, alpha, iteration):
 
     #Ecriture
     with open("plots/bayesian/parameters", 'a') as f:
-        line = '%d\t%.4f\t%.4f\t%.f\n'%(firefly, beta, alpha, s)	
+        line = '%d\t%.4f\t%.4f\n'%(firefly, beta, alpha)
         f.write(line)
 
     #return coutTotalMulti(diviserMulti(bestCheminEver))
