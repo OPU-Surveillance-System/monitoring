@@ -6,7 +6,7 @@ def test(firefly, beta, alpha, iteration):
     beta = beta * 10
     alpha = alpha * 10
     
-    print("Firefly: ", firefly, "Beta: ", beta, "Alpha:", alpha)
+    print("Firefly:", firefly, " Beta:", beta, " Alpha:", alpha)
     
     import math
 
@@ -435,11 +435,6 @@ def test(firefly, beta, alpha, iteration):
                 if f[i][j] == (0,0):
                     f[i][j] = p[0]
                     del p[0]
-        #z = 0
-        #while len(p) > 0:       # On ajoute les valeurs restantes en les ditribuant une à une à chaque drone
-            #f[z % 2].append(p[0])
-            #del p[0]
-            #z = z + 1
         return f
 
     # Etape Alpha 2
@@ -527,9 +522,9 @@ def test(firefly, beta, alpha, iteration):
             energy = energyMax
             continuer = isPossible(Points) # On regarde si les points restants sont atteignables (normalement oui)
 
-    lasts = []
+    #lasts = []
     bests = []
-    bestCheminEver = []
+    #bestCheminEver = []
 
     for m in range(0,10):
         Solutions = []
@@ -678,11 +673,13 @@ def test(firefly, beta, alpha, iteration):
         #plt.clf()
 
     #print("Liste Lasts: ",lasts)
-    print("Liste Bests: ",bests)
+    #print("Liste Bests: ",bests)
     #print("Best chemin ever:",bestCheminEver)
+    s = (sum(bests) / len(bests))
+    print("Moyenne Bests:",s)
 
     #return coutTotalMulti(diviserMulti(bestCheminEver))
-    return (sum(bests) / len(bests))
+    return s
 
 
 # Partie Optimisation Bayesienne:
@@ -716,7 +713,11 @@ for i in range(0,n_iter):
 
     # best found location
     #print(myProblem.x_opt)
-    xOpt.append(myProblem.x_opt)
+    x = myProblem.x_opt
+    x[0] = int(x[0] * 50)
+    x[1] = x[1] * 10
+    x[2] = x[2] * 10
+    xOpt.append(x)
 
     # predicted value of f(x)
     #print(myProblem.fx_opt)
