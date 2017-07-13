@@ -1,6 +1,6 @@
 #Algo plus courts chemins pour drones
 
-def test(firefly, beta, alpha, iteration, numero):
+def test(firefly, beta, alpha, iteration):
     
     import math
 
@@ -454,6 +454,20 @@ def test(firefly, beta, alpha, iteration, numero):
                 fB[i][indexs[j]] = fA[i][indexs2[j]]
         return fB
 
+    # Autre idée d'étape alpha (insertions d'éléments entre les drones)
+    def delta(fA,n):
+        fB = copy.deepcopy(fA)
+        for i in range(0,n):
+            if((len(fB[0]) != 0) & (len(fB[1]) != 0)):
+                d1 = random.randint(0,1)            # drone qui 'envoie' un élément
+                d2 = random.randint(0,1)            # drone qui 'reçoit' un élément
+                n1 = random.randint(0,len(fA[d1])-1)            # index de l'élément à envoyer
+                n2 = random.randint(0,len(fA[d2])-1)            # index de l'élement à recevoir
+                print("d1:",d1,"d2:",d2,"n1:",n1,"n2:",n2)
+                v = fB[d1][n1]
+                del fB[d1][n1]
+                fB[d2].insert(n2, v)
+        return fB
 
 
     def info(doubleRoutes):
@@ -545,7 +559,7 @@ def test(firefly, beta, alpha, iteration, numero):
         bestOfTheBest = Solutions[0]
         compteur = 0
         f3 = copy.deepcopy(PointsListe)
-        tab = ([0],[Solutions[0][1]],[Solutions[0][2]])
+        #tab = ([0],[Solutions[0][1]],[Solutions[0][2]])
         print("Etapes Beta et Alpha (",nombre," fois)")
         # Boucle effectuée pour chaque itération
         for n in range(1,nombre+1):
@@ -580,14 +594,14 @@ def test(firefly, beta, alpha, iteration, numero):
                 last = best
             if best < bestOfTheBest[1]:
                 bestOfTheBest = Solutions[bestIndex]
-            if n % 100 == 0:
+            #if n % 100 == 0:
                 #print("Iteration: ", n)
                 #print("Best firefly:  Cout: ", Solutions[bestIndex][1], ", Incertitude: ", Solutions[bestIndex][2])
-                tab[0].append(n)
-                tab[1].append(Solutions[bestIndex][1])
-                tab[2].append(Solutions[bestIndex][2])
+                #tab[0].append(n)
+                #tab[1].append(Solutions[bestIndex][1])
+                #tab[2].append(Solutions[bestIndex][2])
 
-            # Etape Alpha du prof
+            # Etape Alpha du prof (qui utilise la fonction Beta)
             for i in range(0, len(Solutions)):
                 if (i != bestIndex): #| (compteur > 1000): 
                     random.shuffle(f3)
@@ -602,6 +616,21 @@ def test(firefly, beta, alpha, iteration, numero):
                         #compteur = 0
                         #best = Solutions[i][1]
                         #last = best
+
+            # Autre étape Alpha (insertions éléments)
+            #for i in range(0, len(Solutions)):
+                #if (i != bestIndex): #| (compteur > 1000): 
+                    #g = delta(Solutions[i][0],paramAlpha)
+                    #g = diviserMulti(g)
+                    #x = coutTotalMulti(g)
+                    #y = incertitudeTotaleMulti(g)
+                    #g = fusionnerMulti(g)
+                    #Solutions[i] = (g,x,y)
+                    #if (i == bestIndex):
+                        #compteur = 0
+                        #best = Solutions[i][1]
+                        #last = best
+            
             
             # Etape Alpha
             #for i in range(0, len(Solutions)):
@@ -635,10 +664,10 @@ def test(firefly, beta, alpha, iteration, numero):
         bests.append(bestOfTheBest[1])
 
         # Graphique de l'évolution des solutions
-        plt.plot(tab[0],tab[1])
-        plt.xlabel('Iterations')
-        plt.ylabel('Best Firefly Cost')
-        plt.savefig("plots/%d.svg"%(numero), format="svg")
+        #plt.plot(tab[0],tab[1])
+        #plt.xlabel('Iterations')
+        #plt.ylabel('Best Firefly Cost')
+        #plt.savefig("plots/%d.svg"%(numero), format="svg")
         #plt.show()
         #plt.clf()
 
@@ -655,32 +684,42 @@ import GPyOpt
 from numpy.random import seed
 
 def myf(x):
-    print("beta: ", x[:,0], "alpha:", x[:,1])
-    t = test(20,x[:,0],x[:,1],100000, x[:,0])
+    print("firefly: ", x[:,0], "beta: ", x[:,1], "alpha:", x[:,2])
+    t = test(x[:,0],x[:,1],x[:,2],10)
     return t
 
-bounds = [{'name': 'var_1', 'type': 'continuous',  'domain': (0,2)},
-                {'name': 'var_2', 'type': 'continuous', 'domain': (0,4)}]
+bounds = [{'name': 'var_1', 'type': 'continuous',  'domain': (10,50)},     # Firefly
+                {'name': 'var_2', 'type': 'continuous', 'domain': (0,2)},         # Beta (Gamma)
+                {'name': 'var_3', 'type': 'continuous', 'domain': (0,10)}]       # Alpha
 
-max_iter = 100
+n_iter = 4
+max_iter = 1
 
+xOpt =[]
+fxOpt = []
 
 # stores the problem
 #seed(123)
 #myProblem = GPyOpt.methods.BayesianOptimization(myf,bounds, acquisition_type='EI',exact_feval = True)
 myProblem = GPyOpt.methods.BayesianOptimization(myf,bounds,batch_size=6,num_cores=6,evaluator_type="random")
 
-# run the optimization for the given number of iterations
-myProblem.run_optimization(max_iter)
+for i in n_iter:
+    # run the optimization for the given number of iterations
+    myProblem.run_optimization(max_iter)
 
-# best found location
-print(myProblem.x_opt)
+    # best found location
+    #print(myProblem.x_opt)
+    xOpt.append(myProblem.x_opt)
 
-# predicted value of f(x)
-print(myProblem.fx_opt)
+    # predicted value of f(x)
+    #print(myProblem.fx_opt)
+    fxOpt.append(myProblem.fx_opt)
 
-# result of the optimization
-#myProblem.plot_acquisition()
+    # result of the optimization
+    #myProblem.plot_acquisition()
 
-myProblem.plot_convergence()
+    myProblem.plot_convergence(filename="/plots/bayesian/%.svg"%(i+1))
 
+k = fxOpt.index(min(fxOpt))
+print("best x: ", xOpt[k])
+print("best fx: ", fxOpt[k])
