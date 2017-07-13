@@ -705,7 +705,7 @@ fxOpt = []
 #myProblem = GPyOpt.methods.BayesianOptimization(myf,bounds, acquisition_type='EI',exact_feval = True)
 myProblem = GPyOpt.methods.BayesianOptimization(myf,bounds,batch_size=6,num_cores=6,evaluator_type="random")
 
-for i in n_iter:
+#for i in n_iter:
     # run the optimization for the given number of iterations
     myProblem.run_optimization(max_iter)
 
