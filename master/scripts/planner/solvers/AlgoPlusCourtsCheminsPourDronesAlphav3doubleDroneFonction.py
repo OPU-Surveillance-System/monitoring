@@ -419,7 +419,7 @@ def test(fi, be, al, it):
                 #f2bis.append(f2[i][j])
         lev = [levenshtein(f1[i],f2[i]) for i in range(0,len(f1))]
         for i in range(0,len(f1)):
-            f2bis = [f2[i][j] for j in range(0,len(f2[i]))]
+            f2bis = f2bis + [f2[i][j] for j in range(0,len(f2[i]))]
         for i in range(0,len(f1)):
             B = 1 / (1 + n * lev[i])
             for j in range(0,len(f1[i])):
