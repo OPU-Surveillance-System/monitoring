@@ -471,8 +471,8 @@ def test(fi, be, al, it):
             if((len(fB[0]) != 0) & (len(fB[1]) != 0)):
                 d1 = random.randint(0,1)            # drone qui 'envoie' un élément
                 d2 = random.randint(0,1)            # drone qui 'reçoit' un élément
-                n1 = random.randint(0,len(fA[d1])-1)            # index de l'élément à envoyer
-                n2 = random.randint(0,len(fA[d2])-1)            # index de l'élement à recevoir
+                n1 = random.randint(0,len(fB[d1])-1)            # index de l'élément à envoyer
+                n2 = random.randint(0,len(fB[d2])-1)            # index de l'élement à recevoir
                 print("d1:",d1,"d2:",d2,"n1:",n1,"n2:",n2)
                 v = fB[d1][n1]
                 del fB[d1][n1]
