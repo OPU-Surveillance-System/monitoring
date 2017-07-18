@@ -473,7 +473,6 @@ def test(fi, be, al, it):
                 d2 = random.randint(0,1)            # drone qui 'reçoit' un élément
                 n1 = random.randint(0,len(fB[d1])-1)            # index de l'élément à envoyer
                 n2 = random.randint(0,len(fB[d2])-1)            # index de l'élement à recevoir
-                print("d1:",d1,"d2:",d2,"n1:",n1,"n2:",n2)
                 v = fB[d1][n1]
                 del fB[d1][n1]
                 fB[d2].insert(n2, v)
