@@ -702,7 +702,7 @@ from numpy.random import seed
 
 def myf(x):
     #print("firefly: ", x[:,0], "beta: ", x[:,1], "alpha:", x[:,2])
-    t = test(x[:,0],x[:,1],x[:,2],100000)
+    t = test(x[:,0],x[:,1],x[:,2],100)
     return t
 
 bounds = [{'name': 'var_1', 'type': 'continuous',  'domain': (0.2,1)},       # Firefly
