@@ -712,7 +712,7 @@ from numpy.random import seed
 
 def myf(x):
     #print("firefly: ", x[:,0], "beta: ", x[:,1], "alpha:", x[:,2])
-    t = test(x[:,0],x[:,1],x[:,2],100)
+    t = test(x[:,0],x[:,1],x[:,2],10)
     return t
 
 bounds = [{'name': 'var_1', 'type': 'continuous',  'domain': (0.2,1)},       # Firefly
@@ -738,8 +738,8 @@ for i in range(0,n_iter):
     #print(myProblem.x_opt)
     x = myProblem.x_opt
     x[0] = int(x[0] * 50)
-    x[1] = x[1] * 1
-    x[2] = round(x[2] * 10)
+    x[1] = float(x[1] * 1)
+    x[2] = round(float(x[2] * 10))
     xOpt.append(x)
 
     # predicted value of f(x)
