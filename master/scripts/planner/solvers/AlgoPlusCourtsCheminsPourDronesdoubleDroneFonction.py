@@ -3,7 +3,7 @@
 def test(fi, be, al, it):
     fi = int(fi * 50)
     #be = be * 1
-    al = int(al * 10)
+    al = round(al * 10)
 
     #Lecture
     #with open("plots/bayesian/parameters", 'r') as f:
@@ -739,7 +739,7 @@ for i in range(0,n_iter):
     x = myProblem.x_opt
     x[0] = int(x[0] * 50)
     x[1] = x[1] * 1
-    x[2] = int(x[2] * 10)
+    x[2] = round(x[2] * 10)
     xOpt.append(x)
 
     # predicted value of f(x)
