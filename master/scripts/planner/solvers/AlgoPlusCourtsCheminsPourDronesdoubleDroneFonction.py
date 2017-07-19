@@ -2,7 +2,7 @@
 
 def test(fi, be, al, it):
     fi = int(fi * 50)
-    #be = be * 1
+    be = float(be * 1)
     al = round(float(al * 10))
 
     #Lecture
