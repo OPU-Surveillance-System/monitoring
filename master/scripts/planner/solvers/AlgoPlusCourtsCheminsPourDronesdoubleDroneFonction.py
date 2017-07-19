@@ -3,7 +3,7 @@
 def test(fi, be, al, it):
     fi = int(fi * 50)
     #be = be * 1
-    al = round(al * 10)
+    al = round(float(al * 10))
 
     #Lecture
     #with open("plots/bayesian/parameters", 'r') as f:
