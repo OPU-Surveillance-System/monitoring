@@ -11,8 +11,8 @@ it = 100
         #content = f.read()
 #content.split('\n')[:-1]
 #content = [[int(c[0]), float(c[1]), float(c[2])] for l in content for c l.split('\t')]
- 
- print("Firefly:", fi, " Beta:", be, " Alpha:", al)
+
+print("Firefly:", fi, " Beta:", be, " Alpha:", al)
  
 import math
 
