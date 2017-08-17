@@ -684,13 +684,12 @@ for m in range(0,1):
     plt.show()
     #plt.clf()
 
-#print("List Lasts: ",lasts)
-#print("List Bests: ",bests)
+print("List Lasts: ",lasts)
+print("List Bests: ",bests)
 print("Best path ever:",bestPathEver)
 s = (sum(bests) / len(bests))
 print("Average of bests:",s)
 
 
 #return costTotalMulti(divideMulti(bestPathEver))
-return s
 
