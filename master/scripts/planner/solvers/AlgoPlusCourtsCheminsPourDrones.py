@@ -680,7 +680,7 @@ for m in range(0,1):
     plt.plot(tab[0],tab[1])
     plt.xlabel('Iterations')
     plt.ylabel('Best Firefly Cost')
-    plt.savefig("plots/%d.svg"%(numero), format="svg")
+    plt.savefig("plots/test.svg", format="svg")
     plt.show()
     #plt.clf()
 
