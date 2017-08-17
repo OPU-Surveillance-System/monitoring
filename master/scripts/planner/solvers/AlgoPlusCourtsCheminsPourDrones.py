@@ -501,7 +501,7 @@ returnStep = False
 # Main loop
 while((len(Points) > 0) & canContinue):
     last = Route[len(Route)-1] # Last point of the current list
-    indexs = pointsPlusLoin(last,Points) # Indexs of the further points from the center
+    indexs = furtherPoints(last,Points) # Indexs of the further points from the center
     if indexs == []: # If there is no further points, the drone returns to the base
         returnStep = True
     else: # Otherwise, we try to reach the nearest point among these further points
