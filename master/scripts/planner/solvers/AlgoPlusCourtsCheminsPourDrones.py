@@ -4,7 +4,7 @@ fi = 45
 be = 0.2885
 al = 3
 
-it = 100
+it = 400000
 
 # Reading
 #with open("plots/bayesian/parameters", 'r') as f:
@@ -608,7 +608,7 @@ for m in range(0,1):
             last = best
             if best < bestOfTheBest[1]:
                 bestOfTheBest = Solutions[bestIndex]
-        if n % 10 == 0:
+        if n % 100 == 0:
             print("Iteration: ", n)
             print("Best firefly:  cost: ", Solutions[bestIndex][1], ", uncertainty: ", Solutions[bestIndex][2])
             tab[0].append(n)
@@ -660,7 +660,7 @@ for m in range(0,1):
                     #last = best
 
         # Display of the fireflies (every 1000 iterations)
-        if n % 10 == 0:
+        if n % 100 == 0:
             for i in range(0, len(Solutions)):
                 print("Cost: ", Solutions[i][1], ", Uncertainty: ", Solutions[i][2])
 
