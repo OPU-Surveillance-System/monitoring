@@ -4,7 +4,7 @@ fi = 45
 be = 0.2885
 al = 3
 
-it = 400000
+it = 10
 
 # Reading
 #with open("plots/bayesian/parameters", 'r') as f:
@@ -538,7 +538,7 @@ lasts = []
 bests = []
 bestPathEver = []
 
-for m in range(0,1):
+for m in range(0,10):
     Solutions = []
     
     # Recomputation of the initial firefly
@@ -680,9 +680,9 @@ for m in range(0,1):
     plt.plot(tab[0],tab[1])
     plt.xlabel('Iterations')
     plt.ylabel('Best Firefly Cost')
-    plt.savefig("plots/test.svg", format="svg")
+    plt.savefig("plots/%d.png"%(m), format="png")
     plt.show()
-    #plt.clf()
+    plt.clf()
 
 print("List Lasts: ",lasts)
 print("List Bests: ",bests)
