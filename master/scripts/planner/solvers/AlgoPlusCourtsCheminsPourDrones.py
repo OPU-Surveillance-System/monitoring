@@ -4,7 +4,7 @@ fi = 45
 be = 0.2885
 al = 3
 
-it = 100
+it = 200000
 
 # Reading
 #with open("plots/bayesian/parameters", 'r') as f:
@@ -608,7 +608,7 @@ for m in range(0,10):
             last = best
             if best < bestOfTheBest[1]:
                 bestOfTheBest = Solutions[bestIndex]
-        if n % 10 == 0:
+        if n % 100 == 0:
             print("Iteration: ", n)
             print("Best firefly:  cost: ", Solutions[bestIndex][1], ", uncertainty: ", Solutions[bestIndex][2])
             tab[0].append(n)
@@ -692,4 +692,3 @@ print("Average of bests:",s)
 
 
 #return costTotalMulti(divideMulti(bestPathEver))
-
