@@ -4,7 +4,7 @@ fi = 45
 be = 0.2885
 al = 3
 
-it = 10
+it = 100
 
 # Reading
 #with open("plots/bayesian/parameters", 'r') as f:
@@ -608,7 +608,7 @@ for m in range(0,10):
             last = best
             if best < bestOfTheBest[1]:
                 bestOfTheBest = Solutions[bestIndex]
-        if n % 100 == 0:
+        if n % 10 == 0:
             print("Iteration: ", n)
             print("Best firefly:  cost: ", Solutions[bestIndex][1], ", uncertainty: ", Solutions[bestIndex][2])
             tab[0].append(n)
@@ -681,7 +681,7 @@ for m in range(0,10):
     plt.xlabel('Iterations')
     plt.ylabel('Best Firefly Cost')
     plt.savefig("plots/%d.png"%(m), format="png")
-    plt.show()
+    #plt.show()
     plt.clf()
 
 print("List Lasts: ",lasts)
