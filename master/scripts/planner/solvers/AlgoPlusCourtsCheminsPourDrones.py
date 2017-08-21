@@ -617,17 +617,17 @@ for m in range(0,10):
 
         # Etape Alpha 1 (original)
         for i in range(0, len(Solutions)):
-            if (i != bestIndex): #| (counter > 1000):       # If the counter reachs 1000, the best firefly is unlocked
+            if (i != bestIndex): | (counter > 1000):       # If the counter reachs 1000, the best firefly is unlocked
                 g = alpha2(Solutions[i][0], paramAlpha)
                 g = divideMulti(g)
                 x = costTotalMulti(g)
                 y = uncertaintyTotalMulti(g)
                 g = mergeMulti(g)
                 Solutions[i] = (g,x,y)
-                #if (i == bestIndex):
-                    #counter = 0
-                    #best = Solutions[i][1]
-                    #last = best
+                if (i == bestIndex):
+                    counter = 0
+                    best = Solutions[i][1]
+                    last = best
 
         # Alpha step 2 (using Beta step)
         #for i in range(0, len(Solutions)):
