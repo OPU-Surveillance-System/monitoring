@@ -202,7 +202,7 @@ def fireflyAlgorithm(z):
         print(bestFirefly.luminosity)
         if bestFirefly.luminosity > swarm[0].luminosity:
             bestFirefly = copy.deepcopy(swarm[0])
-        if t % 1 == 0:
+        if t % 100 == 0:
             print("Iteration: ", t)
             print("Swarm: ", [s.luminosity for s in swarm])
             print("Best firefly: ", bestFirefly.luminosity)
