@@ -216,6 +216,8 @@ def fireflyAlgorithm(z):
 if __name__ == "__main__":
     if not os.path.exists("plots"):
         os.makedirs("plots")
+    with open("results", "w") as f:
+        print("cleaning previous results")
     for i in range(args.n):
         bestFirefly = fireflyAlgorithm(i)
         print("Best firefly path: ", bestFirefly.x)
