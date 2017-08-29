@@ -199,7 +199,6 @@ def fireflyAlgorithm(z):
                         swarm[i].update(c)
         swarm = sorted(swarm, key = lambda ff: ff.luminosity)
         print("")
-        print(bestFirefly.luminosity)
         if bestFirefly.luminosity > swarm[0].luminosity:
             bestFirefly = copy.deepcopy(swarm[0])
         if t % 100 == 0:
