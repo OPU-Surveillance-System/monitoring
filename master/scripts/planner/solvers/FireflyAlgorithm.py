@@ -4,6 +4,7 @@ import distance
 import copy
 import argparse
 import time
+import os
 
 import matplotlib.pyplot as plt
 
@@ -169,7 +170,7 @@ def displayPlot(tab,n):
     plt.plot(tab[0],tab[1])
     plt.xlabel('Iteration')
     plt.ylabel('Best Firefly Luminosity')
-    plt.savefig("%d.svg"%(n), format="svg")
+    plt.savefig("plots/%d.svg"%(n), format="svg")
     #plt.show()
     plt.clf()
 
@@ -214,6 +215,8 @@ def fireflyAlgorithm(z):
     return bestFirefly
 
 if __name__ == "__main__":
+    if not os.path.exists("plots"):
+        os.makedirs("plots")
     for i in range(args.n):
         bestFirefly = fireflyAlgorithm(i)
         print("Best firefly path: ", bestFirefly.x)
