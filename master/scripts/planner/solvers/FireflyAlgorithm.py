@@ -15,7 +15,7 @@ path.append("..")
 path.append("../..")
 
 import pickle
-with open("../../webserver/data/serialization/mapper.pickle", "rb") as f:
+with open("../../webserver/data/serialization/mapper.pickle"", "rb") as f:
         mapper = pickle.load(f)
 
 #open("H:\Documents\JaponStageLabo\mapper.pickle", "rb")
@@ -29,8 +29,8 @@ points = [(32, 1122), (271, 1067), (209, 993), (184, 1205), (303, 1220), (400, 1
 parser = argparse.ArgumentParser()
 parser.add_argument("-d", type = int, default = 2, help = "number of drones")
 parser.add_argument("-i", type = int, default = 10000, help = "number of iterations")
-parser.add_argument("-g", type = float, default = 0.1, help = "firefly algorithm gamma")
-parser.add_argument("-a", type = float, default = 2, help = "firefly algorithm alpha")
+parser.add_argument("-g", type = float, default = 0.90, help = "firefly algorithm gamma")
+parser.add_argument("-a", type = float, default = 1, help = "firefly algorithm alpha")
 parser.add_argument("-f", type = int, default = 10, help = "number of fireflies")
 parser.add_argument("-e", type = float, default = 0.1, help = "distance penalization coeficient")
 parser.add_argument("-v", type = int, default = 1, help = "alpha version")
@@ -108,7 +108,7 @@ def betaStep(a, b):
     c = ['' for i in a2]
     toInsert = [i for i in a2]
     for i in range(len(a2)):
-        if a2[i] == b2[i] or random.random() < args.g:
+        if a2[i] == b2[i] or random.random() < beta:
             if a2[i] not in c:
                 c[i] = a2[i]
                 toInsert.remove(a2[i])
@@ -193,6 +193,17 @@ def fireflyAlgorithm(z):
                             c = alphaStep3(c)
                         swarm[i].update(c)
         swarm = sorted(swarm, key = lambda ff: ff.luminosity)
+        if swarm[0].luminosity == swarm[-1].luminosity:
+            for i in range(1, len(swarm)):
+                c = [element for subList in swarm[i].x for element in subList]
+                if args.v == 1:
+                    c = alphaStep1(c)
+                elif args.v == 2:
+                    c = alphaStep2(c)
+                else:
+                    c = alphaStep3(c)
+                swarm[i].update(c)
+            swarm = sorted(swarm, key = lambda ff: ff.luminosity)
         if bestFirefly.luminosity > swarm[0].luminosity:
             bestFirefly = copy.deepcopy(swarm[0])
         if t % 100 == 0:
