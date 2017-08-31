@@ -194,6 +194,7 @@ def fireflyAlgorithm(z):
                         swarm[i].update(c)
         swarm = sorted(swarm, key = lambda ff: ff.luminosity)
         if swarm[0].luminosity == swarm[-1].luminosity:
+            print("*** swarm blocked ***")
             for i in range(1, len(swarm)):
                 c = [element for subList in swarm[i].x for element in subList]
                 if args.v == 1:
