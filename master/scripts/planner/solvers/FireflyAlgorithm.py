@@ -15,7 +15,7 @@ path.append("..")
 path.append("../..")
 
 import pickle
-with open("H:\Documents\JaponStageLabo\mapper.pickle", "rb") as f:
+with open("../../webserver/data/serialization/mapper.pickle", "rb") as f:
         mapper = pickle.load(f)
 
 #open("H:\Documents\JaponStageLabo\mapper.pickle", "rb")
