@@ -5,23 +5,21 @@ import copy
 import argparse
 import time
 import os
-
 import matplotlib.pyplot as plt
-
 from sys import path
+import pickle
+
+import lehmer
 
 path.append("..")
 
 path.append("../..")
-
-import pickle
+import settings
 with open("../../webserver/data/serialization/mapper.pickle", "rb") as f:
         mapper = pickle.load(f)
 
 #open("H:\Documents\JaponStageLabo\mapper.pickle", "rb")
 #open("../../webserver/data/serialization/mapper.pickle", "rb")
-
-import settings
 
 points = [(32, 1122), (271, 1067), (209, 993), (184, 1205), (303, 1220), (400, 1122), (505, 1214), (669, 1202), (779, 1026), (912, 1029), (1483, 1156), (1614, 991), (1576, 567), (1502, 395), (1618, 227), (1448, 634), (967, 690), (1059, 842), (759, 823), (1387, 174), (1073, 82), (944, 327), (866, 512), (748, 638), (487, 896), (118, 653), (35, 902), (502, 339), (683, 316), (694, 123), (45, 52), (367, 39)]
 
@@ -169,11 +167,23 @@ def displayPlot(tab,n):
     #plt.show()
     plt.clf()
 
+def plotConvergence(lehmer_hist):
+    for l in range(len(lehmer_hist)):
+        x = [l for i in range(len(lehmer_hist[l]))]
+        plt.scatter(x[1:], lehmer_hist[l][1:], c='g')
+        plt.scatter(x[0], lehmer_hist[l][0], c='r')
+    plt.xlabel('Firefly algorithm\'s generation')
+    plt.ylabel('Lehmer code')
+    plt.savefig("plots/convergence.svg", format="svg")
+    plt.clf()
+
 # Firefly algorithm
 def fireflyAlgorithm(z):
     swarm = [firefly(points) for i in range(args.f)]
     swarm = sorted(swarm, key = lambda ff: ff.luminosity)
     bestFirefly = copy.deepcopy(swarm[0])
+    base = [i for i in points]
+    lehmer_hist = []
     print("Best firefly init: ", bestFirefly.luminosity)
     tab = ([0], [bestFirefly.luminosity])
     t = 0
@@ -214,6 +224,8 @@ def fireflyAlgorithm(z):
             print("Best firefly: ", bestFirefly.luminosity)
             tab[0].append(t+1)
             tab[1].append(bestFirefly.luminosity)
+            lehmer_hist.append([lehmer.int_from_perm(base, [elt for subList in s.x for elt in subList]) for s in swarm])
+            plotConvergence(lehmer_hist)
         t += 1
     endTime = time.time()
     print("Elapsed time: ", endTime - startTime)
