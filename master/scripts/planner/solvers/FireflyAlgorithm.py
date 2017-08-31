@@ -15,7 +15,7 @@ path.append("..")
 path.append("../..")
 
 import pickle
-with open("../../webserver/data/serialization/mapper.pickle", "rb") as f:
+with open("H:\Documents\JaponStageLabo\mapper.pickle", "rb") as f:
         mapper = pickle.load(f)
 
 #open("H:\Documents\JaponStageLabo\mapper.pickle", "rb")
@@ -28,12 +28,12 @@ points = [(32, 1122), (271, 1067), (209, 993), (184, 1205), (303, 1220), (400, 1
 # Arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("-d", type = int, default = 2, help = "number of drones")
-parser.add_argument("-i", type = int, default = 1, help = "number of iterations")
-parser.add_argument("-g", type = float, default = 0.90, help = "firefly algorithm gamma")
-parser.add_argument("-a", type = float, default = 3, help = "firefly algorithm alpha")
+parser.add_argument("-i", type = int, default = 1000, help = "number of iterations")
+parser.add_argument("-g", type = float, default = 0.1, help = "firefly algorithm gamma")
+parser.add_argument("-a", type = float, default = 2, help = "firefly algorithm alpha")
 parser.add_argument("-f", type = int, default = 10, help = "number of fireflies")
 parser.add_argument("-e", type = float, default = 0.1, help = "distance penalization coeficient")
-parser.add_argument("-v", type = int, default = 1, help = "alpha version")
+parser.add_argument("-v", type = int, default = 2, help = "alpha version")
 parser.add_argument("-n", type = int, default = 1, help = "number of runs")
 args = parser.parse_args()
 if args.v == 1 or args.v == 2:
@@ -99,16 +99,11 @@ class firefly:
         mean = sum(mean) / len(mean)
         return mean, battery, solution
 
-
 # Beta step: exploitation
 def betaStep(a, b):
     a2 = [element for subList in a for element in subList]
-    a2str = [str(element) for subList in a for element in subList]
     b2 = [element for subList in b for element in subList]
-    b2str = [str(element) for subList in b for element in subList]
-    d = distance.levenshtein(''.join(a2str), ''.join(b2str))
-    del(a2str)
-    del(b2str)
+    d = distance.hamming(a2, b2)
     beta = 1 / (1 + args.g * d)
     c = ['' for i in a2]
     toInsert = [i for i in a2]
