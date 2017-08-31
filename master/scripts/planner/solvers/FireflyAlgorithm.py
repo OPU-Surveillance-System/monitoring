@@ -15,7 +15,7 @@ path.append("..")
 path.append("../..")
 
 import pickle
-with open("../../webserver/data/serialization/mapper.pickle", "rb") as f:
+with open("H:\Documents\JaponStageLabo\mapper.pickle", "rb") as f:
         mapper = pickle.load(f)
 
 #open("H:\Documents\JaponStageLabo\mapper.pickle", "rb")
@@ -28,9 +28,9 @@ points = [(32, 1122), (271, 1067), (209, 993), (184, 1205), (303, 1220), (400, 1
 # Arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("-d", type = int, default = 2, help = "number of drones")
-parser.add_argument("-i", type = int, default = 1000, help = "number of iterations")
+parser.add_argument("-i", type = int, default = 10000, help = "number of iterations")
 parser.add_argument("-g", type = float, default = 0.1, help = "firefly algorithm gamma")
-parser.add_argument("-a", type = float, default = 2, help = "firefly algorithm alpha")
+parser.add_argument("-a", type = float, default = 3, help = "firefly algorithm alpha")
 parser.add_argument("-f", type = int, default = 10, help = "number of fireflies")
 parser.add_argument("-e", type = float, default = 0.1, help = "distance penalization coeficient")
 parser.add_argument("-v", type = int, default = 2, help = "alpha version")
@@ -183,7 +183,7 @@ def fireflyAlgorithm(z):
         for i in range(n):
             for j in range(n):
                 if j != i:
-                    if swarm[j].luminosity >= swarm[i].luminosity:
+                    if swarm[j].luminosity < swarm[i].luminosity:
                         c = betaStep(swarm[j].x,swarm[i].x)
                         if args.v == 1:
                             c = alphaStep1(c)
