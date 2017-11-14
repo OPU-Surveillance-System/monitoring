@@ -19,9 +19,6 @@ import settings
 with open("../../webserver/data/serialization/mapper.pickle", "rb") as f:
         mapper = pickle.load(f)
 
-#open("H:\Documents\JaponStageLabo\mapper.pickle", "rb")
-#open("../../webserver/data/serialization/mapper.pickle", "rb")
-
 # Firefly class
 class firefly:
     def __init__(self, p, eta, nb_drone):
@@ -134,7 +131,7 @@ def alphaStep3(a, alpha):
     for i in range(len(a2)):
         if a2[i] == b2[i] or random.random() < alpha:
             if a2[i] not in c:
-                c[i] = a2[i]
+                c[i] = a2[istep]
                 toInsert.remove(a2[i])
         else:
             if b2[i] not in c:
@@ -143,14 +140,42 @@ def alphaStep3(a, alpha):
     while len(toInsert) > 0:
         idx = c.index('')
         c[idx] = toInsert.pop()
-    return c
+    return cstep
+
+# Alpha step: exploration (v4)
+def alphaStep4(a, alpha, t, step):
+    #segment = len(a) - (t//step)
+    segment = len(a) - (t**(1/10))//step
+    print((1/(math.sqrt(t)+1)))
+    if segment < 2:
+        segment = 2
+    origin = random.randint(0, len(a)-1)
+    end = origin + segment
+    #print(segment, origin, end)
+    for i in range(alpha):
+        x = random.randint(origin, end) % 32
+        y = random.randint(origin, end) % 32
+        if end > 31:
+            print(x, y)
+        a[x], a[y] = a[y], a[x]
+    return a, segment
+
+# Alpha step: exploration (v5)
+def alphaStep5(a, alpha, t, step):
+    idxs = [i for i in range(len(a))]
+    random.shuffle(idxs)
+    x = idxs[0:alpha]
+    y = idxs[0:alpha]
+    random.shuffle(y)
+    for i in range(alpha):
+        a[x[i]],  a[y[i]] = a[y[i]], a[x[i]]
+    return a
 
 def displayPlot(tab,n):
     plt.plot(tab[0],tab[1])
     plt.xlabel('Iteration')
     plt.ylabel('Best Firefly Luminosity')
     plt.savefig("plots/%d.svg"%(n), format="svg")
-    #plt.show()
     plt.clf()
 
 def plotConvergence(lehmer_hist):
@@ -161,6 +186,14 @@ def plotConvergence(lehmer_hist):
     plt.xlabel('Firefly algorithm\'s generation')
     plt.ylabel('Lehmer code')
     plt.savefig("plots/convergence.svg", format="svg")
+    plt.clf()(1/(math.sqrt(t)+1))//step
+
+def displaySegment(segment):
+    x = list(range(len(segment)))
+    plt.plot(x, segment)
+    plt.xlabel('')
+    plt.ylabel('Segment size')
+    plt.savefig("plots/segment.svg", format="svg")
     plt.clf()
 
 # Firefly algorithm
@@ -171,13 +204,12 @@ def fireflyAlgorithm(z, **kwargs):
     swarm = [firefly(points, kwargs['e'], kwargs['d']) for i in range(kwargs['f'])]
     swarm = sorted(swarm, key = lambda ff: ff.luminosity)
     bestFirefly = copy.deepcopy(swarm[0])
-    #base = [i for i in points]
-    #lehmer_hist = []
     if kwargs['p'] == 1:
         print("Best firefly init: ", bestFirefly.luminosity)
     tab = ([0], [bestFirefly.luminosity])
     t = 0
     n = len(swarm)
+    segment = []
     startTime = time.time()
     while t < kwargs['i']:
         for i in range(n):
@@ -185,12 +217,16 @@ def fireflyAlgorithm(z, **kwargs):
                 if j != i:
                     if swarm[j].luminosity < swarm[i].luminosity:
                         c = betaStep(swarm[j].x, swarm[i].x, kwargs['g'])
+                        #print(kwargs['v'])
                         if kwargs['v'] == 1:
                             c = alphaStep1(c, kwargs['a'])
                         elif kwargs['v'] == 2:
                             c = alphaStep2(c, kwargs['a'])
-                        else:
+                        elif kwargs['v'] == 3:
                             c = alphaStep3(c, kwargs['a'])
+                        else :
+                            c, seg = alphaStep4(c, kwargs['a'], t, 1)
+                            segment.append(seg)
                         swarm[i].update(c)
         swarm = sorted(swarm, key = lambda ff: ff.luminosity)
         if swarm[0].luminosity == swarm[-1].luminosity: #If all the fireflies are at the same position
@@ -216,14 +252,12 @@ def fireflyAlgorithm(z, **kwargs):
                 print("Best firefly: ", bestFirefly.luminosity)
             tab[0].append(t+1)
             tab[1].append(bestFirefly.luminosity)
-            #lehmer_hist.append([lehmer.int_from_perm(base, [elt for subList in s.x for elt in subList]) for s in swarm])
-            #plotConvergence(lehmer_hist)
         t += 1
     endTime = time.time()
     if kwargs['p'] == 1:
         print("Elapsed time: ", endTime - startTime)
         displayPlot(tab,z)
-
+    displaySegment(segment)
     return bestFirefly
 
 if __name__ == "__main__":
@@ -240,7 +274,7 @@ if __name__ == "__main__":
     parser.add_argument("-p", type = int, default = 1, help = "enable/desable verbose")
     args = parser.parse_args()
 
-    if args.v == 1 or args.v == 2:
+    if args.v == 1 or args.v == 2 or args.v == 4:
         args.a = int(args.a)
     if not os.path.exists("plots"):
         os.makedirs("plots")
