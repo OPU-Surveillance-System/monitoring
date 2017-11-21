@@ -131,7 +131,7 @@ def alphaStep3(a, alpha):
     for i in range(len(a2)):
         if a2[i] == b2[i] or random.random() < alpha:
             if a2[i] not in c:
-                c[i] = a2[istep]
+                c[i] = a2[i]
                 toInsert.remove(a2[i])
         else:
             if b2[i] not in c:
@@ -140,30 +140,41 @@ def alphaStep3(a, alpha):
     while len(toInsert) > 0:
         idx = c.index('')
         c[idx] = toInsert.pop()
-    return cstep
+    return c
 
 # Alpha step: exploration (v4)
-def alphaStep4(a, alpha, t, step):
-    #segment = len(a) - (t//step)
-    segment = len(a) - (t**(1/10))//step
-    print((1/(math.sqrt(t)+1)))
+def alphaStep4(a, alpha, t, step, schedule):
+    if schedule == "linear":
+        segment = len(a) - (t//step)
+    elif schedule == "square root":
+        segment = len(a) - (t**(1/2))//step
     if segment < 2:
         segment = 2
     origin = random.randint(0, len(a)-1)
     end = origin + segment
-    #print(segment, origin, end)
     for i in range(alpha):
-        x = random.randint(origin, end) % 32
-        y = random.randint(origin, end) % 32
-        if end > 31:
-            print(x, y)
+        x = random.randint(origin, end) % len(a)
+        y = random.randint(origin, end) % len(a)
         a[x], a[y] = a[y], a[x]
     return a, segment
 
 # Alpha step: exploration (v5)
-def alphaStep5(a, alpha, t, step):
-    idxs = [i for i in range(len(a))]
+def alphaStep5(a, alpha, t, step, schedule):
+    if schedule == "linear":
+        segment = len(a) - (t//step)
+    elif schedule == "square root":
+        segment = int(len(a) - (t**(1/2))//step)
+    if segment < 2:
+        segment = 2
+    if alpha > segment:
+        alpha = segment
+    origin = random.randint(0, len(a)-1)
+    end = origin + segment
+    idxs = [i for i in range(origin, end)]
+    for i in range(len(idxs)):
+        idxs[i] = idxs[i]%len(a)
     random.shuffle(idxs)
+    alpha = int(alpha)
     x = idxs[0:alpha]
     y = idxs[0:alpha]
     random.shuffle(y)
@@ -224,9 +235,10 @@ def fireflyAlgorithm(z, **kwargs):
                             c = alphaStep2(c, kwargs['a'])
                         elif kwargs['v'] == 3:
                             c = alphaStep3(c, kwargs['a'])
+                        elif kwargs['v'] == 4 :
+                            c = alphaStep4(c, kwargs['a'], t, kwargs['s'], kwargs['sch'])
                         else :
-                            c, seg = alphaStep4(c, kwargs['a'], t, 1)
-                            segment.append(seg)
+                            c = alphaStep5(c, kwargs['a'], t, kwargs['s'], kwargs['sch'])
                         swarm[i].update(c)
         swarm = sorted(swarm, key = lambda ff: ff.luminosity)
         if swarm[0].luminosity == swarm[-1].luminosity: #If all the fireflies are at the same position
@@ -238,8 +250,12 @@ def fireflyAlgorithm(z, **kwargs):
                     c = alphaStep1(c, kwargs['a'])
                 elif kwargs['v'] == 2:
                     c = alphaStep2(c, kwargs['a'])
-                else:
+                elif kwargs['v'] == 3:
                     c = alphaStep3(c, kwargs['a'])
+                elif kwargs['v'] == 4:
+                    c = alphaStep4(c, kwargs['a'], t, kwargs['s'], kwargs['sch'])
+                else :
+                    c = alphaStep5(c, kwargs['a'], t, kwargs['s'], kwargs['sch'])
                 swarm[i].update(c)
             swarm = sorted(swarm, key = lambda ff: ff.luminosity)
         if bestFirefly.luminosity > swarm[0].luminosity:
@@ -272,6 +288,8 @@ if __name__ == "__main__":
     parser.add_argument("-v", type = int, default = 1, help = "alpha version")
     parser.add_argument("-n", type = int, default = 1, help = "number of runs")
     parser.add_argument("-p", type = int, default = 1, help = "enable/desable verbose")
+    parser.add_argument("-s", type = int, default = 1, help = "step")
+    parser.add_argument("-sch", type = str, default = "linear", help = "segment schedule")
     args = parser.parse_args()
 
     if args.v == 1 or args.v == 2 or args.v == 4:
@@ -282,7 +300,7 @@ if __name__ == "__main__":
         if args.p == 1:
             print("cleaning previous results")
     for i in range(args.n):
-        bestFirefly = fireflyAlgorithm(i, d=args.d, i=args.i, g=args.g, a=args.a, f=args.f, e=args.e, v=args.v, p=args.p)
+        bestFirefly = fireflyAlgorithm(i, d=args.d, i=args.i, g=args.g, a=args.a, f=args.f, e=args.e, v=args.v, p=args.p, s=args.s, sch=args.sch)
         if args.p == 1:
             print("Best firefly path: ", bestFirefly.x)
             print("Best firefly luminosity: ", bestFirefly.luminosity)
