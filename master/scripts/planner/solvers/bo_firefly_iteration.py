@@ -13,6 +13,7 @@ def func(var):
     alpha = var[:,1][0]
     fireflies = int(var[:,2][0] * 100)
     step = int(var[:,3][0] * 100)
+    iterations = int(var[:,4][0] * 100)
     if args.v == 1:
         alpha = int(alpha * 16)
     if args.v == 2:
@@ -23,7 +24,7 @@ def func(var):
     res = np.array(hist).mean()
     print('Tried [Gamma, Alpha, #Fireflies] = [{}, {}, {}], got {}'.format(gamma, alpha, fireflies, res))
     with open('bayesopt', 'a') as f:
-        f.write('{}\t{}\t{}\t{}\t{}\n'.format(gamma, alpha, fireflies, step, res))
+        f.write('{}\t{}\t{}\t{}\t{}\t{}\n'.format(gamma, alpha, fireflies, step, iterations, res))
 
     return res
 
@@ -36,7 +37,8 @@ def main(args):
     bounds = [{'name': 'gamma', 'type': 'continuous', 'domain': (0, 1)},
               {'name': 'alpha', 'type': 'continuous', 'domain': (0, 1)},
               {'name': 'nbfireflies', 'type': 'continuous', 'domain': (0.02, 1)},
-              {'name': 'step', 'type': 'continuous', 'domain': (0.01, 1)}]
+              {'name': 'step', 'type': 'continuous', 'domain': (0.01, 1)},
+              {'name': 'iterations', 'type': 'continuous', 'domain': (0.001, 1)}]
     myBopt = GPyOpt.methods.BayesianOptimization(f = func,
                                                  domain = bounds,
                                                  model_type = 'GP',
@@ -59,7 +61,8 @@ def main(args):
         best_alpha = int(best_alpha * 32)
     best_fireflies = int(myBopt.x_opt[2] * 100)
     best_step = int(myBopt.x_opt[3] * 100)
-    print('Best value: {} at [Gamma, Alpha, #Firefly, step] = [{}, {}, {}, {}], found in {} s'.format(best_value, best_gamma, best_alpha, best_fireflies, best_step, time.time() - t_start))
+    best_iteration = int(myBopt.x_opt[4] * 1000)
+    print('Best value: {} at [Gamma, Alpha, #Firefly, step, iterations] = [{}, {}, {}, {}, {}], found in {} s'.format(best_value, best_gamma, best_alpha, best_fireflies, best_step, best_iteration, time.time() - t_start))
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", type = int, default = 100, help = "number of max iterations")
