@@ -146,7 +146,7 @@ def alphaStep3(a, alpha):
 def alphaStep4(a, alpha, t, step, schedule):
     if schedule == "linear":
         segment = len(a) - (t//step)
-    elif schedule == "square root":
+    elif schedule == "sqrt":
         segment = len(a) - (t**(1/2))//step
     if segment < 2:
         segment = 2
@@ -162,7 +162,7 @@ def alphaStep4(a, alpha, t, step, schedule):
 def alphaStep5(a, alpha, t, step, schedule):
     if schedule == "linear":
         segment = len(a) - (t//step)
-    elif schedule == "square root":
+    elif schedule == "sqrt":
         segment = int(len(a) - (t**(1/2))//step)
     if segment < 2:
         segment = 2
