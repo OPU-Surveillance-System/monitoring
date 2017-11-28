@@ -14,15 +14,15 @@ def func(var):
     fireflies = int(var[:,2][0] * 100)
     step = int(var[:,3][0] * 100)
     iterations = int(var[:,4][0] * 100)
-    if args.v == 1:
+    if args.v == 1 or args.v == 4:
         alpha = int(alpha * 16)
-    if args.v == 2:
+    if args.v == 2 or args.v == 5:
         alpha = int(alpha * 32)
     for i in range(args.n):
-        best_firefly = ffa.fireflyAlgorithm(0, d=args.d, i=args.i, g=gamma, a=alpha, f=fireflies, e=args.e, v=args.v, p=args.p, s=step, sch=args.sch)
+        best_firefly = ffa.fireflyAlgorithm(0, d=args.d, i=iterations, g=gamma, a=alpha, f=fireflies, e=args.e, v=args.v, p=args.p, s=step, sch=args.sch)
         hist.append(best_firefly.luminosity)
     res = np.array(hist).mean()
-    print('Tried [Gamma, Alpha, #Fireflies] = [{}, {}, {}], got {}'.format(gamma, alpha, fireflies, res))
+    print('Tried [Gamma, Alpha, #Fireflies, step, iterations] = [{}, {}, {}, {}, {}], got {}'.format(gamma, alpha, fireflies, step, iterations, res))
     with open('bayesopt', 'a') as f:
         f.write('{}\t{}\t{}\t{}\t{}\t{}\n'.format(gamma, alpha, fireflies, step, iterations, res))
 
@@ -55,9 +55,9 @@ def main(args):
     best_value = myBopt.fx_opt[0]
     best_gamma = myBopt.x_opt[0]
     best_alpha = myBopt.x_opt[1]
-    if args.v == 1:
+    if args.v == 1 or args.v == 4:
         best_alpha = int(best_alpha * 16)
-    if args.v == 2:
+    if args.v == 2 or args.v == 5:
         best_alpha = int(best_alpha * 32)
     best_fireflies = int(myBopt.x_opt[2] * 100)
     best_step = int(myBopt.x_opt[3] * 100)
@@ -67,7 +67,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", type = int, default = 100, help = "number of max iterations")
     parser.add_argument("-d", type = int, default = 2, help = "number of drones")
-    parser.add_argument("-i", type = int, default = 10000, help = "number of iterations")
+    # parser.add_argument("-i", type = int, default = 10000, help = "number of iterations")
     parser.add_argument("-e", type = float, default = 0.1, help = "distance penalization coeficient")
     parser.add_argument("-v", type = int, default = 1, help = "alpha version")
     parser.add_argument("-n", type = int, default = 1, help = "number of runs")

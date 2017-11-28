@@ -13,15 +13,15 @@ def func(var):
     alpha = var[:,1][0]
     fireflies = int(var[:,2][0] * 100)
     step = int(var[:,3][0] * 100)
-    if args.v == 1:
+    if args.v == 1 or args.v == 4:
         alpha = int(alpha * 16)
-    if args.v == 2:
+    if args.v == 2 or args.v == 5:
         alpha = int(alpha * 32)
     for i in range(args.n):
         best_firefly = ffa.fireflyAlgorithm(0, d=args.d, i=args.i, g=gamma, a=alpha, f=fireflies, e=args.e, v=args.v, p=args.p, s=step, sch=args.sch)
         hist.append(best_firefly.luminosity)
     res = np.array(hist).mean()
-    print('Tried [Gamma, Alpha, #Fireflies] = [{}, {}, {}], got {}'.format(gamma, alpha, fireflies, res))
+    print('Tried [Gamma, Alpha, #Fireflies, step] = [{}, {}, {}, {}], got {}'.format(gamma, alpha, fireflies, step, res))
     with open('bayesopt', 'a') as f:
         f.write('{}\t{}\t{}\t{}\t{}\n'.format(gamma, alpha, fireflies, step, res))
 
@@ -53,9 +53,9 @@ def main(args):
     best_value = myBopt.fx_opt[0]
     best_gamma = myBopt.x_opt[0]
     best_alpha = myBopt.x_opt[1]
-    if args.v == 1:
+    if args.v == 1 or args.v == 4:
         best_alpha = int(best_alpha * 16)
-    if args.v == 2:
+    if args.v == 2 or args.v == 5:
         best_alpha = int(best_alpha * 32)
     best_fireflies = int(myBopt.x_opt[2] * 100)
     best_step = int(myBopt.x_opt[3] * 100)
