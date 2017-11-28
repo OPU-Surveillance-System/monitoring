@@ -156,7 +156,7 @@ def alphaStep4(a, alpha, t, step, schedule):
         x = random.randint(origin, end) % len(a)
         y = random.randint(origin, end) % len(a)
         a[x], a[y] = a[y], a[x]
-    return a, segment
+    return a
 
 # Alpha step: exploration (v5)
 def alphaStep5(a, alpha, t, step, schedule):
