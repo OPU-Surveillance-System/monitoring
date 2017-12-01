@@ -34,7 +34,7 @@ def main(args):
     #           {'name': 'alpha', 'type': 'continuous', 'domain': (0, 1)},
     #           {'name': 'nbfireflies', 'type': 'continuous', 'domain': (0.02, 1)}]
     bounds = [{'name': 'gamma', 'type': 'continuous', 'domain': (0.001, 1)},
-              {'name': 'alpha', 'type': 'continuous', 'domain': (0, 1)},
+              {'name': 'alpha', 'type': 'continuous', 'domain': (0.0625, 1)},
               {'name': 'nbfireflies', 'type': 'continuous', 'domain': (0.02, 1)},
               {'name': 'step', 'type': 'continuous', 'domain': (0.01, 1)}]
     myBopt = GPyOpt.methods.BayesianOptimization(f = func,
