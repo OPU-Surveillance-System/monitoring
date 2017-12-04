@@ -13,7 +13,7 @@ def func(var):
     alpha = var[:,1][0]
     fireflies = int(var[:,2][0] * 100)
     step = int(var[:,3][0] * 100)
-    iterations = int(var[:,4][0] * 100)
+    iterations = int(var[:,4][0] * 1000)
     if args.v == 1 or args.v == 4:
         alpha = int(alpha * 16)
     if args.v == 2 or args.v == 5:
@@ -34,8 +34,8 @@ def main(args):
     # bounds = [{'name': 'gamma', 'type': 'continuous', 'domain': (0, 1)},
     #           {'name': 'alpha', 'type': 'continuous', 'domain': (0, 1)},
     #           {'name': 'nbfireflies', 'type': 'continuous', 'domain': (0.02, 1)}]
-    bounds = [{'name': 'gamma', 'type': 'continuous', 'domain': (0, 1)},
-              {'name': 'alpha', 'type': 'continuous', 'domain': (0, 1)},
+    bounds = [{'name': 'gamma', 'type': 'continuous', 'domain': (0.001, 1)},
+              {'name': 'alpha', 'type': 'continuous', 'domain': (0.0625, 1)},
               {'name': 'nbfireflies', 'type': 'continuous', 'domain': (0.02, 1)},
               {'name': 'step', 'type': 'continuous', 'domain': (0.01, 1)},
               {'name': 'iterations', 'type': 'continuous', 'domain': (0.001, 1)}]
