@@ -147,7 +147,7 @@ def alphaStep4(a, alpha, t, step, schedule):
     if schedule == "linear":
         segment = len(a) - (t//step)
     elif schedule == "sqrt":
-        segment = len(a) - (t**(1/2))//step
+        segment = int(len(a) - (t//step)**(1/2))
     if segment < 2:
         segment = 2
     origin = random.randint(0, len(a)-1)
@@ -163,7 +163,7 @@ def alphaStep5(a, alpha, t, step, schedule):
     if schedule == "linear":
         segment = len(a) - (t//step)
     elif schedule == "sqrt":
-        segment = int(len(a) - (t**(1/2))//step)
+        segment = int(len(a) - (t//step)**(1/2))
     if segment < 2:
         segment = 2
     if alpha > segment:
