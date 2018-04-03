@@ -375,7 +375,7 @@ if __name__ == "__main__":
     with open("hdi/hdi_results", "w") as f:
         if args.p == 1:
             print("cleaning previous hdi_results")
-    iterations = [10, 100, 1000, 10000, 100000, 1000000]
+    iterations = [10000, 100000, 1000000]
     for i in iterations:
         compare_algorithm_binomial = binomial(2, 2, 0.95)
         try_count = 0
