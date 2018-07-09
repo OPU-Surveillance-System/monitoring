@@ -18,7 +18,7 @@ def func(var):
     # if args.v == 2 or args.v == 5:
     #     alpha = int(alpha * 32)
     for i in range(args.n):
-        best_firefly = ffa.firefly_algorithm(bmark=args.bmark, g=gamma, a=alpha, f=fireflies, v=args.v, p=args.p)
+        best_firefly = ffa.firefly_algorithm(bmark=args.bmark, g=gamma, a=alpha, dlt=1, f=fireflies, v=args.v, p=args.p)
         hist.append(best_firefly.luminosity)
     res = np.array(hist).mean()
     print('Tried [Gamma, Alpha, #Fireflies] = [{}, {}, {}], got {}'.format(gamma, alpha, fireflies, res))
@@ -64,6 +64,7 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", type = int, default = 100, help = "number of max iterations")
+    parser.add_argument("-m", type = int, default = "Osaba_data/Osaba_50_1_1.xml", help = "bench mark")
     # parser.add_argument("-i", type = int, default = 10000, help = "number of iterations")
     parser.add_argument("-v", type = int, default = 1, help = "alpha version")
     parser.add_argument("-n", type = int, default = 1, help = "number of runs")
