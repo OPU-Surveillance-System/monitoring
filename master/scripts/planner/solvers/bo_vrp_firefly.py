@@ -18,7 +18,7 @@ def func(var):
     # if args.v == 2 or args.v == 5:
     #     alpha = int(alpha * 32)
     for i in range(args.n):
-        best_firefly = ffa.firefly_ algorithm(bmark=args.bmark, g=gamma, a=alpha, f=fireflies, v=args.v, p=args.p)
+        best_firefly = ffa.firefly_algorithm(bmark=args.bmark, g=gamma, a=alpha, f=fireflies, v=args.v, p=args.p)
         hist.append(best_firefly.luminosity)
     res = np.array(hist).mean()
     print('Tried [Gamma, Alpha, #Fireflies] = [{}, {}, {}], got {}'.format(gamma, alpha, fireflies, res))
