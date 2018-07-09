@@ -64,7 +64,7 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", type = int, default = 100, help = "number of max iterations")
-    parser.add_argument("-m", type = int, default = "Osaba_data/Osaba_50_1_1.xml", help = "bench mark")
+    parser.add_argument("-bmark", type = str, default = "Osaba_data/Osaba_50_1_1.xml", help = "bench mark")
     # parser.add_argument("-i", type = int, default = 10000, help = "number of iterations")
     parser.add_argument("-v", type = int, default = 1, help = "alpha version")
     parser.add_argument("-n", type = int, default = 1, help = "number of runs")
