@@ -385,15 +385,15 @@ def firefly_algorithm(**kwargs):
                 # for fly in swarm:
                 #     print(fly.routes)
                 #     print(fly.luminosity)
-            with open('{}'.format(kwargs['fname']), 'a') as f:
-                f.write("i:{}\t{}\n".format(iteration, best_firefly.luminosity))
+            # with open('{}'.format(kwargs['fname']), 'a') as f:
+            #     f.write("i:{}\t{}\n".format(iteration, best_firefly.luminosity))
         iteration += 1
         # print("time2-1: {}".format(time2 - time1))
         # print("time3-2: {}".format(time3 - time2))
     end_time = time.time()
     print("Elapsed time: {}\n".format(end_time - start_time))
-    with open("{}".format(kwargs['fname']), 'a') as f:
-        f.write("Elapsed time: {}\n\n".format(end_time - start_time))
+    # with open("{}".format(kwargs['fname']), 'a') as f:
+    #     f.write("Elapsed time: {}\n\n".format(end_time - start_time))
 
     return best_firefly
 
