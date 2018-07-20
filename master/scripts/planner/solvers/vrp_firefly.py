@@ -1,5 +1,6 @@
 import argparse
 import copy
+import cProfile
 import distance
 import math
 import numpy as np
@@ -124,8 +125,8 @@ class Firefly:
         triptime = self.DELIVERY_TIME[0]
         for i in range(len(routes)-1):
             if routes[i] == 0:
-                if triptime != np.inf and self.DELIVERY_TIME[1] < triptime:
-                    luminosity = 200000
+                if triptime < 200000 and self.DELIVERY_TIME[1] < triptime:
+                    luminosity += 200000
                 luminosity += triptime - self.DELIVERY_TIME[0]
                 triptime = self.DELIVERY_TIME[0]
             if self.PEAK_TIME[0] <= triptime and triptime <= self.PEAK_TIME[1]:
@@ -205,9 +206,9 @@ def insertion_function(a, b, gamma, iteration): #a moves. a, b:firefly
 def beta_step(a, b, gamma, delta):#a, b: class Firefly
     a_tour = [a.tour[cluster] for cluster in a.tour2routes]
     b_tour = [b.tour[cluster] for cluster in b.tour2routes]
-    a2 = [customer for cluster in a_tour for customer in cluster]
-    b2 = [customer for cluster in b_tour for customer in cluster]
-    cluster_d = distance.hamming(a2, b2)
+    a2 = [customer for cluster in a.tour for customer in cluster]
+    b2 = [customer for cluster in b.tour for customer in cluster]
+    cluster_d = distance.hamming(a.tour2routes, b.tour2routes)
     cluster_beta = 1 / (1 + delta * cluster_d * cluster_d)
     customer_d = distance.hamming(a2, b2)
     customer_beta = 1 / (1 + gamma * customer_d * customer_d)
@@ -223,99 +224,174 @@ def beta_step(a, b, gamma, delta):#a, b: class Firefly
     insert_tour = [[i*len(a_tour[0])+j+1 for j in range(len(a_tour[0]))] for i in range(len(a_tour))]
     # print(insert_tour)
 
-    for i in range(len(a.tour2routes)):
+    for i in reversed(idx_t2r):
         if a.tour2routes[i] == b.tour2routes[i]:
             new_t2r[i] = a.tour2routes[i]
             cluster_dic[new_t2r[i]] = 'VISITED'
             idx_t2r.remove(i)
-            insert_t2r.remove(a.tour2routes[i])
-    for i in range(len(a_tour)):
-        for j in range(len(a_tour[0])):
-            if a_tour[i][j] == b_tour[i][j]:
-                new_tour[a.tour2routes[i]][j] = a_tour[i][j]
-                customer_dic[new_tour[a.tour2routes[i]][j]] = 'VISITED'
-                idx_tour[a.tour2routes[i]].remove(j)
-                insert_tour[a.tour2routes[i]].remove(a_tour[i][j])
+            insert_t2r.remove(new_t2r[i])
+    for i in a.tour2routes:
+        for j in reversed(idx_tour[i]):
+            if a.tour[i][j] == b.tour[i][j]:
+                new_tour[i][j] = a.tour[i][j]
+                customer_dic[new_tour[i][j]] = 'VISITED'
+                idx_tour[i].remove(j)
+                insert_tour[i].remove(new_tour[i][j])
 
     np.random.shuffle(idx_t2r)
     for i in range(len(idx_tour)):
         np.random.shuffle(idx_tour[i])
 
-    for idx in idx_t2r:
+    for idx in reversed(idx_t2r):
         if np.random.rand() < cluster_beta:
             if cluster_dic[b.tour2routes[idx]] == 'NOT_VISIT':
                 new_t2r[idx] = b.tour2routes[idx]
-                cluster_dic[b.tour2routes[idx]] = 'VISITED'
-                insert_t2r.remove(b.tour2routes[idx])
+                cluster_dic[new_t2r[idx]] = 'VISITED'
+                idx_t2r.remove(idx)
+                insert_t2r.remove(new_t2r[idx])
             elif cluster_dic[a.tour2routes[idx]] == 'NOT_VISIT':
                 new_t2r[idx] = a.tour2routes[idx]
-                cluster_dic[a.tour2routes[idx]] = 'VISITED'
-                insert_t2r.remove(a.tour2routes[idx])
+                cluster_dic[new_t2r[idx]] = 'VISITED'
+                idx_t2r.remove(idx)
+                insert_t2r.remove(new_t2r[idx])
         else:
             if cluster_dic[a.tour2routes[idx]] == 'NOT_VISIT':
                 new_t2r[idx] = a.tour2routes[idx]
-                cluster_dic[a.tour2routes[idx]] = 'VISITED'
-                insert_t2r.remove(a.tour2routes[idx])
+                cluster_dic[new_t2r[idx]] = 'VISITED'
+                idx_t2r.remove(idx)
+                insert_t2r.remove(new_t2r[idx])
             elif cluster_dic[b.tour2routes[idx]] == 'NOT_VISIT':
                 new_t2r[idx] = b.tour2routes[idx]
-                cluster_dic[b.tour2routes[idx]] = 'VISITED'
-                insert_t2r.remove(b.tour2routes[idx])
+                cluster_dic[new_t2r[idx]] = 'VISITED'
+                idx_t2r.remove(idx)
+                insert_t2r.remove(new_t2r[idx])
     for i, idx_cluster in enumerate(idx_tour):
-        for idx in idx_cluster:
+        for j in reversed(idx_cluster):
             if np.random.rand() < customer_beta:
-                if customer_dic[b.tour[i][idx]] == 'NOT_VISIT':
-                    new_tour[i][idx] = b.tour[i][idx]
-                    customer_dic[b.tour[i][idx]] = 'VISITED'
-                    insert_tour[i].remove(b.tour[i][idx])
-                elif customer_dic[a.tour[i][idx]] == 'NOT_VISIT':
-                    new_tour[i][idx] = a.tour[i][idx]
-                    customer_dic[a.tour[i][idx]] = 'VISITED'
-                    insert_tour[i].remove(a.tour[i][idx])
+                if customer_dic[b.tour[i][j]] == 'NOT_VISIT':
+                    new_tour[i][j] = b.tour[i][j]
+                    customer_dic[new_tour[i][j]] = 'VISITED'
+                    idx_cluster.remove(j)
+                    insert_tour[i].remove(new_tour[i][j])
+                elif customer_dic[a.tour[i][j]] == 'NOT_VISIT':
+                    new_tour[i][j] = a.tour[i][j]
+                    customer_dic[new_tour[i][j]] = 'VISITED'
+                    idx_cluster.remove(j)
+                    insert_tour[i].remove(new_tour[i][j])
             else:
-                if customer_dic[a.tour[i][idx]] == 'NOT_VISIT':
-                    new_tour[i][idx] = a.tour[i][idx]
-                    customer_dic[a.tour[i][idx]] = 'VISITED'
-                    insert_tour[i].remove(a.tour[i][idx])
-                elif customer_dic[b.tour[i][idx]] == 'NOT_VISIT':
-                    new_tour[i][idx] = b.tour[i][idx]
-                    customer_dic[b.tour[i][idx]] = 'VISITED'
-                    insert_tour[i].remove(b.tour[i][idx])
+                if customer_dic[a.tour[i][j]] == 'NOT_VISIT':
+                    new_tour[i][j] = a.tour[i][j]
+                    customer_dic[new_tour[i][j]] = 'VISITED'
+                    idx_cluster.remove(j)
+                    insert_tour[i].remove(new_tour[i][j])
+                elif customer_dic[b.tour[i][j]] == 'NOT_VISIT':
+                    new_tour[i][j] = b.tour[i][j]
+                    customer_dic[new_tour[i][j]] = 'VISITED'
+                    idx_cluster.remove(j)
+                    insert_tour[i].remove(new_tour[i][j])
 
-    for i in range(len(insert_tour)):
-        np.random.shuffle(insert_tour[i])
-    for cluster in insert_t2r:
-        idx = new_t2r.index('')
-        new_t2r[idx] = cluster
-    for i, cluster in enumerate(insert_tour):
-        for customer in cluster:
-            idx = new_tour[i].index('')
-            new_tour[i][idx] = customer
+    for i, insert_elm in zip(idx_t2r, insert_t2r):
+        new_t2r[i] = insert_elm
+    for i in range(len(idx_tour)):
+        for j, insert_elm in zip(idx_tour[i], insert_tour[i]):
+            new_tour[i][j] = insert_elm
 
     return new_tour, new_t2r
 
-def alpha_step1(tour, tour2routes, alpha): #a:firefly
-    a = Firefly(tour)
-    a.update(tour, tour2routes)
-    cluster_n = len(a.tour)
-    customers_per_cluster_n = len(a.tour[0])
+def alpha_step1(a, alpha): #a:firefly
+    cluster_size = len(a.tour)
+    customer_size = len(a.tour[0])
 
     if a.luminosity < 200000:
         feasible = True
     else:
         feasible = False
     i=0
-    z = np.random.randint(0, cluster_n)
+    z = np.random.randint(0, cluster_size)
     while i < alpha:
-        x = np.random.randint(0, customers_per_cluster_n)
-        y = np.random.randint(0, customers_per_cluster_n)
+        x = np.random.randint(0, customer_size)
+        y = np.random.randint(0, customer_size)
         a.tour[z][x], a.tour[z][y] = a.tour[z][y], a.tour[z][x]
         a.update(a.tour, a.tour2routes)
-        if a.luminosity > 200000 and feasible == True:
+        if a.luminosity > 200000 and feasible == True:#可能解を突然変異で破壊した場合
             a.tour[z][x], a.tour[z][y] = a.tour[z][y], a.tour[z][x]
             i-=1
         i+=1
 
-    return a.tour
+    return a.tour, a.tour2routes
+
+def alpha_step2(a, alpha):
+    cluster_size = len(a.tour)
+    customer_size = len(a.tour[0])
+    if customer_size < alpha:
+        sys.exit("error: alpha(v2) is lower than the customer size")
+    if a.luminosity < 200000:
+        feasible = True
+    else:
+        feasible = False
+    while True:
+        idxs = [i for i in range(customer_size)]
+        np.random.shuffle(idxs)
+        x = idxs[0:alpha]
+        y = idxs[0:alpha]
+        z = np.random.randint(0, cluster_size)
+        np.random.shuffle(y)
+        for i in range(alpha):
+            a.tour[z][x[i]], a.tour[z][y[i]] = a.tour[z][y[i]], a.tour[z][x[i]]
+        a.update(a.tour, a.tour2routes)
+        if a.luminosity > 200000 and feasible == True:
+            for i in range(alpha):
+                a.tour[z][x[i]], a.tour[z][y[i]] = a.tour[z][y[i]], a.tour[z][x[i]]
+            continue
+        break
+    return a.tour, a.tour2routes
+
+def alpha_step4(a, alpha, t, step, schedule):
+    if schedule == "linear":
+        segment = len(a.tour[0]) - (t//step)
+    elif schedule == "sqrt":
+        segment = int(len(a.tour[0]) - (t//step)**(1/2))
+    if segment < 2:
+        segment = 2
+    if a.luminosity < 200000:
+        feasible = True
+    else:
+        feasible = False
+    origin = np.random.randint(0, len(a.tour[0]))
+    end = origin + segment
+    z = np.random.randint(0, len(a.tour))
+    for i in range(alpha):
+        x = np.random.randint(origin, end+1) % len(a.tour)
+        y = np.random.randint(origin, end+1) % len(a.tour)
+        a.tour[z][x], a.tour[z][y] = a.tour[z][y], a.tour[z][x]
+        a.update(a.tour, a.tour2routes)
+        if a.luminosity > 200000 and feasible == True:
+            a.tour[z][x], a.tour[z][y] = a.tour[z][y], a.tour[z][x]
+    return a.tour, a.tour2routes
+
+# Alpha step: exploration (v5)
+def alpha_step5(a, alpha, t, step, schedule):
+    if schedule == "linear":
+        segment = len(a) - (t//step)
+    elif schedule == "sqrt":
+        segment = int(len(a) - (t//step)**(1/2))
+    if segment < 2:
+        segment = 2
+    if alpha > segment:
+        alpha = segment
+    origin = random.randint(0, len(a)-1)
+    end = origin + segment
+    idxs = [i for i in range(origin, end)]
+    for i in range(len(idxs)):
+        idxs[i] = idxs[i]%len(a)
+    random.shuffle(idxs)
+    alpha = int(alpha)
+    x = idxs[0:alpha]
+    y = idxs[0:alpha]
+    random.shuffle(y)
+    for i in range(alpha):
+        a[x[i]],  a[y[i]] = a[y[i]], a[x[i]]
+    return a.tour, a.tour2routes
 
 def firefly_algorithm(**kwargs):
     if kwargs['p']:
@@ -345,16 +421,23 @@ def firefly_algorithm(**kwargs):
 
     # print([s.luminosity for s in swarm])
 
-    # while stag_count < (NUM_CUSTOMER+1/2*NUM_CUSTOMER*(NUM_CUSTOMER+1)):#the number of customers(N) + Σ(k=1, N)k
-    while stag_count < NUM_CUSTOMER*10:
+    while stag_count < (NUM_CUSTOMER+1/2*NUM_CUSTOMER*(NUM_CUSTOMER+1)):#the number of customers(N) + Σ(k=1, N)k
+    # while stag_count < NUM_CUSTOMER*10:
         time1 = time.time()
         for i in range(kwargs['f']):
             for j in range(kwargs['f']):
                 if swarm[j].luminosity < swarm[i].luminosity:
                     # new_tour, new_tour2routes = insertion_function(swarm[i], swarm[j], kwargs['g'], iteration)
                     new_tour, new_tour2routes = beta_step(swarm[i], swarm[j], kwargs['g'], kwargs['dlt'])
+                    swarm[i].update(new_tour, new_tour2routes)
                     if kwargs['v'] == 1:
-                        new_tour = alpha_step1(swarm[i].tour, swarm[i].tour2routes, kwargs['a'])
+                        new_tour, new_tour2routes = alpha_step1(swarm[i], kwargs['a'])
+                    elif kwargs['v'] == 2:
+                        new_tour, new_tour2routes = alpha_step2(swarm[i], kwargs['a'])
+                    elif kwargs['v'] == 4:
+                        new_tour, new_tour2routes = alpha_step4(swarm[i], kwargs['a'], iteration, kwargs['s'], kwargs['sch'])
+                    else:
+                        new_tour, new_tour2routes = alpha_step5(swarm[i], kwargs['a'], iteration, kwargs['s'], kwargs['sch'])
                     swarm[i].update(new_tour, new_tour2routes)
         swarm = sorted(swarm, key = lambda swarm:swarm.luminosity)
         if swarm[0].luminosity == swarm[-1].luminosity: #all firefly at the same point
@@ -362,8 +445,14 @@ def firefly_algorithm(**kwargs):
                 print("*** swarm blocked ***")
             for i in range(1, len(swarm)):
                 if kwargs['v'] == 1:
-                    new_tour = alpha_step1(swarm[i].tour, swarm[i].tour2routes, kwargs['a'])
-                swarm[i].update(new_tour, swarm[i].tour2routes)
+                    new_tour, new_tour2routes = alpha_step1(swarm[i], kwargs['a'])
+                elif kwargs['v'] == 2:
+                    new_tour, new_tour2routes = alpha_step2(swarm[i], kwargs['a'])
+                elif kwargs['v'] == 4:
+                    new_tour, new_tour2routes = alpha_step4(swarm[i], kwargs['a'], iteration, kwargs['s'], kwargs['sch'])
+                else:
+                    new_tour, new_tour2routes = alpha_step5(swarm[i], kwargs['a'], iteration, kwargs['s'], kwargs['sch'])
+                swarm[i].update(new_tour, new_tour2routes)
         swarm = sorted(swarm, key = lambda swarm:swarm.luminosity)
         time2 = time.time()
         if swarm[0].luminosity < best_firefly.luminosity:
@@ -391,7 +480,9 @@ def firefly_algorithm(**kwargs):
         # print("time2-1: {}".format(time2 - time1))
         # print("time3-2: {}".format(time3 - time2))
     end_time = time.time()
-    print("Elapsed time: {}\n".format(end_time - start_time))
+    # print("Elapsed time: {}\n".format(end_time - start_time))
+    # with open("{}".format(kwargs['fname']), 'a') as f:
+    #     f.write("routes: {}\n".format(best_firefly.routes))
     # with open("{}".format(kwargs['fname']), 'a') as f:
     #     f.write("Elapsed time: {}\n\n".format(end_time - start_time))
 
@@ -408,27 +499,40 @@ if __name__ == '__main__':
     parser.add_argument('-v', type = int, default = 1, help = "alpha step version")
     parser.add_argument('-p', type = int, default = 1, help = "vorbose information")
     parser.add_argument('-fname', type = str, default = 'vrp/result', help = "save file name")
+    parser.add_argument('-s', type = int, default = 1, help = "segment decrease rate")
+    parser.add_argument('-sch', type = str, default = 'linear', help = "segment decrease schedule")
     args = parser.parse_args()
+
+
+    # cProfile.run('firefly_algorithm(bmark=args.bmark, f=args.f, a=args.a, g=args.g, dlt=args.dlt, v=args.v, p=args.p, fname=args.fname)', sort='time')
 
     if os.path.exists('{}'.format(args.fname)):
         if confirm_input(args.fname):
             with open('{}'.format(args.fname), 'w') as f:
                 print("clear previous text")
-
-    while(True):
-        aparam = np.random.randint(1,8)
-        gparam = (0.01-0.00001)*np.random.rand()+0.00001
-        fparam = np.random.randint(20,80)
-        with open('{}'.format(args.fname), 'a') as f:
-            f.write('-a={}, -g={}, -f={}\n'.format(aparam, gparam, fparam))
-        firefly = firefly_algorithm(bmark=args.bmark, f=fparam, a=aparam, g=gparam, dlt=args.dlt, v=args.v, p=args.p, fname=args.fname)
-    # firefly = firefly_algorithm(bmark=args.bmark, f=args.f, a=args.a, g=args.g, dlt=args.dlt, p=args.p, fname=args.fname)
-
-    print(firefly.luminosity)
-    print(firefly.routes)
-
     with open('{}'.format(args.fname), 'a') as f:
-        f.write("{}\n\n".format(firefly.routes))
+        f.write("random: -g={}, -a={}, -f={}\n".format(args.g, args.a, args.f))
+
+    # while(True):
+    #     aparam = np.random.randint(1,8)
+    #     gparam = (0.01-0.00001)*np.random.rand()+0.00001
+    #     fparam = np.random.randint(20,80)
+    #     with open('{}'.format(args.fname), 'a') as f:
+    #         f.write('-a={}, -g={}, -f={}\n'.format(aparam, gparam, fparam))
+    #     firefly = firefly_algorithm(bmark=args.bmark, f=fparam, a=aparam, g=gparam, dlt=args.dlt, v=args.v, p=args.p, fname=args.fname)
+    # luminositys=[]
+    # for i in range(10):
+    #     firefly = firefly_algorithm(bmark=args.bmark, f=args.f, a=args.a, g=args.g, dlt=args.dlt, v=args.v, p=args.p, fname=args.fname, s=args.s, sch=args.sch)
+    #     luminositys.append(firefly.luminosity)
+    # with open("{}".format(kwargs['fname']), 'a') as f:
+    #     f.write("mean: {}\n".format(np.mean(luminositys)))
+    #     f.write("std: {}".format(np.std(luminositys)))
+    firefly = firefly_algorithm(bmark=args.bmark, f=args.f, a=args.a, g=args.g, dlt=args.dlt, v=args.v, p=args.p, fname=args.fname, s=args.s, sch=args.sch)
+    # print(firefly.luminosity)
+    print(firefly.routes)
+    #
+    # with open('{}'.format(args.fname), 'a') as f:
+    #     f.write("{}\n\n".format(firefly.routes))
     # print(customers)
 
 
