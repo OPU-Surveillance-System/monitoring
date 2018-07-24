@@ -4,8 +4,9 @@ import cProfile
 import distance
 import math
 import numpy as np
-import sys
 import os
+import re
+import sys
 import time
 import xml.etree.ElementTree as ET
 
@@ -59,14 +60,14 @@ def extract_xmldata(bmark):
     for j in root.iter('DemRec'):
         j = int(j.text)
         dem_rec.append(j)
-    demand = [dem_ent[i] + dem_rec[i] for i in range(len(dem_ent))]
+    # demand = [dem_ent[i] + dem_rec[i] for i in range(len(dem_ent))]
 
-    return coord, forbidden, cluster, demand
+    return coord, forbidden, cluster, dem_ent, dem_rec
 
 
 class Firefly:
-    def __init__(self, tour):
-        self.VEHICLE_CAPACITY = 240 #Osaba_50_1_1
+    def __init__(self, tour, capacity):
+        self.VEHICLE_CAPACITY = capacity
         ###TIME (second)[start, end]
         self.DELIVERY_TIME = [6*60*60, 15*60*60]
         self.PEAK_TIME = [8*60*60, 10*60*60]
@@ -90,23 +91,23 @@ class Firefly:
         routes: the permutation of customers separated by zero
         If routes is coming, this function converts tour into routes.
         """
-        global off_peak, peak, clustered_demand
+        global off_peak, peak, clustered_dem_ent
         routes = []
         load_amount = 0
         routes.append(0)
         for cluster in tour2routes:
-            if self.VEHICLE_CAPACITY < load_amount+clustered_demand[cluster+1]:
+            if self.VEHICLE_CAPACITY < load_amount+clustered_dem_ent[cluster+1]:
                 routes.append(0)
                 for customer in tour[cluster]:
                     routes.append(customer)
-                load_amount = clustered_demand[cluster+1]
+                load_amount = clustered_dem_ent[cluster+1]
             else:
                 for customer in tour[cluster]:
                     routes.append(customer)
-                load_amount += clustered_demand[cluster+1]
+                load_amount += clustered_dem_ent[cluster+1]
         routes.append(0)
 
-        # for i, demand in enumerate(clustered_demand):
+        # for i, demand in enumerate(clustered_dem_ent):
         #     if self.VEHICLE_CAPACITY < load_amount+demand:
         #         routes.append(0)
         #         for customer in tour[i-1]:
@@ -396,17 +397,22 @@ def alpha_step5(a, alpha, t, step, schedule):
 def firefly_algorithm(**kwargs):
     if kwargs['p']:
         print(kwargs)
-    global coord, off_peak, peak, clustered_demand
-    coord, forbidden, cluster, demand = extract_xmldata(kwargs['bmark'])
+    capa_dict = {"50_1_1":240, "50_1_2":160, "50_1_3":240, "50_1_4":160,
+                "50_2_1":240, "50_2_2":160, "50_2_3":240, "50_2_4":160,
+                "80_1":240, "80_2":160, "80_3":240, "50_4":160,
+                "100_1":140, "100_2":260, "100_3":320}
+    CAPACITY = capa_dict[re.split("[/.]", kwargs['bmark'])[1].strip('Osaba_')]
+    global coord, off_peak, peak, clustered_dem_ent
+    coord, forbidden, cluster, dem_ent, dem_rec = extract_xmldata(kwargs['bmark'])
     off_peak, peak = make_costtable(forbidden)
     customers_per_cluster = (len(coord)-1) // (len(cluster)-1)
     tour = [[customers_per_cluster * i + j for j in range(1, customers_per_cluster+1)] for i in range(len(cluster)-1)]
-    clustered_demand = [0 for i in range(len(cluster))]
+    clustered_dem_ent = [0 for i in range(len(cluster))]
     for i, cluster in enumerate(tour):
         for customer in cluster:
-            clustered_demand[i+1] += demand[customer]
+            clustered_dem_ent[i+1] += dem_ent[customer]
 
-    swarm = [Firefly(tour) for i in range(kwargs['f'])]
+    swarm = [Firefly(tour, CAPACITY) for i in range(kwargs['f'])]
     swarm = sorted(swarm, key = lambda swarm:swarm.luminosity)
     best_firefly = copy.deepcopy(swarm[0])
     # for fly in swarm:
@@ -480,7 +486,7 @@ def firefly_algorithm(**kwargs):
         # print("time2-1: {}".format(time2 - time1))
         # print("time3-2: {}".format(time3 - time2))
     end_time = time.time()
-    # print("Elapsed time: {}\n".format(end_time - start_time))
+    print("Elapsed time: {}\n".format(end_time - start_time))
     # with open("{}".format(kwargs['fname']), 'a') as f:
     #     f.write("routes: {}\n".format(best_firefly.routes))
     # with open("{}".format(kwargs['fname']), 'a') as f:

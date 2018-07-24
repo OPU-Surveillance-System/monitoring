@@ -18,17 +18,17 @@ def func(var):
     # if args.v == 2 or args.v == 5:
     #     alpha = int(alpha * 32)
     for i in range(args.n):
-        best_firefly = ffa.firefly_algorithm(bmark=args.bmark, fname='vrp/bysresults', g=gamma, a=alpha, dlt=1, f=fireflies, v=args.v, p=args.p)
+        best_firefly = ffa.firefly_algorithm(bmark=args.bmark, fname='vrp/bysresults2', g=gamma, a=alpha, dlt=1, f=fireflies, v=args.v, p=args.p)
         hist.append(best_firefly.luminosity)
     res = np.array(hist).mean()
     print('Tried [Gamma, Alpha, #Fireflies] = [{}, {}, {}], got {}'.format(gamma, alpha, fireflies, res))
-    with open('vrp_bayesopt', 'a') as f:
+    with open('vrp_bayesopt_mod', 'a') as f:
         f.write('{}\t{}\t{}\t{}\n'.format(gamma, alpha, fireflies, res))
 
     return res
 
 def main(args):
-    with open('vrp_bayesopt', 'w') as f:
+    with open('vrp_bayesopt_mod', 'w') as f:
         print('cleaning previous results')
     bounds = [{'name': 'gamma', 'type': 'continuous', 'domain': (0.002, 1)},
               {'name': 'alpha', 'type': 'continuous', 'domain': (0.125, 1)},
