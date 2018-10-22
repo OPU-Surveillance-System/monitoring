@@ -14,7 +14,7 @@ import scipy.optimize
 import time
 import utm
 import xml.etree.ElementTree as ET
-import pymc3
+# import pymc3
 
 from plot_kinds import plot_beta
 
@@ -532,7 +532,7 @@ def firefly_algorithm(run_num, **kwargs):
     capa_dict = {"50_1_1":240, "50_1_2":160, "50_1_3":240, "50_1_4":160,
                 "50_2_1":240, "50_2_2":160, "50_2_3":240, "50_2_4":160,
                 "80_1":240, "80_2":160, "80_3":240, "80_4":160,
-                "100_1":140, "100_2":260, "100_3":320}
+                "100_1":160, "100_2":260, "100_3":320}
     probname = re.split("[/.]", kwargs['bmark'])[1].strip('Osaba_')
     if kwargs['v'] == 4 or kwargs['v'] == 5:
         segdir='seg/'
@@ -568,16 +568,27 @@ def firefly_algorithm(run_num, **kwargs):
 
     # print([s.luminosity for s in swarm])
     best_eachi=[]
+    stag_count = 0
+    MAX_STAG = (NUM_CUSTOMER+1/2*NUM_CUSTOMER*(NUM_CUSTOMER+1))
     # while stag_count < (NUM_CUSTOMER+1/2*NUM_CUSTOMER*(NUM_CUSTOMER+1)):#the number of customers(N) + Σ(k=1, N)k
-    # while stag_count < NUM_CUSTOMER*10:
-    while iteration < 700:
+    while stag_count < MAX_STAG:
+    # while True:
         time1 = time.time()
         for i in range(kwargs['f']):
+            if MAX_STAG < stag_count:
+                break
             for j in range(kwargs['f']):
                 if swarm[j].luminosity < swarm[i].luminosity:
                     # new_tour, new_tour2routes = insertion_function(swarm[i], swarm[j], kwargs['g'], iteration)
                     new_tour, new_tour2routes = beta_step(swarm[i], swarm[j], kwargs['g'], kwargs['dlt'])
                     swarm[i].update(new_tour, new_tour2routes)
+                    if swarm[i].luminosity < best_firefly.luminosity:
+                        stag_count=0
+                        best_firefly = copy.deepcopy(swarm[i])
+                    else:
+                        stag_count+=1
+                        if MAX_STAG < stag_count:
+                            break
                     if kwargs['v'] == 1:
                         new_tour = alpha_step1(swarm[i], kwargs['a'])
                     elif kwargs['v'] == 2:
@@ -588,6 +599,15 @@ def firefly_algorithm(run_num, **kwargs):
                         new_tour, new_tour2routes = alpha_step5(swarm[i], kwargs['a'], iteration, kwargs['s'], kwargs['sch'])
                     new_tour2routes = alpha_step0(swarm[i], kwargs['ca'])
                     swarm[i].update(new_tour, new_tour2routes)
+                    if swarm[i].luminosity < best_firefly.luminosity:
+                        stag_count=0
+                        best_firefly = copy.deepcopy(swarm[i])
+                    else:
+                        stag_count+=1
+                        if MAX_STAG < stag_count:
+                            break
+        if MAX_STAG < stag_count:
+            break
         swarm = sorted(swarm, key = lambda swarm:swarm.luminosity)
         if swarm[0].luminosity == swarm[-1].luminosity: #all firefly at the same point
             if kwargs['p'] == 1:
@@ -603,19 +623,16 @@ def firefly_algorithm(run_num, **kwargs):
                     new_tour, new_tour2routes = alpha_step5(swarm[i], kwargs['a'], iteration, kwargs['s'], kwargs['sch'])
                 new_tour2routes = alpha_step0(swarm[i], kwargs['ca'])
                 swarm[i].update(new_tour, new_tour2routes)
+                if swarm[i].luminosity < best_firefly.luminosity:
+                    stag_count=0
+                    best_firefly = copy.deepcopy(swarm[i])
+                else:
+                    stag_count+=1
+                    if MAX_STAG < stag_count:
+                        break
         swarm = sorted(swarm, key = lambda swarm:swarm.luminosity)
         time2 = time.time()
-        if swarm[0].luminosity < best_firefly.luminosity:
-            best_firefly = copy.deepcopy(swarm[0])
-            stag_count = 0
-        else:
-            stag_count += 1
-        # for fly in swarm:
-        #     if fly.luminosity < best_firefly.luminosity:
-        #         best_firefly = copy.deepcopy(fly)
-        #         stag_count = 0
-        # stag_count += 1
-        if iteration % 50 == 0:
+        if iteration % 10 == 0:
             if kwargs['p'] == 1:
                 print("")
                 print("Iteration: ", iteration)
@@ -624,25 +641,28 @@ def firefly_algorithm(run_num, **kwargs):
                 # for fly in swarm:
                 #     print(fly.routes)
                 #     print(fly.luminosity)
-            with open('{}'.format(kwargs['fname']), 'a') as f:
-                f.write("i:{}\t{}\n".format(iteration, best_firefly.luminosity))
+            # with open('{}'.format(kwargs['fname']), 'a') as f:
+            #     f.write("i:{}\t{}\n".format(iteration, best_firefly.luminosity))
             # make_pathline(best_firefly.routes, kwargs['bmark'], '{}{}{}/i{}'.format(kwargs['hdir'], segdir, probname, iteration))
-        best_eachi.append(best_firefly.luminosity)
+        # best_eachi.append(best_firefly.luminosity)
         iteration += 1
         # print("time2-1: {}".format(time2 - time1))
         # print("time3-2: {}".format(time3 - time2))
     end_time = time.time()
     # with open('vrp/exp_{}pickle/i700_1.0/{}-{}'.format(segdir, probname, run_num), 'wb') as f:
     #     pickle.dump(best_eachi, f)
+    print("\nIteration: {}".format(iteration))
+    print("Best firefly: {}".format(best_firefly.luminosity))
     print("Elapsed time: {}\n".format(end_time - start_time))
     # with open("{}".format(kwargs['fname']), 'a') as f:
     #     f.write("routes: {}\n".format(best_firefly.routes))
-    with open("{}".format(kwargs['fname']), 'a') as f:
-        f.write("best: {}\n".format(best_firefly.luminosity))
-    with open("{}".format(kwargs['fname']), 'a') as f:
-        f.write("Elapsed time: {}\n\n".format(end_time - start_time))
+    # with open("{}".format(kwargs['fname']), 'a') as f:
+    #     f.write("best: {}\n".format(best_firefly.luminosity))
+    # with open("{}".format(kwargs['fname']), 'a') as f:
+    #     f.write("Elapsed time: {}\n\n".format(end_time - start_time))
 
-    return best_firefly, end_time-start_time
+    # return best_firefly, end_time-start_time
+    return best_firefly
 
 #unfinished
 def all_bench_run(args):
@@ -668,7 +688,7 @@ def all_bench_run(args):
 def n_times_run(args):
     n = 10
     with open("{}".format(args.fname), 'w') as f:
-        f.write("-g={}, -f={}, -dlt={}, -i=700, -ca={}, -v={}\n".format(args.g,args.f,args.dlt,args.ca,args.v))
+        f.write("-g={}, -f={}, -dlt={}, MAX_STAG=(1/2)*N*(N+1), -ca={}, -v={}\n".format(args.g,args.f,args.dlt,args.ca,args.v))
     luminosities=[]
     times=[]
     for i in range(n):
@@ -763,10 +783,10 @@ if __name__ == '__main__':
     else:
         segdir='nseg/'
     probname = re.split("[/.]", args.bmark)[1].strip('Osaba_')
-    # if os.path.exists('{}'.format(args.fname)):
-    #     if confirm_input(args.fname):
-    #         with open('{}'.format(args.fname), 'w') as f:
-    #             print("clear previous text")
+    if os.path.exists('{}'.format(args.fname)):
+        if confirm_input(args.fname):
+            with open('{}'.format(args.fname), 'w') as f:
+                print("clear previous text")
     # if not os.path.exists('{}{}{}'.format(args.hdir, segdir, probname)):
     #         os.mkdir('{}{}{}'.format(args.hdir, segdir, probname))
     # with open('{}'.format(args.fname), 'a') as f:
@@ -802,10 +822,10 @@ if __name__ == '__main__':
     #     args.v=1
     #     all_bench_run(args)
     # all_bench_run(args)
-    bayes_estimation(args)
+    # bayes_estimation(args)
     # luminosities=[]
     # times=[]
-    # firefly = firefly_algorithm(bmark=args.bmark, f=args.f, a=args.a, g=args.g, dlt=args.dlt, v=args.v, p=args.p, fname=args.fname, hdir=args.hdir, s=args.s, sch=args.sch)
+    firefly, t = firefly_algorithm(0, bmark=args.bmark, f=args.f, a=args.a, ca=args.ca, g=args.g, dlt=args.dlt, v=args.v, p=args.p, fname=args.fname, hdir=args.hdir, s=args.s, sch=args.sch)
     # print(firefly.luminosity)
     # print(firefly.routes)
     #
