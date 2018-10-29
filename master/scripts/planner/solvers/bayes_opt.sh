@@ -1,7 +1,7 @@
 #!/bin/sh
 
-python3 bo_vrp_firefly.py -fname='vrp/bayes_opts/v2_5013' -bmark='Osaba_data/Osaba_50_1_3.xml' -v=2 -n=3
-python3 bo_vrp_firefly.py -fname='vrp/bayes_opts/v2_5014' -bmark='Osaba_data/Osaba_50_1_4.xml' -v=2 -n=3
+#python3 bo_vrp_firefly.py -fname='vrp/bayes_opts/v2_5013' -bmark='Osaba_data/Osaba_50_1_3.xml' -v=2 -n=3
+#python3 bo_vrp_firefly.py -fname='vrp/bayes_opts/v2_5014' -bmark='Osaba_data/Osaba_50_1_4.xml' -v=2 -n=3
 python3 bo_vrp_firefly.py -fname='vrp/bayes_opts/v2_5021' -bmark='Osaba_data/Osaba_50_2_1.xml' -v=2 -n=3
 python3 bo_vrp_firefly.py -fname='vrp/bayes_opts/v2_5022' -bmark='Osaba_data/Osaba_50_2_2.xml' -v=2 -n=3
 python3 bo_vrp_firefly.py -fname='vrp/bayes_opts/v2_5023' -bmark='Osaba_data/Osaba_50_2_3.xml' -v=2 -n=3
