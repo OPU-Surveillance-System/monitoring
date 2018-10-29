@@ -526,6 +526,7 @@ def alpha_step5(a, alpha, t, step, schedule):
         a[x[i]],  a[y[i]] = a[y[i]], a[x[i]]
     return a.tour, a.tour2routes
 
+# %% firefly_algorithm
 def firefly_algorithm(run_num, **kwargs):
     if kwargs['p']:
         print(kwargs)
@@ -561,7 +562,6 @@ def firefly_algorithm(run_num, **kwargs):
     #         best_firefly = copy.deepcopy(fly)
     if kwargs['p'] == 1:
         print("Best firefly init: ", best_firefly.luminosity)
-    stag_count = 0
     iteration = 0
     NUM_CUSTOMER = len(coord)-1
     start_time = time.time()
@@ -638,16 +638,11 @@ def firefly_algorithm(run_num, **kwargs):
                 print("Iteration: ", iteration)
                 print("Swarm: ", [s.luminosity for s in swarm])
                 print("Best firefly: ", best_firefly.luminosity)
-                # for fly in swarm:
-                #     print(fly.routes)
-                #     print(fly.luminosity)
             # with open('{}'.format(kwargs['fname']), 'a') as f:
             #     f.write("i:{}\t{}\n".format(iteration, best_firefly.luminosity))
             # make_pathline(best_firefly.routes, kwargs['bmark'], '{}{}{}/i{}'.format(kwargs['hdir'], segdir, probname, iteration))
         # best_eachi.append(best_firefly.luminosity)
         iteration += 1
-        # print("time2-1: {}".format(time2 - time1))
-        # print("time3-2: {}".format(time3 - time2))
     end_time = time.time()
     # with open('vrp/exp_{}pickle/i700_1.0/{}-{}'.format(segdir, probname, run_num), 'wb') as f:
     #     pickle.dump(best_eachi, f)
@@ -664,14 +659,12 @@ def firefly_algorithm(run_num, **kwargs):
     # return best_firefly, end_time-start_time
     return best_firefly
 
-#unfinished
+# %% all benchmark tests
 def all_bench_run(args):
     benchs = ['Osaba_data/Osaba_50_1_1.xml','Osaba_data/Osaba_50_1_2.xml','Osaba_data/Osaba_50_1_3.xml','Osaba_data/Osaba_50_1_4.xml',
             'Osaba_data/Osaba_50_2_1.xml','Osaba_data/Osaba_50_2_2.xml','Osaba_data/Osaba_50_2_3.xml','Osaba_data/Osaba_50_2_4.xml',
             'Osaba_data/Osaba_80_1.xml','Osaba_data/Osaba_80_2.xml','Osaba_data/Osaba_80_3.xml','Osaba_data/Osaba_80_4.xml',
             'Osaba_data/Osaba_100_1.xml','Osaba_data/Osaba_100_2.xml','Osaba_data/Osaba_100_3.xml']
-    # dlts = [3.0, 5.0, 10.0]
-    # aparams=[5,8]
     if args.v == 1:
         fname='nseg'
         args.a=4
@@ -760,7 +753,25 @@ def bayes_estimation(args):
     with open('{}seg/d{}/result'.format(args.fname, args.bmark), 'w') as f:
         f.write('draw')
 
+# #%% main
+# import easydict
+# args = easydict.EasyDict({
+#     'bmark' : 'Osaba_data/Osaba_50_1_1.xml',
+#     'f' : 20,
+#     'a' : 5,
+#     'ca' : 1,
+#     'g' : 0.00001,
+#     'dlt' : 1.0,
+#     'v' : 2,
+#     'p' : 1,
+#     'fname' : 'vrp/bayes_opts/v2_801',
+#     'hdir' : 'vrp/plot_map/',
+#     's' : 20,
+#     'sch' : 'linear'
+# })
+
 if __name__ == '__main__':
+    ###When you use Jupyter, comment out these lines.
     parser = argparse.ArgumentParser()
     parser.add_argument('-bmark', type = str, default = 'Osaba_data/Osaba_50_1_1.xml', help = "benchmark xml_file name")
     parser.add_argument('-f', type = int, default = 50, help = "the number of firefly")
@@ -775,7 +786,7 @@ if __name__ == '__main__':
     parser.add_argument('-s', type = int, default = 1, help = "segment decrease rate")
     parser.add_argument('-sch', type = str, default = 'linear', help = "segment decrease schedule")
     args = parser.parse_args()
-
+    ###
 
     # cProfile.run('firefly_algorithm(bmark=args.bmark, f=args.f, a=args.a, g=args.g, dlt=args.dlt, v=args.v, p=args.p, fname=args.fname)', sort='time')
     if args.v == 4 or args.v == 5:
@@ -792,9 +803,6 @@ if __name__ == '__main__':
     # with open('{}'.format(args.fname), 'a') as f:
     #     f.write("-g={}, -a={}, -f={}\n".format(args.g, args.a, args.f, args.dlt))
 
-    # firefly, t = firefly_algorithm(0, bmark=args.bmark, f=args.f, a=args.a, ca=args.ca, g=args.g, dlt=args.dlt, v=args.v, p=args.p, fname=args.fname, hdir=args.hdir, s=args.s, sch=args.sch)
-
-    # firefly, t = firefly_algorithm(0, bmark=args.bmark, f=args.f, a=args.a, ca=args.ca, g=args.g, dlt=args.dlt, v=args.v, p=args.p, fname=args.fname, hdir=args.hdir, s=args.s, sch=args.sch)
     # while(True):
     #     # aparam = np.random.randint(1,8)
     #     # gparam = (0.001-0.00001)*np.random.rand()+0.00001
@@ -825,7 +833,7 @@ if __name__ == '__main__':
     # bayes_estimation(args)
     # luminosities=[]
     # times=[]
-    firefly, t = firefly_algorithm(0, bmark=args.bmark, f=args.f, a=args.a, ca=args.ca, g=args.g, dlt=args.dlt, v=args.v, p=args.p, fname=args.fname, hdir=args.hdir, s=args.s, sch=args.sch)
+    firefly = firefly_algorithm(0, bmark=args.bmark, f=args.f, a=args.a, ca=args.ca, g=args.g, dlt=args.dlt, v=args.v, p=args.p, fname=args.fname, hdir=args.hdir, s=args.s, sch=args.sch)
     # print(firefly.luminosity)
     # print(firefly.routes)
     #
