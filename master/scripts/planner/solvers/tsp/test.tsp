@@ -1,0 +1,8 @@
+NODE_COORD_SECTION
+1 1 5
+2 5 4
+3 8 4
+4 4 3
+5 3 1
+6 2 6
+EOF

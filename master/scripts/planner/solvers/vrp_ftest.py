@@ -14,7 +14,7 @@ import scipy.optimize
 import time
 import utm
 import xml.etree.ElementTree as ET
-# import pymc3
+import pymc3
 
 from plot_kinds import plot_beta
 
@@ -512,7 +512,7 @@ def alpha_step5(a, alpha, t, step, schedule):
         segment = 2
     if alpha > segment:
         alpha = segment
-    origin = random.randint(0, len(a)-1)
+    origin = np.random.randint(0, len(a)-1)
     end = origin + segment
     idxs = [i for i in range(origin, end)]
     for i in range(len(idxs)):
@@ -569,6 +569,7 @@ def firefly_algorithm(run_num, **kwargs):
     # print([s.luminosity for s in swarm])
     best_eachi=[]
     stag_count = 0
+    fes = 0
     MAX_STAG = (NUM_CUSTOMER+1/2*NUM_CUSTOMER*(NUM_CUSTOMER+1))
     # while stag_count < (NUM_CUSTOMER+1/2*NUM_CUSTOMER*(NUM_CUSTOMER+1)):#the number of customers(N) + Σ(k=1, N)k
     while stag_count < MAX_STAG:
@@ -582,6 +583,7 @@ def firefly_algorithm(run_num, **kwargs):
                     # new_tour, new_tour2routes = insertion_function(swarm[i], swarm[j], kwargs['g'], iteration)
                     new_tour, new_tour2routes = beta_step(swarm[i], swarm[j], kwargs['g'], kwargs['dlt'])
                     swarm[i].update(new_tour, new_tour2routes)
+                    fes+=1
                     if swarm[i].luminosity < best_firefly.luminosity:
                         stag_count=0
                         best_firefly = copy.deepcopy(swarm[i])
@@ -599,6 +601,7 @@ def firefly_algorithm(run_num, **kwargs):
                         new_tour, new_tour2routes = alpha_step5(swarm[i], kwargs['a'], iteration, kwargs['s'], kwargs['sch'])
                     new_tour2routes = alpha_step0(swarm[i], kwargs['ca'])
                     swarm[i].update(new_tour, new_tour2routes)
+                    fes+=1
                     if swarm[i].luminosity < best_firefly.luminosity:
                         stag_count=0
                         best_firefly = copy.deepcopy(swarm[i])
@@ -623,6 +626,7 @@ def firefly_algorithm(run_num, **kwargs):
                     new_tour, new_tour2routes = alpha_step5(swarm[i], kwargs['a'], iteration, kwargs['s'], kwargs['sch'])
                 new_tour2routes = alpha_step0(swarm[i], kwargs['ca'])
                 swarm[i].update(new_tour, new_tour2routes)
+                fes+=1
                 if swarm[i].luminosity < best_firefly.luminosity:
                     stag_count=0
                     best_firefly = copy.deepcopy(swarm[i])
@@ -753,40 +757,42 @@ def bayes_estimation(args):
     with open('{}seg/d{}/result'.format(args.fname, args.bmark), 'w') as f:
         f.write('draw')
 
-# #%% main
-# import easydict
-# args = easydict.EasyDict({
-#     'bmark' : 'Osaba_data/Osaba_50_1_1.xml',
-#     'f' : 20,
-#     'a' : 5,
-#     'ca' : 1,
-#     'g' : 0.00001,
-#     'dlt' : 1.0,
-#     'v' : 2,
-#     'p' : 1,
-#     'fname' : 'vrp/bayes_opts/v2_801',
-#     'hdir' : 'vrp/plot_map/',
-#     's' : 20,
-#     'sch' : 'linear'
-# })
+### When you cannot use arguments, activate these lines.
+import easydict
+args = easydict.EasyDict({
+    'bmark' : 'Osaba_data/Osaba_50_1_1.xml',
+    'f' : 20,
+    'a' : 2,
+    'ca' : 1,
+    'g' : 0.00001,
+    'dlt' : 1.0,
+    'v' : 1,
+    'p' : 1,
+    'fname' : 'vrp/bayes_opts/v2_801',
+    'hdir' : 'vrp/plot_map/',
+    's' : 20,
+    'sch' : 'linear'
+})
+###
 
+# %% main
 if __name__ == '__main__':
-    ###When you use Jupyter, comment out these lines.
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-bmark', type = str, default = 'Osaba_data/Osaba_50_1_1.xml', help = "benchmark xml_file name")
-    parser.add_argument('-f', type = int, default = 50, help = "the number of firefly")
-    parser.add_argument('-a', type = int, default = 1, help = "alpha step parameter")
-    parser.add_argument('-ca', type = int, default = 1, help = "cluster alpha step parameter")
-    parser.add_argument('-g', type = float, default = 0.90, help = "insert customer rate")
-    parser.add_argument('-dlt', type = float, default = 1.0, help = "insert cluster rate")
-    parser.add_argument('-v', type = int, default = 1, help = "alpha step version")
-    parser.add_argument('-p', type = int, default = 1, help = "vorbose information")
-    parser.add_argument('-fname', type = str, default = 'vrp/result', help = "save file name")
-    parser.add_argument('-hdir', type = str, default = 'vrp/plot_map/', help = "save map_html name")
-    parser.add_argument('-s', type = int, default = 1, help = "segment decrease rate")
-    parser.add_argument('-sch', type = str, default = 'linear', help = "segment decrease schedule")
-    args = parser.parse_args()
-    ###
+    # ###When you use cannot use arguments, comment out these lines.
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('-bmark', type = str, default = 'Osaba_data/Osaba_50_1_1.xml', help = "benchmark xml_file name")
+    # parser.add_argument('-f', type = int, default = 50, help = "the number of firefly")
+    # parser.add_argument('-a', type = int, default = 1, help = "alpha step parameter")
+    # parser.add_argument('-ca', type = int, default = 1, help = "cluster alpha step parameter")
+    # parser.add_argument('-g', type = float, default = 0.90, help = "insert customer rate")
+    # parser.add_argument('-dlt', type = float, default = 1.0, help = "insert cluster rate")
+    # parser.add_argument('-v', type = int, default = 1, help = "alpha step version")
+    # parser.add_argument('-p', type = int, default = 1, help = "vorbose information")
+    # parser.add_argument('-fname', type = str, default = 'vrp/result', help = "save file name")
+    # parser.add_argument('-hdir', type = str, default = 'vrp/plot_map/', help = "save map_html name")
+    # parser.add_argument('-s', type = int, default = 1, help = "segment decrease rate")
+    # parser.add_argument('-sch', type = str, default = 'linear', help = "segment decrease schedule")
+    # args = parser.parse_args()
+    # ###
 
     # cProfile.run('firefly_algorithm(bmark=args.bmark, f=args.f, a=args.a, g=args.g, dlt=args.dlt, v=args.v, p=args.p, fname=args.fname)', sort='time')
     if args.v == 4 or args.v == 5:
@@ -824,19 +830,7 @@ if __name__ == '__main__':
     #         args.fname=fname + '_' + re.split('[/.]', bmark)[1].strip('Osaba_')
     #         args.a=a
     #         n_times_run(args)
-    # while True:
-    #     args.v=4
-    #     all_bench_run(args)
-    #     args.v=1
-    #     all_bench_run(args)
-    # all_bench_run(args)
-    # bayes_estimation(args)
-    # luminosities=[]
-    # times=[]
     firefly = firefly_algorithm(0, bmark=args.bmark, f=args.f, a=args.a, ca=args.ca, g=args.g, dlt=args.dlt, v=args.v, p=args.p, fname=args.fname, hdir=args.hdir, s=args.s, sch=args.sch)
-    # print(firefly.luminosity)
-    # print(firefly.routes)
-    #
     # with open('{}'.format(args.fname), 'a') as f:
     #     f.write("{}\n\n".format(firefly.routes))
     # print(customers)

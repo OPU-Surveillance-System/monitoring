@@ -227,6 +227,23 @@ def alphaStep5(a, alpha, t, step, schedule):
         a[x[i]],  a[y[i]] = a[y[i]], a[x[i]]
     return a
 
+# Alpha step: exploration (v6)
+# Generate random alpha parameter according with a normal or exponential distribution
+def alphaStep6(a, delta):
+    alpha = math.ceil(np.random.exponential(delta, 1)*32)
+    if alpha > len(a):
+        alpha = len(a)
+    elif alpha < 2:
+        alpha = 2
+    idxs = [i for i in range(len(a))]
+    random.shuffle(idxs)
+    x = idxs[0:alpha]
+    y = idxs[0:alpha]
+    random.shuffle(y)
+    for i in range(alpha):
+        a[x[i]],  a[y[i]] = a[y[i]], a[x[i]]
+    return a
+
 def compare_fireflyAlgorithm(iteration, **kwargs):
     bestFireflies1 = []
     for i in range(10):
@@ -245,7 +262,7 @@ def compare_fireflyAlgorithm(iteration, **kwargs):
     return (bestFireflies1, bestFireflies2, average1, average2, better_ff2)
 
 def displayPlot(tab,n):
-    plt.plot(tab,tab[1])
+    plt.plot(tab[0],tab[1])
     plt.xlabel('Iteration')
     plt.ylabel('Best Firefly Luminosity')
     plt.savefig("plots/%d.svg"%(n), format="svg")
@@ -308,10 +325,12 @@ def fireflyAlgorithm(z, **kwargs):
                             c = alphaStep2(c, kwargs['a'])
                         elif kwargs['v'] == 3:
                             c = alphaStep3(c, kwargs['a'])
-                        elif kwargs['v'] == 4 :
+                        elif kwargs['v'] == 4:
                             c = alphaStep4(c, kwargs['a'], t, kwargs['s'], kwargs['sch'])
-                        else :
+                        elif kwargs['v'] == 5:
                             c = alphaStep5(c, kwargs['a'], t, kwargs['s'], kwargs['sch'])
+                        else:
+                            c = alphaStep6(c, kwargs['dl'])
                         swarm[i].update(c)
         swarm = sorted(swarm, key = lambda ff: ff.luminosity)
         if swarm[0].luminosity == swarm[-1].luminosity: #If all the fireflies are at the same position
@@ -326,9 +345,14 @@ def fireflyAlgorithm(z, **kwargs):
                 elif kwargs['v'] == 3:
                     c = alphaStep3(c, kwargs['a'])
                 elif kwargs['v'] == 4:
-                    c = alphaStep4(c, kwargs['a'], t, kwargs['s'], kwargs['sch'])
-                else :
+                    if kwargs['c'] == 1:
+                        c = alphaStep6(c, kwargs['dl'])
+                    else:
+                        c = alphaStep4(c, kwargs['a'], t, kwargs['s'], kwargs['sch'])
+                elif kwargs['v'] == 5:
                     c = alphaStep5(c, kwargs['a'], t, kwargs['s'], kwargs['sch'])
+                else:
+                    c = alphaStep6(c, kwargs['dl'])
                 swarm[i].update(c)
             swarm = sorted(swarm, key = lambda ff: ff.luminosity)
         if bestFirefly.luminosity > swarm[0].luminosity:
@@ -353,12 +377,14 @@ if __name__ == "__main__":
     # Arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", type = int, default = 2, help = "number of drones")
+    parser.add_argument("-dl", type = float, default = 0.15, help = "firefly algorithm delta")
     parser.add_argument("-i", type = int, default = 10000, help = "number of iterations")
     parser.add_argument("-g", type = float, default = 0.90, help = "firefly algorithm gamma")
     parser.add_argument("-a", type = float, default = 1, help = "firefly algorithm alpha")
     parser.add_argument("-f", type = int, default = 10, help = "number of fireflies")
     parser.add_argument("-e", type = float, default = 0.1, help = "distance penalization coeficient")
     parser.add_argument("-v", type = int, default = 1, help = "alpha version")
+    parser.add_argument("-c", type = int, default = 0, help = "change/not_change alphaStep4 to 6 when swarm block")
     parser.add_argument("-n", type = int, default = 1, help = "number of runs")
     parser.add_argument("-p", type = int, default = 1, help = "enable/desable verbose")
     parser.add_argument("-s", type = int, default = 1, help = "step")
@@ -375,7 +401,7 @@ if __name__ == "__main__":
     with open("hdi/hdi_results", "w") as f:
         if args.p == 1:
             print("cleaning previous hdi_results")
-    iterations = [10000, 100000, 1000000]
+    iterations = [100, 1000, 10000, 100000, 1000000]
     for i in iterations:
         compare_algorithm_binomial = binomial(2, 2, 0.95)
         try_count = 0
@@ -384,7 +410,7 @@ if __name__ == "__main__":
                 with open("hdi/iteration{}/try{}".format(i, try_count), "w") as f:
                     if args.p == 1:
                         print("cleaning previous results")
-                bestFireflies1, bestFireflies2, average1, average2, better_ff2 = compare_fireflyAlgorithm(i, d=args.d, i=args.i, g=args.g, a=args.a, f=args.f, e=args.e, v=args.v, p=args.p, s=args.s, sch=args.sch)
+                bestFireflies1, bestFireflies2, average1, average2, better_ff2 = compare_fireflyAlgorithm(i, d=args.d, dl=args.dl i=args.i, g=args.g, a=args.a, f=args.f, e=args.e, v=args.v, c=args.c, p=args.p, s=args.s, sch=args.sch)
                 compare_algorithm_binomial.update(10, better_ff2)
                 with open("hdi/iteration{}/try{}".format(i, try_count), "a") as f:
                     f.write("iteration : {}\ntry : {}\n\n".format(i, try_count))

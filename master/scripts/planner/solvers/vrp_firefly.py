@@ -5,10 +5,16 @@ import distance
 import math
 import numpy as np
 import os
+import pickle
 import re
 import sys
 import time
+import utm
 import xml.etree.ElementTree as ET
+
+import folium
+from folium.plugins.beautify_icon import BeautifyIcon
+from plot_path import make_pathline
 
 def confirm_input(fname):
     while True:
@@ -92,35 +98,19 @@ class Firefly:
         If routes is coming, this function converts tour into routes.
         """
         global off_peak, peak, clustered_dem_ent
-        routes = []
+        routes = [0]
         load_amount = 0
-        routes.append(0)
         for cluster in tour2routes:
-            if self.VEHICLE_CAPACITY < load_amount+clustered_dem_ent[cluster+1]:
+            if self.VEHICLE_CAPACITY < load_amount+clustered_dem_ent[cluster]:
                 routes.append(0)
                 for customer in tour[cluster]:
                     routes.append(customer)
-                load_amount = clustered_dem_ent[cluster+1]
+                load_amount = clustered_dem_ent[cluster]
             else:
                 for customer in tour[cluster]:
                     routes.append(customer)
-                load_amount += clustered_dem_ent[cluster+1]
+                load_amount += clustered_dem_ent[cluster]
         routes.append(0)
-
-        # for i, demand in enumerate(clustered_dem_ent):
-        #     if self.VEHICLE_CAPACITY < load_amount+demand:
-        #         routes.append(0)
-        #         for customer in tour[i-1]:
-        #             routes.append(customer)
-        #         load_amount = demand
-        #     else:
-        #         if i == 0:
-        #             routes.append(0)
-        #         else:
-        #             for customer in tour[i-1]:
-        #                 routes.append(customer)
-        #             load_amount += demand
-        # routes.append(0)
 
         luminosity = 0
         triptime = self.DELIVERY_TIME[0]
@@ -362,8 +352,8 @@ def alpha_step4(a, alpha, t, step, schedule):
     end = origin + segment
     z = np.random.randint(0, len(a.tour))
     for i in range(alpha):
-        x = np.random.randint(origin, end+1) % len(a.tour)
-        y = np.random.randint(origin, end+1) % len(a.tour)
+        x = np.random.randint(origin, end+1) % len(a.tour[0])
+        y = np.random.randint(origin, end+1) % len(a.tour[0])
         a.tour[z][x], a.tour[z][y] = a.tour[z][y], a.tour[z][x]
         a.update(a.tour, a.tour2routes)
         if a.luminosity > 200000 and feasible == True:
@@ -394,23 +384,28 @@ def alpha_step5(a, alpha, t, step, schedule):
         a[x[i]],  a[y[i]] = a[y[i]], a[x[i]]
     return a.tour, a.tour2routes
 
-def firefly_algorithm(**kwargs):
+def firefly_algorithm(run_num, **kwargs):
     if kwargs['p']:
         print(kwargs)
     capa_dict = {"50_1_1":240, "50_1_2":160, "50_1_3":240, "50_1_4":160,
                 "50_2_1":240, "50_2_2":160, "50_2_3":240, "50_2_4":160,
-                "80_1":240, "80_2":160, "80_3":240, "50_4":160,
+                "80_1":240, "80_2":160, "80_3":240, "80_4":160,
                 "100_1":140, "100_2":260, "100_3":320}
-    CAPACITY = capa_dict[re.split("[/.]", kwargs['bmark'])[1].strip('Osaba_')]
+    probname = re.split("[/.]", kwargs['bmark'])[1].strip('Osaba_')
+    if kwargs['v'] == 4 or kwargs['v'] == 5:
+        segdir='seg/'
+    else:
+        segdir='nseg/'
+    CAPACITY = capa_dict[probname]
     global coord, off_peak, peak, clustered_dem_ent
     coord, forbidden, cluster, dem_ent, dem_rec = extract_xmldata(kwargs['bmark'])
     off_peak, peak = make_costtable(forbidden)
     customers_per_cluster = (len(coord)-1) // (len(cluster)-1)
     tour = [[customers_per_cluster * i + j for j in range(1, customers_per_cluster+1)] for i in range(len(cluster)-1)]
-    clustered_dem_ent = [0 for i in range(len(cluster))]
+    clustered_dem_ent = [0 for i in range(len(cluster)-1)]
     for i, cluster in enumerate(tour):
         for customer in cluster:
-            clustered_dem_ent[i+1] += dem_ent[customer]
+            clustered_dem_ent[i] += dem_ent[customer]
 
     swarm = [Firefly(tour, CAPACITY) for i in range(kwargs['f'])]
     swarm = sorted(swarm, key = lambda swarm:swarm.luminosity)
@@ -426,9 +421,10 @@ def firefly_algorithm(**kwargs):
     start_time = time.time()
 
     # print([s.luminosity for s in swarm])
-
-    while stag_count < (NUM_CUSTOMER+1/2*NUM_CUSTOMER*(NUM_CUSTOMER+1)):#the number of customers(N) + Σ(k=1, N)k
+    best_eachi=[]
+    # while stag_count < (NUM_CUSTOMER+1/2*NUM_CUSTOMER*(NUM_CUSTOMER+1)):#the number of customers(N) + Σ(k=1, N)k
     # while stag_count < NUM_CUSTOMER*10:
+    while iteration < 500:
         time1 = time.time()
         for i in range(kwargs['f']):
             for j in range(kwargs['f']):
@@ -471,7 +467,7 @@ def firefly_algorithm(**kwargs):
         #         best_firefly = copy.deepcopy(fly)
         #         stag_count = 0
         # stag_count += 1
-        if iteration % 100 == 0:
+        if iteration % 50 == 0:
             if kwargs['p'] == 1:
                 print("")
                 print("Iteration: ", iteration)
@@ -480,24 +476,28 @@ def firefly_algorithm(**kwargs):
                 # for fly in swarm:
                 #     print(fly.routes)
                 #     print(fly.luminosity)
-            # with open('{}'.format(kwargs['fname']), 'a') as f:
-            #     f.write("i:{}\t{}\n".format(iteration, best_firefly.luminosity))
+            with open('{}'.format(kwargs['fname']), 'a') as f:
+                f.write("i:{}\t{}\n".format(iteration, best_firefly.luminosity))
+            # make_pathline(best_firefly.routes, kwargs['bmark'], '{}{}{}/i{}'.format(kwargs['hdir'], segdir, probname, iteration))
+        best_eachi.append(best_firefly.luminosity)
         iteration += 1
         # print("time2-1: {}".format(time2 - time1))
         # print("time3-2: {}".format(time3 - time2))
     end_time = time.time()
+    with open('vrp/exp_{}pickle/{}-{}'.format(segdir, probname, run_num), 'wb') as f:
+        pickle.dump(best_eachi, f)
     print("Elapsed time: {}\n".format(end_time - start_time))
-    # with open("{}".format(kwargs['fname']), 'a') as f:
-    #     f.write("routes: {}\n".format(best_firefly.routes))
-    # with open("{}".format(kwargs['fname']), 'a') as f:
-    #     f.write("Elapsed time: {}\n\n".format(end_time - start_time))
+    with open("{}".format(kwargs['fname']), 'a') as f:
+        f.write("routes: {}\n".format(best_firefly.routes))
+    with open("{}".format(kwargs['fname']), 'a') as f:
+        f.write("Elapsed time: {}\n\n".format(end_time - start_time))
 
-    return best_firefly
+    return best_firefly, end_time-start_time
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-bmark', type = str, default = "Osaba_data/Osaba_50_1_1.xml", help = "benchmark xml_file name")
+    parser.add_argument('-bmark', type = str, default = 'Osaba_data/Osaba_50_1_1.xml', help = "benchmark xml_file name")
     parser.add_argument('-f', type = int, default = 100, help = "the number of firefly")
     parser.add_argument('-a', type = int, default = 1, help = "alpha step parameter")
     parser.add_argument('-g', type = float, default = 0.90, help = "insert customer rate")
@@ -505,19 +505,25 @@ if __name__ == '__main__':
     parser.add_argument('-v', type = int, default = 1, help = "alpha step version")
     parser.add_argument('-p', type = int, default = 1, help = "vorbose information")
     parser.add_argument('-fname', type = str, default = 'vrp/result', help = "save file name")
+    parser.add_argument('-hdir', type = str, default = 'vrp/plot_map/', help = "save map_html name")
     parser.add_argument('-s', type = int, default = 1, help = "segment decrease rate")
     parser.add_argument('-sch', type = str, default = 'linear', help = "segment decrease schedule")
     args = parser.parse_args()
 
-
     # cProfile.run('firefly_algorithm(bmark=args.bmark, f=args.f, a=args.a, g=args.g, dlt=args.dlt, v=args.v, p=args.p, fname=args.fname)', sort='time')
-
+    if args.v == 4 or args.v == 5:
+        segdir='seg/'
+    else:
+        segdir='nseg/'
+    probname = re.split("[/.]", args.bmark)[1].strip('Osaba_')
     if os.path.exists('{}'.format(args.fname)):
         if confirm_input(args.fname):
             with open('{}'.format(args.fname), 'w') as f:
                 print("clear previous text")
+    if not os.path.exists('{}{}{}'.format(args.hdir, segdir, probname)):
+            os.mkdir('{}{}{}'.format(args.hdir, segdir, probname))
     with open('{}'.format(args.fname), 'a') as f:
-        f.write("random: -g={}, -a={}, -f={}\n".format(args.g, args.a, args.f))
+        f.write("-g={}, -a={}, -f={}, -s={}\n".format(args.g, args.a, args.f, args.s))
 
     # while(True):
     #     aparam = np.random.randint(1,8)
@@ -526,16 +532,20 @@ if __name__ == '__main__':
     #     with open('{}'.format(args.fname), 'a') as f:
     #         f.write('-a={}, -g={}, -f={}\n'.format(aparam, gparam, fparam))
     #     firefly = firefly_algorithm(bmark=args.bmark, f=fparam, a=aparam, g=gparam, dlt=args.dlt, v=args.v, p=args.p, fname=args.fname)
-    # luminositys=[]
-    # for i in range(10):
-    #     firefly = firefly_algorithm(bmark=args.bmark, f=args.f, a=args.a, g=args.g, dlt=args.dlt, v=args.v, p=args.p, fname=args.fname, s=args.s, sch=args.sch)
-    #     luminositys.append(firefly.luminosity)
-    # with open("{}".format(kwargs['fname']), 'a') as f:
-    #     f.write("mean: {}\n".format(np.mean(luminositys)))
-    #     f.write("std: {}".format(np.std(luminositys)))
-    firefly = firefly_algorithm(bmark=args.bmark, f=args.f, a=args.a, g=args.g, dlt=args.dlt, v=args.v, p=args.p, fname=args.fname, s=args.s, sch=args.sch)
+    luminositys=[]
+    times=[]
+    for i in range(10):
+        firefly, t = firefly_algorithm(i, bmark=args.bmark, f=args.f, a=args.a, g=args.g, dlt=args.dlt, v=args.v, p=args.p, fname=args.fname, hdir=args.hdir, s=args.s, sch=args.sch)
+        luminositys.append(firefly.luminosity)
+        times.append(t)
+    with open("{}".format(args.fname), 'a') as f:
+        f.write("mean: {}\n".format(np.mean(luminositys)))
+        f.write("std: {}\n".format(np.std(luminositys)))
+        f.write("mean-time: {}\n".format(np.mean(times)))
+        f.write("std-time: {}".format(np.std(times)))
+    # firefly = firefly_algorithm(bmark=args.bmark, f=args.f, a=args.a, g=args.g, dlt=args.dlt, v=args.v, p=args.p, fname=args.fname, hdir=args.hdir, s=args.s, sch=args.sch)
     # print(firefly.luminosity)
-    print(firefly.routes)
+    # print(firefly.routes)
     #
     # with open('{}'.format(args.fname), 'a') as f:
     #     f.write("{}\n\n".format(firefly.routes))
